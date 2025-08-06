@@ -1,3 +1,9 @@
+import PatientList from "@/components/PatientList";
+
 export default function Page() {
-  return <div>Page</div>;
+  return (
+    <div>
+      <PatientList />
+    </div>
+  );
 }

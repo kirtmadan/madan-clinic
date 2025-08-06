@@ -88,7 +88,7 @@ export function NavMain({
     <SidebarProvider>
       <ShadSidebar
         collapsible="offcanvas"
-        className="px-0 pt-4 bg-sidebar rounded-r-3xl border-none drop-shadow-xs"
+        className="px-0 pt-4 bg-sidebar  drop-shadow-xs"
       >
         <div className="flex items-center justify-between mx-4 pb-4 border-b">
           <div className="flex items-center gap-4 w-full">

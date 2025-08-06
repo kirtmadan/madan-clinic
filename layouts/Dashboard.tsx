@@ -15,19 +15,20 @@ export default function Dashboard({ children }: Props) {
   const [showSidebar, setShowSidebar] = useState(true);
 
   return (
-    <div className="w-full h-full flex gap-6">
+    <div className="w-full h-full flex">
       {showSidebar && <Sidebar />}
 
       <div
-        className={cn("flex flex-col w-full transition-[width] duration-300")}
+        className={cn(
+          "flex flex-col relative w-full transition-[width] duration-300",
+        )}
       >
-        <Header
-          showMenu
-          menuButtonFunction={() => setShowSidebar((prev) => !prev)}
-        />
+        <Header />
 
         <main
-          className={cn("w-full h-full overflow-x-auto ml-auto bg-background")}
+          className={cn(
+            "w-full h-full overflow-x-auto px-8 my-6 ml-auto bg-background",
+          )}
         >
           {children}
         </main>

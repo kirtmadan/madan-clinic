@@ -11,16 +11,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogOutIcon, UserIcon } from "lucide-react";
+import { sidebarData } from "@/lib/constants";
+import { usePathname } from "next/navigation";
 
-interface HeaderProps {
-  showMenu?: boolean;
-  menuButtonFunction?: () => void;
-}
+export default function Header() {
+  const pathname = usePathname();
+  const title =
+    sidebarData.navMain.find((x) => x?.url === pathname)?.title || "Dashboard";
 
-export default function Header({ showMenu, menuButtonFunction }: HeaderProps) {
   return (
-    <header className="bg-sidebar drop-shadow-xs h-16 w-full pl-8 pr-4 flex items-center justify-between rounded-l-xl">
-      <h3 className="text-lg font-medium">Dashboard</h3>
+    <header className="sticky top-0 left-0 z-50 bg-sidebar border border-l-0 drop-shadow-xs py-3 w-full px-8 flex items-center justify-between">
+      <h3 className="text-lg font-medium">{title}</h3>
 
       <NavLinks />
     </header>
