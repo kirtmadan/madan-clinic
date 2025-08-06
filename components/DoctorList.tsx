@@ -59,7 +59,7 @@ import dayjs from "dayjs";
 import { patientData } from "@/lib/constants";
 import { exportToCSV } from "@/lib/utils";
 
-export default function PatientList() {
+export default function DoctorList() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -100,13 +100,13 @@ export default function PatientList() {
             <Users />
           </Button>
 
-          <span className="text-lg font-medium">Patient List</span>
+          <span className="text-lg font-medium">Doctor List</span>
         </CardTitle>
 
         <div className="flex items-center gap-4">
           <Input
             type="text"
-            placeholder="Search patients"
+            placeholder="Search doctors"
             className="w-full h-8"
             value={globalFilter}
             onChange={(event) => setGlobalFilter(event.target.value)}
@@ -116,7 +116,7 @@ export default function PatientList() {
             variant="outline"
             size="sm"
             onClick={() => {
-              exportToCSV(patientData, "patient-data.csv");
+              exportToCSV(patientData, "doctor-data.csv");
             }}
           >
             <ArrowDownToLineIcon />
@@ -134,7 +134,7 @@ export default function PatientList() {
   );
 }
 
-export type Patient = {
+export type Doctor = {
   id: string | number;
   name: string;
   created_on: string | number;
@@ -144,7 +144,7 @@ export type Patient = {
   email: string;
 };
 
-export const columns: ColumnDef<Patient>[] = [
+export const columns: ColumnDef<Doctor>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -169,7 +169,7 @@ export const columns: ColumnDef<Patient>[] = [
   },
   {
     accessorKey: "name",
-    header: "Patient Name",
+    header: "Doctor Name",
     cell: ({ row }) => (
       <div className="font-medium w-full flex items-center gap-3">
         <Image
@@ -236,7 +236,7 @@ export const columns: ColumnDef<Patient>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }: { row: any }) => {
-      const patient = row.original;
+      const doctor = row.original;
 
       return (
         <DropdownMenu>
@@ -250,14 +250,14 @@ export const columns: ColumnDef<Patient>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <Link href={`/patients/${patient.id}`}>
+            <Link href={`/doctors/${doctor.id}`}>
               <DropdownMenuItem className="cursor-pointer">
-                View patient
+                View doctor
               </DropdownMenuItem>
             </Link>
             <DropdownMenuItem variant="destructive" className="cursor-pointer">
               <TrashIcon size={18} />
-              <span>Delete patient</span>
+              <span>Delete doctor</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -266,7 +266,7 @@ export const columns: ColumnDef<Patient>[] = [
   },
 ];
 
-function DataTable({ table }: { table: TableType<Patient> }) {
+function DataTable({ table }: { table: TableType<Doctor> }) {
   return (
     <div className="w-full">
       <Table>
@@ -316,7 +316,7 @@ function DataTable({ table }: { table: TableType<Patient> }) {
       <div className="flex items-center justify-end space-x-2 py-4 px-6">
         <div className="text-muted-foreground flex-1 text-sm">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} patient(s) selected.
+          {table.getFilteredRowModel().rows.length} doctor(s) selected.
         </div>
 
         <div className="space-x-2 px-6">
