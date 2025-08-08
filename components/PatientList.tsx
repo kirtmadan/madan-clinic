@@ -35,7 +35,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
+import { InputWithIcon } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -51,6 +51,7 @@ import {
   TrashIcon,
   ArrowDownToLineIcon,
   Users,
+  UserSearchIcon,
 } from "lucide-react";
 
 import DataTableRow from "@/components/DataTableRow";
@@ -103,18 +104,24 @@ export default function PatientList() {
           <span className="text-lg font-medium">Patient List</span>
         </CardTitle>
 
-        <div className="flex items-center gap-4">
-          <Input
+        <div className="flex items-center gap-6">
+          <InputWithIcon
             type="text"
+            StartIcon={
+              <UserSearchIcon
+                className="text-muted-foreground pointer-events-none absolute left-2 top-1/2 -translate-y-1/2"
+                size={18}
+              />
+            }
             placeholder="Search patients"
-            className="w-full h-8"
+            className="w-[400px] h-10"
             value={globalFilter}
             onChange={(event) => setGlobalFilter(event.target.value)}
           />
 
           <Button
             variant="outline"
-            size="sm"
+            className="h-10"
             onClick={() => {
               exportToCSV(patientData, "patient-data.csv");
             }}
@@ -155,6 +162,7 @@ export const columns: ColumnDef<Patient>[] = [
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
+        className="bg-transparent! data-[state=checked]:bg-primary!"
       />
     ),
     cell: ({ row }) => (
@@ -162,6 +170,7 @@ export const columns: ColumnDef<Patient>[] = [
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
+        className="bg-transparent! data-[state=checked]:bg-primary!"
       />
     ),
     enableSorting: false,
@@ -171,17 +180,19 @@ export const columns: ColumnDef<Patient>[] = [
     accessorKey: "name",
     header: "Patient Name",
     cell: ({ row }) => (
-      <div className="font-medium w-full flex items-center gap-3">
-        <Image
-          src={`/images/patient.jpg`}
-          className="rounded-lg"
-          alt={row.id}
-          width={32}
-          height={32}
-        />
+      <Link href={`/patients/${row.original.id}`}>
+        <div className="font-medium w-full flex items-center gap-3 hover:text-primary">
+          <Image
+            src={`/images/patient.jpg`}
+            className="rounded-lg"
+            alt={row.id}
+            width={32}
+            height={32}
+          />
 
-        <span>{row.getValue("name")}</span>
-      </div>
+          <span>{row.getValue("name")}</span>
+        </div>
+      </Link>
     ),
   },
   {
@@ -270,14 +281,14 @@ function DataTable({ table }: { table: TableType<Patient> }) {
   return (
     <div className="w-full">
       <Table>
-        <TableHeader className="bg-muted">
+        <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
                   <TableHead
                     key={header.id}
-                    className="px-6 text-muted-foreground"
+                    className="px-6 py-2 text-muted-foreground"
                   >
                     {header.isPlaceholder
                       ? null
