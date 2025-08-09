@@ -40,10 +40,14 @@ function Button({
   variant,
   size,
   asChild = false,
+  loading,
+  loaderClassName,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
+    loading?: boolean;
+    loaderClassName?: string;
   }) {
   const Comp = asChild ? Slot : "button";
 
@@ -52,7 +56,21 @@ function Button({
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
-    />
+    >
+      {loading ? (
+        <div className="relative">
+          <span
+            className={cn(
+              loaderClassName ? loaderClassName : "loader loader-ring w-8",
+              "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2",
+            )}
+          ></span>
+          <span className="opacity-0">{props.children}</span>
+        </div>
+      ) : (
+        <>{props.children}</>
+      )}
+    </Comp>
   );
 }
 

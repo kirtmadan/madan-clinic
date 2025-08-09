@@ -1,5 +1,5 @@
 import {
-  CreditCardIcon,
+  CalendarIcon,
   LayoutGridIcon,
   UsersIcon,
   UserStarIcon,
@@ -15,6 +15,12 @@ export const sidebarData = {
       isActive: true,
     },
     {
+      title: "Appointments",
+      url: "/appointments",
+      roles: ["OWNER"],
+      icon: CalendarIcon,
+    },
+    {
       title: "Doctors",
       url: "/doctors",
       roles: ["OWNER", "MEMBER"],
@@ -25,12 +31,6 @@ export const sidebarData = {
       url: "/patients",
       icon: UsersIcon,
       roles: ["OWNER", "MEMBER"],
-    },
-    {
-      title: "Billing",
-      url: "/billing",
-      roles: ["OWNER"],
-      icon: CreditCardIcon,
     },
   ],
 };

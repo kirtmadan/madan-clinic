@@ -215,7 +215,7 @@ export const columns: ColumnDef<Doctor>[] = [
       );
     },
     cell: ({ row }) => (
-      <>{dayjs(row.getValue("created_on")).format("MMM DD, YYYY")}</>
+      <>{dayjs(row.getValue("created_on")).format("DD MMM YYYY")}</>
     ),
   },
   {
