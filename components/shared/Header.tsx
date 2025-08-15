@@ -13,6 +13,7 @@ import {
 import { LogOutIcon, UserIcon } from "lucide-react";
 import { sidebarData } from "@/lib/constants";
 import { usePathname } from "next/navigation";
+import { signOut } from "@/lib/actions/auth.actions";
 
 export default function Header() {
   const pathname = usePathname();
@@ -50,7 +51,11 @@ export function NavLinks() {
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem variant="destructive" className="cursor-pointer">
+          <DropdownMenuItem
+            variant="destructive"
+            className="cursor-pointer"
+            onClick={signOut}
+          >
             <LogOutIcon />
             Log out
           </DropdownMenuItem>

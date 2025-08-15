@@ -24,6 +24,18 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MailIcon, MapPinIcon, PhoneIcon, XIcon } from "lucide-react";
 import { useRef } from "react";
+import { addDocument } from "@/lib/actions/supabase.actions";
+import { toast } from "sonner";
+import { useAddPatient } from "@/lib/tanstack-query/patients/Mutationts";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { patientData } from "@/lib/constants";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const formSchema = z.object({
   name: z
@@ -41,12 +53,14 @@ const formSchema = z.object({
     .refine((val) => Number(val) < 110, {
       message: "Please enter a valid age",
     }),
-  phone: z
-    .string()
-    .max(10, { message: "Phone number can contain more than 10 digits" }),
+  gender: z.string().min(1, {
+    message: "Gender is a required field",
+  }),
+  phone: z.string().min(10, { message: "Enter a valid phone number" }),
   email: z.string().email({ message: "Invalid email address" }),
   address: z
     .string()
+    .min(1, { message: "Address is required" })
     .max(264, { message: "Address must be less than 264 characters" }),
 });
 
@@ -80,6 +94,8 @@ interface AddPatientFormProps {
 }
 
 export function AddPatientForm({ onCancel }: AddPatientFormProps) {
+  const { mutateAsync: addPatient } = useAddPatient();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -87,11 +103,30 @@ export function AddPatientForm({ onCancel }: AddPatientFormProps) {
       phone: "",
       email: "",
       age: "",
+      gender: "",
+      address: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+
+    await addPatient({
+      doc: {
+        address: values.address,
+        age: Number(values.age),
+        gender: values.gender,
+        email: values.email,
+        name: values.name,
+        phone: values.phone,
+        overdue_amount: 0,
+        overdue_updated_at: null,
+      },
+      onSuccess: () => {
+        onCancel?.();
+        form.reset();
+      },
+    });
   }
 
   return (
@@ -128,6 +163,42 @@ export function AddPatientForm({ onCancel }: AddPatientFormProps) {
                     type="number"
                     {...field}
                   />
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="gender"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Gender</FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full cursor-pointer">
+                        <SelectValue placeholder="Select the gender of the patient" />
+                      </SelectTrigger>
+                    </FormControl>
+
+                    <SelectContent>
+                      {["male", "female", "transgender"].map((gen: string) => (
+                        <SelectItem
+                          value={gen}
+                          key={gen}
+                          className="capitalize! cursor-pointer"
+                        >
+                          {gen}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormControl>
 
                 <FormMessage />
@@ -190,7 +261,7 @@ export function AddPatientForm({ onCancel }: AddPatientFormProps) {
             name="address"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Address (Optional)</FormLabel>
+                <FormLabel>Address</FormLabel>
                 <FormControl>
                   <InputWithIcon
                     StartIcon={

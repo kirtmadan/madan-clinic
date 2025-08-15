@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "@/lib/Providers";
 import { Toaster } from "@/components/ui/sonner";
-import RouteProtector from "@/lib/firebase/RouteProtector";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -25,7 +24,6 @@ export default function RootLayout({
       <body className={`${inter.variable} antialiased`}>
         <Providers>{children}</Providers>
 
-        <RouteProtector />
         <Toaster richColors />
       </body>
     </html>

@@ -16,8 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "sonner";
-import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
-import { auth } from "@/lib/firebase/setup";
+import { createClient } from "@/lib/supabase/client";
 
 const formSchema = z.object({
   email: z
@@ -41,19 +40,15 @@ export function LoginForm({
     },
   });
 
-  const [signInWithEmailAndPassword, user, loading, error] =
-    useSignInWithEmailAndPassword(auth);
-
   const handleLogin = async (values: z.infer<typeof formSchema>) => {
-    const { email, password } = values;
+    const supabase = await createClient();
 
-    const res = await signInWithEmailAndPassword(email, password);
+    const { error } = await supabase.auth.signInWithPassword(values);
 
-    if (res?.user) {
-      console.log(res?.user);
-      toast.success("Successfully logged in!");
-    } else {
+    if (error) {
       toast.error("Failed to login : Incorrect email or password");
+    } else {
+      toast.success("Successfully logged in!");
     }
   };
 
@@ -125,7 +120,11 @@ export function LoginForm({
             />
           </div>
 
-          <Button type="submit" className="w-full" loading={loading}>
+          <Button
+            type="submit"
+            className="w-full"
+            loading={form.formState.isSubmitting}
+          >
             Login
           </Button>
         </div>

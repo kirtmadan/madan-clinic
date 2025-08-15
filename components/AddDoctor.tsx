@@ -24,6 +24,11 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MailIcon, MapPinIcon, PhoneIcon, XIcon } from "lucide-react";
 import { useRef } from "react";
+import { useAddDoctor } from "@/lib/tanstack-query/doctors/Mutationts";
+import { toast } from "sonner";
+import { signup } from "@/lib/actions/auth.actions";
+import { useQueryClient } from "@tanstack/react-query";
+import { DOCTOR_QUERY_KEYS } from "@/lib/tanstack-query/doctors/Keys";
 
 const formSchema = z.object({
   name: z
@@ -69,17 +74,27 @@ interface AddDoctorFormProps {
 }
 
 export function AddDoctorForm({ onCancel }: AddDoctorFormProps) {
+  const { mutateAsync: addDoctor } = useAddDoctor();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       phone: "",
       email: "",
+      address: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+
+    await addDoctor({
+      values,
+      onSuccess: () => {
+        form.reset();
+        onCancel?.();
+      },
+    });
   }
 
   return (

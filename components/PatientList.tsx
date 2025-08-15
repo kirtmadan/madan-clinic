@@ -59,21 +59,174 @@ import DataTableRow from "@/components/DataTableRow";
 import dayjs from "dayjs";
 import { patientData } from "@/lib/constants";
 import { exportToCSV } from "@/lib/utils";
+import { useGetAllPatients } from "@/lib/tanstack-query/patients/Queries";
+import DeleteDialog from "@/components/shared/DeleteDialog";
+import { useDeletePatient } from "@/lib/tanstack-query/patients/Mutationts";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+export type Patient = {
+  id: string | number;
+  name: string;
+  created_on: string | number;
+  age: number;
+  phone: string;
+  status: string;
+  email: string;
+};
 
 export default function PatientList() {
+  const { data } = useGetAllPatients({});
+  const { mutateAsync: deletePatient, isPending: isDeletingPatient } =
+    useDeletePatient();
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [globalFilter, setGlobalFilter] = useState("");
+  const [openDelete, setOpenDelete] = useState<Patient | null>(null);
+
+  const columns: ColumnDef<Patient>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+          className="bg-transparent! data-[state=checked]:bg-primary!"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+          className="bg-transparent! data-[state=checked]:bg-primary!"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "name",
+      header: "Patient Name",
+      cell: ({ row }) => {
+        const name: string = row.getValue("name");
+
+        return (
+          <Link href={`/patients/${row.original.id}`}>
+            <div className="font-medium w-full flex items-center gap-3 hover:text-primary">
+              <Avatar>
+                <AvatarFallback className="border-[0.5px] uppercase">
+                  {name?.split(" ")?.[0]?.[0]}
+                  {name?.split(" ")?.[1]?.[0] || name?.split(" ")?.[0]?.[1]}
+                </AvatarFallback>
+              </Avatar>
+
+              <span>{name}</span>
+            </div>
+          </Link>
+        );
+      },
+    },
+    {
+      accessorKey: "age",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            className="p-0!"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Age
+            <ArrowUpDown />
+          </Button>
+        );
+      },
+      cell: ({ row }) => <>{row.getValue("age")}</>,
+    },
+    {
+      accessorKey: "created_on",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            className="p-0!"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Created On
+            <ArrowUpDown />
+          </Button>
+        );
+      },
+      cell: ({ row }) => (
+        <>{dayjs(row.getValue("created_on")).format("DD MMM YYYY")}</>
+      ),
+    },
+    {
+      accessorKey: "phone",
+      header: "Phone",
+      cell: ({ row }) => {
+        return <>{row.getValue("phone")}</>;
+      },
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+      cell: ({ row }) => {
+        return <>{row.getValue("email")}</>;
+      },
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }: { row: any }) => {
+        const patient = row.original;
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <Link href={`/patients/${patient.id}`}>
+                <DropdownMenuItem className="cursor-pointer">
+                  View patient
+                </DropdownMenuItem>
+              </Link>
+
+              <DropdownMenuItem
+                variant="destructive"
+                className="cursor-pointer"
+                onClick={() => setOpenDelete(patient)}
+              >
+                <TrashIcon size={18} />
+                <span>Delete patient</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
 
   const table = useReactTable({
-    data: patientData,
+    data: Array.isArray(data) ? data : [],
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    // getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -123,7 +276,8 @@ export default function PatientList() {
             variant="outline"
             className="h-10"
             onClick={() => {
-              exportToCSV(patientData, "patient-data.csv");
+              // @ts-expect-error - data will always be an array
+              exportToCSV(data, "patient-data.csv");
             }}
           >
             <ArrowDownToLineIcon />
@@ -136,146 +290,28 @@ export default function PatientList() {
         <DataTable table={table} />
       </CardContent>
 
-      <CardFooter></CardFooter>
+      <CardFooter>
+        <DeleteDialog
+          open={Boolean(openDelete)}
+          isLoading={isDeletingPatient}
+          title={`Delete the patient "${openDelete?.name}"?`}
+          description={`This action cannot be undone.`}
+          onConfirm={async () => {
+            await deletePatient({
+              documentId: openDelete?.id,
+              onSuccess: () => {
+                setOpenDelete(null);
+              },
+            });
+          }}
+          onCancel={() => {
+            setOpenDelete(null);
+          }}
+        />
+      </CardFooter>
     </Card>
   );
 }
-
-export type Patient = {
-  id: string | number;
-  name: string;
-  created_on: string | number;
-  age: number;
-  phone: string;
-  status: string;
-  email: string;
-};
-
-export const columns: ColumnDef<Patient>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-        className="bg-transparent! data-[state=checked]:bg-primary!"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="bg-transparent! data-[state=checked]:bg-primary!"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "name",
-    header: "Patient Name",
-    cell: ({ row }) => (
-      <Link href={`/patients/${row.original.id}`}>
-        <div className="font-medium w-full flex items-center gap-3 hover:text-primary">
-          <Image
-            src={`/images/patient.jpg`}
-            className="rounded-lg"
-            alt={row.id}
-            width={32}
-            height={32}
-          />
-
-          <span>{row.getValue("name")}</span>
-        </div>
-      </Link>
-    ),
-  },
-  {
-    accessorKey: "age",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          className="p-0!"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Age
-          <ArrowUpDown />
-        </Button>
-      );
-    },
-    cell: ({ row }) => <>{row.getValue("age")}</>,
-  },
-  {
-    accessorKey: "created_on",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          className="p-0!"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Created On
-          <ArrowUpDown />
-        </Button>
-      );
-    },
-    cell: ({ row }) => (
-      <>{dayjs(row.getValue("created_on")).format("DD MMM YYYY")}</>
-    ),
-  },
-  {
-    accessorKey: "phone",
-    header: "Phone",
-    cell: ({ row }) => {
-      return <>{row.getValue("phone")}</>;
-    },
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-    cell: ({ row }) => {
-      return <>{row.getValue("email")}</>;
-    },
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }: { row: any }) => {
-      const patient = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <Link href={`/patients/${patient.id}`}>
-              <DropdownMenuItem className="cursor-pointer">
-                View patient
-              </DropdownMenuItem>
-            </Link>
-            <DropdownMenuItem variant="destructive" className="cursor-pointer">
-              <TrashIcon size={18} />
-              <span>Delete patient</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
 
 function DataTable({ table }: { table: TableType<Patient> }) {
   return (
@@ -316,7 +352,7 @@ function DataTable({ table }: { table: TableType<Patient> }) {
               ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableCell colSpan={7} className="h-24 text-center">
                 No results.
               </TableCell>
             </TableRow>

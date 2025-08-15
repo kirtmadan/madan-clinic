@@ -8,7 +8,15 @@ import {
 } from "@/components/ui/card";
 import { FilePenLine } from "lucide-react";
 
-export default function OverdueBalance() {
+interface PatientOverdueBalanceProps {
+  overdueAmount: number;
+  overdueUpdatedAt: string | null;
+}
+
+export default function OverdueBalance({
+  overdueAmount,
+  overdueUpdatedAt,
+}: PatientOverdueBalanceProps) {
   return (
     <Card className="overflow-hidden">
       <CardHeader className="flex! flex-row justify-between items-center">
@@ -23,11 +31,15 @@ export default function OverdueBalance() {
 
       <CardContent>
         <div className="w-full h-full flex items-start justify-center flex-col gap-2">
-          <h2 className="font-medium text-3xl text-destructive/60">₹ 18,520</h2>
+          <h2 className="font-medium text-3xl text-destructive/60">
+            ₹ {overdueAmount}
+          </h2>
 
-          <p className="text-muted-foreground text-sm">
-            Last Updated on : 22-03-2023
-          </p>
+          {overdueUpdatedAt && (
+            <p className="text-muted-foreground text-sm">
+              Last Updated on : {overdueUpdatedAt}
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>

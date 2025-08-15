@@ -1,9 +1,34 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MailIcon, MapPinIcon, PhoneCallIcon } from "lucide-react";
+import {
+  BabyIcon,
+  CalendarClockIcon,
+  MailIcon,
+  MapPinIcon,
+  PhoneCallIcon,
+} from "lucide-react";
+import dayjs from "dayjs";
 
-export default function PatientProfile() {
+interface PatientProfileProps {
+  name: string;
+  createdAt: string;
+  email: string;
+  age: number;
+  gender: string;
+  phone: string;
+  address: string;
+}
+
+export default function PatientProfile({
+  name,
+  createdAt,
+  email,
+  age,
+  gender,
+  phone,
+  address,
+}: PatientProfileProps) {
   return (
     <Card className="overflow-hidden">
       <CardHeader className="flex! flex-row justify-between items-center">
@@ -13,24 +38,40 @@ export default function PatientProfile() {
       <CardContent>
         <div className="border-b pb-4 w-full h-full flex items-center justify-center flex-col gap-2">
           <Avatar className="size-28">
-            <AvatarImage src="https://github.com/shadcn.pn" />
-            <AvatarFallback className="text-3xl">LA</AvatarFallback>
+            <AvatarFallback className="text-3xl uppercase!">
+              {name?.split(" ")?.[0]?.[0]}
+              {name?.split(" ")?.[1]?.[0] || name?.split(" ")?.[0]?.[1]}
+            </AvatarFallback>
           </Avatar>
 
-          <h3 className="font-medium">Leslie Alaxander</h3>
-          <p className="text-muted-foreground text-sm">
-            Created on : 22-03-2023
-          </p>
+          <h3 className="font-medium">
+            {name}{" "}
+            <span className="capitalize text-sm text-muted-foreground">
+              ({gender})
+            </span>
+          </h3>
+          <p className="text-muted-foreground text-sm">Age : {age} years</p>
         </div>
 
         <div className="flex flex-col gap-5 py-4 border-b">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2 text-base text-muted-foreground">
+              <CalendarClockIcon className="size-4" />
+              Created on
+            </div>
+
+            <span className="text-base pl-5">
+              {dayjs(createdAt).format("DD MMM YYYY")}
+            </span>
+          </div>
+
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2 text-base text-muted-foreground">
               <PhoneCallIcon className="size-4" />
               Phone Number
             </div>
 
-            <span className="text-base pl-5">+91 8728383939</span>
+            <span className="text-base pl-5">+91 {phone}</span>
           </div>
 
           <div className="flex flex-col gap-1">
@@ -39,7 +80,7 @@ export default function PatientProfile() {
               Email Address
             </div>
 
-            <span className="text-base pl-5">kris_alexander@doctor.com</span>
+            <span className="text-base pl-5">{email}</span>
           </div>
 
           <div className="flex flex-col gap-1">
@@ -48,9 +89,7 @@ export default function PatientProfile() {
               Address
             </div>
 
-            <span className="text-base pl-5">
-              23 New York Street, New York, USA
-            </span>
+            <span className="text-base pl-5">{address}</span>
           </div>
         </div>
 

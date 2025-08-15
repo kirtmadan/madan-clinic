@@ -24,7 +24,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { SlotInfo } from "react-big-calendar";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useRef } from "react";
 import {
   Select,
   SelectContent,
@@ -34,6 +34,16 @@ import {
 } from "@/components/ui/select";
 import { patientData } from "@/lib/constants";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { XIcon } from "lucide-react";
+import { AddPatientForm } from "@/components/AddPatient";
 
 const formSchema = z.object({
   doctorId: z.string().min(1, "Please select a doctor"),
@@ -52,6 +62,39 @@ interface CreateAppointmentFormWithModalProps {
   selectedSlot: SlotInfo | null;
   setSelectedSlot: Dispatch<SetStateAction<SlotInfo | null>>;
   onSubmit: (data: z.infer<typeof formSchema>) => void;
+}
+
+export default function CreateAppointmentFormWithDrawer({
+  selectedSlot,
+  setSelectedSlot,
+  onSubmit,
+}: CreateAppointmentFormWithModalProps) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  return (
+    <Drawer
+      direction="right"
+      open={selectedSlot !== null}
+      onOpenChange={() => setSelectedSlot(null)}
+    >
+      <DrawerContent className="max-w-[600px]!">
+        <DrawerHeader className="border-b flex-row w-full justify-between items-center">
+          <DrawerTitle className="font-medium">Create Appointment</DrawerTitle>
+          <DrawerClose className="cursor-pointer" ref={closeRef}>
+            <XIcon className="size-4" />
+          </DrawerClose>
+        </DrawerHeader>
+
+        {selectedSlot && (
+          <CreateAppointmentForm
+            start={selectedSlot.start}
+            onSubmit={onSubmit}
+            onCancel={() => setSelectedSlot(null)}
+          />
+        )}
+      </DrawerContent>
+    </Drawer>
+  );
 }
 
 export function CreateAppointmentFormWithModal({
@@ -102,7 +145,7 @@ export function CreateAppointmentForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 w-full py-4"
+        className="space-y-6 w-full p-4"
       >
         <FormField
           control={form.control}

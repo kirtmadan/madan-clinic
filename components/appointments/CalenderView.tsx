@@ -6,7 +6,9 @@ import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import { dayjsLocalizer, SlotInfo, Views } from "react-big-calendar";
 import dayjs from "dayjs";
 import { SetStateAction, useState } from "react";
-import { CreateAppointmentFormWithModal } from "@/components/appointments/CreateAppointmentForm";
+import CreateAppointmentFormWithDrawer, {
+  CreateAppointmentFormWithModal,
+} from "@/components/appointments/CreateAppointmentForm";
 const localizer = dayjsLocalizer(dayjs);
 
 const DnDCalendar = withDragAndDrop(ShadcnBigCalendar);
@@ -71,7 +73,7 @@ export default function CalenderView() {
 
   return (
     <>
-      <CreateAppointmentFormWithModal
+      <CreateAppointmentFormWithDrawer
         selectedSlot={selectedSlot}
         setSelectedSlot={setSelectedSlot}
         onSubmit={handleCreateEvent}

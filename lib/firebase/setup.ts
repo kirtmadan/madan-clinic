@@ -26,9 +26,12 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-export const auth = getAuth(app);
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const auth = getAuth(app);
 void setPersistence(auth, indexedDBLocalPersistence);
+const db = getFirestore(app);
+
+export { app, auth, db };
 
 // export const analytics =
 //   typeof window !== "undefined" ? getAnalytics(app) : null;
