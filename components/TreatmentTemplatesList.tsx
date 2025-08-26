@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 
 import {
@@ -9,7 +8,6 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   SortingState,
   useReactTable,
@@ -48,46 +46,47 @@ import {
   ArrowUpDown,
   MoreHorizontal,
   TrashIcon,
-  ArrowDownToLineIcon,
-  Users,
-  UserSearchIcon,
-  PenIcon,
+  SearchIcon,
+  BriefcaseMedical,
 } from "lucide-react";
 
 import DataTableRow from "@/components/DataTableRow";
 
-import dayjs from "dayjs";
-import { exportToCSV } from "@/lib/utils";
-import { useGetAllPatients } from "@/lib/tanstack-query/patients/Queries";
 import DeleteDialog from "@/components/shared/DeleteDialog";
-import { useDeletePatient } from "@/lib/tanstack-query/patients/Mutations";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import AddPatient from "@/components/AddPatient";
+import { useGetAllTreatmentTemplates } from "@/lib/tanstack-query/treatment-templates/Queries";
+import { useDeleteTreatmentTemplate } from "@/lib/tanstack-query/treatment-templates/Mutations";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-export type Patient = {
+export type TreatmentTemplate = {
   id: string | number;
   name: string;
-  created_on: string | number;
-  age: number;
-  phone: string;
-  status: string;
-  email: string;
+  description: string;
+  cost: number;
+  total_sessions: number;
+  minutes_per_session: number;
+  active: boolean;
+  created_at: string | number;
 };
 
-export default function PatientList() {
-  const { data } = useGetAllPatients({});
-
-  const { mutateAsync: deletePatient, isPending: isDeletingPatient } =
-    useDeletePatient();
+export default function TreatmentTemplatesList() {
+  const { data } = useGetAllTreatmentTemplates({});
+  const {
+    mutateAsync: deleteTreatmentTemplate,
+    isPending: isDeletingTemplate,
+  } = useDeleteTreatmentTemplate();
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [globalFilter, setGlobalFilter] = useState("");
-  const [openDelete, setOpenDelete] = useState<Patient | null>(null);
+  const [openDelete, setOpenDelete] = useState<TreatmentTemplate | null>(null);
 
-  const columns: ColumnDef<Patient>[] = [
+  const columns: ColumnDef<TreatmentTemplate>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -114,79 +113,85 @@ export default function PatientList() {
     },
     {
       accessorKey: "name",
-      header: "Patient Name",
+      header: "Treatment Name",
       cell: ({ row }) => {
         const name: string = row.getValue("name");
 
         return (
-          <Link href={`/patients/${row.original.id}`}>
-            <div className="font-medium w-full flex items-center gap-3 hover:text-primary">
-              <Avatar>
-                <AvatarFallback className="border-[0.5px] uppercase">
-                  {name?.split(" ")?.[0]?.[0]}
-                  {name?.split(" ")?.[1]?.[0] || name?.split(" ")?.[0]?.[1]}
-                </AvatarFallback>
-              </Avatar>
-
-              <span>{name}</span>
-            </div>
-          </Link>
+          <div className="font-medium w-full flex items-center gap-3 hover:text-primary">
+            <span>{name}</span>
+          </div>
         );
       },
     },
     {
-      accessorKey: "age",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            className="p-0!"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Age
-            <ArrowUpDown />
-          </Button>
-        );
-      },
-      cell: ({ row }) => <>{row.getValue("age")}</>,
-    },
-    {
-      accessorKey: "created_at",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            className="p-0!"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Created On
-            <ArrowUpDown />
-          </Button>
-        );
-      },
+      accessorKey: "description",
+      header: "Description",
       cell: ({ row }) => (
-        <>{dayjs(row.getValue("created_at")).format("DD MMM YYYY")}</>
+        <Tooltip delayDuration={800}>
+          <TooltipTrigger asChild>
+            <div className="max-w-xs truncate">
+              {row.getValue("description")}
+            </div>
+          </TooltipTrigger>
+
+          <TooltipContent>
+            <p>{row.getValue("description")}</p>
+          </TooltipContent>
+        </Tooltip>
       ),
     },
     {
-      accessorKey: "phone",
-      header: "Phone",
+      accessorKey: "cost",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            className="p-0!"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Cost
+            <ArrowUpDown />
+          </Button>
+        );
+      },
+      cell: ({ row }) => <>{row.getValue("cost")}</>,
+    },
+    {
+      accessorKey: "total_sessions",
+      header: "Total Sessions",
       cell: ({ row }) => {
-        return <>{row.getValue("phone")}</>;
+        return <>{row.getValue("total_sessions")}</>;
       },
     },
     {
-      accessorKey: "email",
-      header: "Email",
+      accessorKey: "minutes_per_session",
+      header: "Minutes per session",
       cell: ({ row }) => {
-        return <>{row.getValue("email")}</>;
+        return <>{row.getValue("minutes_per_session")}</>;
+      },
+    },
+    {
+      accessorKey: "color",
+      header: "Color",
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-2">
+            <div
+              className="size-5 rounded-sm"
+              style={{ backgroundColor: row.getValue("color") }}
+            ></div>
+
+            {row.getValue("color")}
+          </div>
+        );
       },
     },
     {
       id: "actions",
       enableHiding: false,
       cell: ({ row }: { row: any }) => {
-        const patient = row.original;
+        const template = row.original;
 
         return (
           <DropdownMenu>
@@ -200,20 +205,17 @@ export default function PatientList() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-
-              <Link href={`/patients/${patient.id}`}>
-                <DropdownMenuItem className="cursor-pointer">
-                  View patient
-                </DropdownMenuItem>
-              </Link>
+              {/*  <DropdownMenuItem className="cursor-pointer">*/}
+              {/*    Edit template*/}
+              {/*  </DropdownMenuItem>*/}
 
               <DropdownMenuItem
                 variant="destructive"
                 className="cursor-pointer"
-                onClick={() => setOpenDelete(patient)}
+                onClick={() => setOpenDelete(template)}
               >
                 <TrashIcon size={18} />
-                <span>Delete patient</span>
+                <span>Delete template</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -253,22 +255,22 @@ export default function PatientList() {
             size="icon"
             className="text-primary border round-lg cur"
           >
-            <Users />
+            <BriefcaseMedical />
           </Button>
 
-          <span className="text-lg font-medium">Patient List</span>
+          <span className="text-lg font-medium">Treatment Templates</span>
         </CardTitle>
 
         <div className="flex items-center gap-6">
           <InputWithIcon
             type="text"
             StartIcon={
-              <UserSearchIcon
+              <SearchIcon
                 className="text-muted-foreground pointer-events-none absolute left-2 top-1/2 -translate-y-1/2"
                 size={18}
               />
             }
-            placeholder="Search patients"
+            placeholder="Search templates"
             className="w-[400px] h-10"
             value={globalFilter}
             onChange={(event) => setGlobalFilter(event.target.value)}
@@ -278,8 +280,8 @@ export default function PatientList() {
           {/*  variant="outline"*/}
           {/*  className="h-10"*/}
           {/*  onClick={() => {*/}
-          {/*    if (data && Array.isArray(data))*/}
-          {/*      exportToCSV(data, "patient-data.csv");*/}
+          {/*    // @ts-expect-error - data will always be an array*/}
+          {/*    exportToCSV(data, "treatment-templates.csv");*/}
           {/*  }}*/}
           {/*>*/}
           {/*  <ArrowDownToLineIcon />*/}
@@ -295,11 +297,11 @@ export default function PatientList() {
       <CardFooter>
         <DeleteDialog
           open={Boolean(openDelete)}
-          isLoading={isDeletingPatient}
-          title={`Delete the patient "${openDelete?.name}"?`}
+          isLoading={isDeletingTemplate}
+          title={`Delete the template "${openDelete?.name}"?`}
           description={`This action cannot be undone.`}
           onConfirm={async () => {
-            await deletePatient({
+            await deleteTreatmentTemplate({
               documentId: openDelete?.id,
               onSuccess: () => {
                 setOpenDelete(null);
@@ -315,7 +317,7 @@ export default function PatientList() {
   );
 }
 
-function DataTable({ table }: { table: TableType<Patient> }) {
+function DataTable({ table }: { table: TableType<TreatmentTemplate> }) {
   return (
     <div className="w-full">
       <Table>
@@ -365,7 +367,7 @@ function DataTable({ table }: { table: TableType<Patient> }) {
       <div className="flex items-center justify-end space-x-2 py-4 px-6">
         <div className="text-muted-foreground flex-1 text-sm">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} patient(s) selected.
+          {table.getFilteredRowModel().rows.length} template(s) selected.
         </div>
 
         <div className="space-x-2 px-6">

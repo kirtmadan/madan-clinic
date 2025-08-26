@@ -97,7 +97,7 @@ export function NavMain({
             </div>
 
             <h1 className="text-2xl font-semibold text-sidebar-primary">
-              Medico
+              Madan
             </h1>
           </div>
 

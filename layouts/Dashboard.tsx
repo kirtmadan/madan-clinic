@@ -20,7 +20,7 @@ export default function Dashboard({ children }: Props) {
 
       <div
         className={cn(
-          "flex flex-col relative w-full transition-[width] duration-300",
+          "flex flex-col relative w-full overflow-x-auto transition-[width] duration-300",
         )}
       >
         <Header />

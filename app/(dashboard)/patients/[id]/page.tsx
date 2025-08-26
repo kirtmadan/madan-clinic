@@ -9,7 +9,6 @@ import { getData } from "@/lib/actions/supabase.actions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Breadcrumb,
-  BreadcrumbEllipsis,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
@@ -71,6 +70,7 @@ export default async function PatientDetailsPage({
       <div className="w-full grid gap-4 grid-cols-3">
         <div className="col-span-1">
           <PatientProfile
+            id={id}
             name={data?.name}
             age={data?.age}
             gender={data?.gender}
@@ -87,7 +87,7 @@ export default async function PatientDetailsPage({
             overdueUpdatedAt={data?.overdue_updated_at}
           />
 
-          <PatientAppointments />
+          <PatientAppointments id={id} />
         </div>
       </div>
     </div>

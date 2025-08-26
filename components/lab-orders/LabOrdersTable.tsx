@@ -21,11 +21,11 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardFooter,
+  // CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+// import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,24 +49,34 @@ import {
   MoreHorizontal,
   TrashIcon,
   ArrowDownToLineIcon,
-  Users,
   UserSearchIcon,
-  PenIcon,
+  CalendarIcon,
+  FlaskConicalIcon,
 } from "lucide-react";
 
 import DataTableRow from "@/components/DataTableRow";
 
 import dayjs from "dayjs";
 import { exportToCSV } from "@/lib/utils";
-import { useGetAllPatients } from "@/lib/tanstack-query/patients/Queries";
-import DeleteDialog from "@/components/shared/DeleteDialog";
-import { useDeletePatient } from "@/lib/tanstack-query/patients/Mutations";
+// import DeleteDialog from "@/components/shared/DeleteDialog";
+// import { useDeletePatient } from "@/lib/tanstack-query/patients/Mutations";
+// import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useGetAllAppointments } from "@/lib/tanstack-query/appointments/Queries";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import AddPatient from "@/components/AddPatient";
+import AppointmentDrawer from "@/components/appointments/AppointmentDrawer";
+import AppointmentStatusRenderer from "@/components/cellRenderers/AppointmentStatusRenderer";
 
-export type Patient = {
+export type LabOrder = {
   id: string | number;
   name: string;
+  doctor: {
+    id: string;
+    name: string;
+  };
+  patient: {
+    id: string;
+    name: string;
+  };
   created_on: string | number;
   age: number;
   phone: string;
@@ -74,149 +84,95 @@ export type Patient = {
   email: string;
 };
 
-export default function PatientList() {
-  const { data } = useGetAllPatients({});
-
-  const { mutateAsync: deletePatient, isPending: isDeletingPatient } =
-    useDeletePatient();
+export default function LabOrdersTable() {
+  const { data } = useGetAllAppointments({
+    select: `
+    id,
+    date,
+    status,
+    notes,
+    amount_to_charge,
+    created_at,
+    doctor:doctor_id ( id, name ),
+    patient:patient_id ( id, name )
+  `,
+  });
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [globalFilter, setGlobalFilter] = useState("");
-  const [openDelete, setOpenDelete] = useState<Patient | null>(null);
 
-  const columns: ColumnDef<Patient>[] = [
+  const columns: ColumnDef<LabOrder>[] = [
     {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-          className="bg-transparent! data-[state=checked]:bg-primary!"
-        />
-      ),
+      accessorKey: "id",
+      header: "Appointment ID",
       cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-          className="bg-transparent! data-[state=checked]:bg-primary!"
+        <AppointmentDrawer
+          key={row.id}
+          appointmentData={row.original}
+          trigger={<span># {row.getValue("id")}</span>}
         />
       ),
-      enableSorting: false,
-      enableHiding: false,
     },
     {
-      accessorKey: "name",
+      accessorKey: "date",
+      header: "Appointment Date",
+      cell: ({ row }) => (
+        <>{dayjs(row.getValue("date")).format("DD MMM YYYY")}</>
+      ),
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        return <AppointmentStatusRenderer status={row.getValue("status")} />;
+      },
+    },
+    {
+      id: "patient.name",
+      accessorFn: (row) => row.patient.name,
       header: "Patient Name",
       cell: ({ row }) => {
-        const name: string = row.getValue("name");
+        const patientName: string = row.getValue("patient.name");
 
         return (
-          <Link href={`/patients/${row.original.id}`}>
+          <Link href={`/patients/${row.original.patient.id}`}>
             <div className="font-medium w-full flex items-center gap-3 hover:text-primary">
               <Avatar>
                 <AvatarFallback className="border-[0.5px] uppercase">
-                  {name?.split(" ")?.[0]?.[0]}
-                  {name?.split(" ")?.[1]?.[0] || name?.split(" ")?.[0]?.[1]}
+                  {patientName?.split(" ")?.[0]?.[0]}
+                  {patientName?.split(" ")?.[1]?.[0] ||
+                    patientName?.split(" ")?.[0]?.[1]}
                 </AvatarFallback>
               </Avatar>
 
-              <span>{name}</span>
+              <span>{patientName}</span>
             </div>
           </Link>
         );
       },
     },
     {
-      accessorKey: "age",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            className="p-0!"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Age
-            <ArrowUpDown />
-          </Button>
-        );
-      },
-      cell: ({ row }) => <>{row.getValue("age")}</>,
-    },
-    {
-      accessorKey: "created_at",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            className="p-0!"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Created On
-            <ArrowUpDown />
-          </Button>
-        );
-      },
-      cell: ({ row }) => (
-        <>{dayjs(row.getValue("created_at")).format("DD MMM YYYY")}</>
-      ),
-    },
-    {
-      accessorKey: "phone",
-      header: "Phone",
+      id: "doctor.name",
+      accessorFn: (row) => row.doctor.name,
+      header: "Doctor Name",
       cell: ({ row }) => {
-        return <>{row.getValue("phone")}</>;
-      },
-    },
-    {
-      accessorKey: "email",
-      header: "Email",
-      cell: ({ row }) => {
-        return <>{row.getValue("email")}</>;
-      },
-    },
-    {
-      id: "actions",
-      enableHiding: false,
-      cell: ({ row }: { row: any }) => {
-        const patient = row.original;
+        const doctorName: string = row.getValue("doctor.name");
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
+          <div className="font-medium w-full flex items-center gap-3">
+            <Avatar>
+              <AvatarFallback className="border-[0.5px] uppercase">
+                {doctorName?.split(" ")?.[0]?.[0]}
+                {doctorName?.split(" ")?.[1]?.[0] ||
+                  doctorName?.split(" ")?.[0]?.[1]}
+              </AvatarFallback>
+            </Avatar>
 
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-
-              <Link href={`/patients/${patient.id}`}>
-                <DropdownMenuItem className="cursor-pointer">
-                  View patient
-                </DropdownMenuItem>
-              </Link>
-
-              <DropdownMenuItem
-                variant="destructive"
-                className="cursor-pointer"
-                onClick={() => setOpenDelete(patient)}
-              >
-                <TrashIcon size={18} />
-                <span>Delete patient</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            <span>Dr. {doctorName}</span>
+          </div>
         );
       },
     },
@@ -253,33 +209,33 @@ export default function PatientList() {
             size="icon"
             className="text-primary border round-lg cur"
           >
-            <Users />
+            <FlaskConicalIcon />
           </Button>
 
-          <span className="text-lg font-medium">Patient List</span>
+          <span className="text-lg font-medium">Lab Orders</span>
         </CardTitle>
 
         <div className="flex items-center gap-6">
-          <InputWithIcon
-            type="text"
-            StartIcon={
-              <UserSearchIcon
-                className="text-muted-foreground pointer-events-none absolute left-2 top-1/2 -translate-y-1/2"
-                size={18}
-              />
-            }
-            placeholder="Search patients"
-            className="w-[400px] h-10"
-            value={globalFilter}
-            onChange={(event) => setGlobalFilter(event.target.value)}
-          />
+          {/*<InputWithIcon*/}
+          {/*  type="text"*/}
+          {/*  StartIcon={*/}
+          {/*    <UserSearchIcon*/}
+          {/*      className="text-muted-foreground pointer-events-none absolute left-2 top-1/2 -translate-y-1/2"*/}
+          {/*      size={18}*/}
+          {/*    />*/}
+          {/*  }*/}
+          {/*  placeholder="Search appo"*/}
+          {/*  className="w-[400px] h-10"*/}
+          {/*  value={globalFilter}*/}
+          {/*  onChange={(event) => setGlobalFilter(event.target.value)}*/}
+          {/*/>*/}
 
           {/*<Button*/}
           {/*  variant="outline"*/}
           {/*  className="h-10"*/}
           {/*  onClick={() => {*/}
           {/*    if (data && Array.isArray(data))*/}
-          {/*      exportToCSV(data, "patient-data.csv");*/}
+          {/*      exportToCSV(data, "appointments-data.csv");*/}
           {/*  }}*/}
           {/*>*/}
           {/*  <ArrowDownToLineIcon />*/}
@@ -292,30 +248,30 @@ export default function PatientList() {
         <DataTable table={table} />
       </CardContent>
 
-      <CardFooter>
-        <DeleteDialog
-          open={Boolean(openDelete)}
-          isLoading={isDeletingPatient}
-          title={`Delete the patient "${openDelete?.name}"?`}
-          description={`This action cannot be undone.`}
-          onConfirm={async () => {
-            await deletePatient({
-              documentId: openDelete?.id,
-              onSuccess: () => {
-                setOpenDelete(null);
-              },
-            });
-          }}
-          onCancel={() => {
-            setOpenDelete(null);
-          }}
-        />
-      </CardFooter>
+      {/*<CardFooter>*/}
+      {/*  <DeleteDialog*/}
+      {/*    open={Boolean(openDelete)}*/}
+      {/*    isLoading={isDeletingPatient}*/}
+      {/*    title={`Delete the patient "${openDelete?.name}"?`}*/}
+      {/*    description={`This action cannot be undone.`}*/}
+      {/*    onConfirm={async () => {*/}
+      {/*      await deletePatient({*/}
+      {/*        documentId: openDelete?.id,*/}
+      {/*        onSuccess: () => {*/}
+      {/*          setOpenDelete(null);*/}
+      {/*        },*/}
+      {/*      });*/}
+      {/*    }}*/}
+      {/*    onCancel={() => {*/}
+      {/*      setOpenDelete(null);*/}
+      {/*    }}*/}
+      {/*  />*/}
+      {/*</CardFooter>*/}
     </Card>
   );
 }
 
-function DataTable({ table }: { table: TableType<Patient> }) {
+function DataTable({ table }: { table: TableType<LabOrder> }) {
   return (
     <div className="w-full">
       <Table>
@@ -363,10 +319,10 @@ function DataTable({ table }: { table: TableType<Patient> }) {
       </Table>
 
       <div className="flex items-center justify-end space-x-2 py-4 px-6">
-        <div className="text-muted-foreground flex-1 text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} patient(s) selected.
-        </div>
+        {/*<div className="text-muted-foreground flex-1 text-sm">*/}
+        {/*  {table.getFilteredSelectedRowModel().rows.length} of{" "}*/}
+        {/*  {table.getFilteredRowModel().rows.length} appointment(s) selected.*/}
+        {/*</div>*/}
 
         <div className="space-x-2 px-6">
           <Button

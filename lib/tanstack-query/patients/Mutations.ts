@@ -1,5 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addDocument, deleteDocument } from "@/lib/actions/supabase.actions";
+import {
+  addDocument,
+  deleteDocument,
+  updateDocument,
+} from "@/lib/actions/supabase.actions";
 import { PATIENT_QUERY_KEYS } from "@/lib/tanstack-query/patients/Keys";
 import { toast } from "sonner";
 
@@ -54,9 +58,56 @@ export const useDeletePatient = () => {
         onSuccess?.();
       }
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       void queryClient.invalidateQueries({
         queryKey: [PATIENT_QUERY_KEYS.GET_ALL_PATIENTS],
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: [PATIENT_QUERY_KEYS.GET_PATIENT, variables.documentId],
+      });
+    },
+  });
+};
+
+export const useUpdatePatient = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      doc,
+      documentId,
+      onSuccess,
+      onError,
+    }: {
+      doc: any;
+      documentId: string;
+      onSuccess?: () => void;
+      onError?: () => void;
+    }) => {
+      const res = await updateDocument({
+        tableName: "patients",
+        documentId,
+        doc,
+      });
+
+      if ("error" in res) {
+        if (onError) {
+          onError();
+        } else {
+          toast.error(res?.error);
+        }
+      } else {
+        onSuccess?.();
+      }
+    },
+    onSuccess: (data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: [PATIENT_QUERY_KEYS.GET_ALL_PATIENTS],
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: [PATIENT_QUERY_KEYS.GET_PATIENT, variables.documentId],
       });
     },
   });

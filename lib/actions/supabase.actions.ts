@@ -1,11 +1,14 @@
 // "use server";
 
 import { createClient } from "@/lib/supabase/client";
+import { PostgrestFilterBuilder } from "@supabase/postgrest-js";
 
 interface AddDocumentProps {
   tableName: string;
   doc: any;
 }
+
+type QueryFn = (query: any) => any; // 👈 deliberately loosen here
 
 export const addDocument = async ({ tableName, doc }: AddDocumentProps) => {
   try {
@@ -19,9 +22,33 @@ export const addDocument = async ({ tableName, doc }: AddDocumentProps) => {
     } else {
       return { error: "Error adding document" };
     }
-  } catch (e) {
-    console.log("Error adding document: ", e);
+  } catch (error) {
+    console.log("Error adding document: ", error);
     return { error: "Error adding document" };
+  }
+};
+
+export const updateDocument = async ({
+  tableName,
+  doc,
+  documentId,
+}: AddDocumentProps & {
+  documentId: string;
+}) => {
+  try {
+    const supabase = createClient();
+    const res = await supabase.from(tableName).update(doc).eq("id", documentId);
+
+    console.log(res);
+
+    if (res?.status === 204) {
+      return { message: "Document updated successfully" };
+    } else {
+      return { error: "Error updating document" };
+    }
+  } catch (error) {
+    console.log("Error updating document: ", error);
+    return { error: "Error updating document" };
   }
 };
 
@@ -74,14 +101,36 @@ export const getData = async ({
 
 export const getCollectionData = async ({
   tableName,
-  // dataLimit,
+  filters,
+  select,
+  limit,
 }: {
   tableName: string;
-  dataLimit?: number;
+  filters?: QueryFn[];
+  select?: string;
+  limit?: number;
 }) => {
   const supabase = createClient();
-  const { data, error } = await supabase.from(tableName).select();
-  console.log({ data, error });
+
+  let query: any = supabase.from(tableName);
+
+  if (select) {
+    query = query.select(select);
+  } else {
+    query = query.select();
+  }
+
+  if (filters && filters?.length > 0) {
+    for (const apply of filters) {
+      query = apply(query);
+    }
+  }
+
+  if (limit) {
+    query = query.limit(limit);
+  }
+
+  const { data, error } = await query;
 
   if (data) {
     console.log(data);

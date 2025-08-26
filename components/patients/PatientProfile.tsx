@@ -2,15 +2,16 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  BabyIcon,
   CalendarClockIcon,
   MailIcon,
   MapPinIcon,
   PhoneCallIcon,
 } from "lucide-react";
 import dayjs from "dayjs";
+import AddPatient from "@/components/AddPatient";
 
 interface PatientProfileProps {
+  id: string;
   name: string;
   createdAt: string;
   email: string;
@@ -21,6 +22,7 @@ interface PatientProfileProps {
 }
 
 export default function PatientProfile({
+  id,
   name,
   createdAt,
   email,
@@ -94,7 +96,10 @@ export default function PatientProfile({
         </div>
 
         <div className="pt-4">
-          <Button className="w-full">Edit Patient</Button>
+          <AddPatient
+            editData={{ id, name, age, gender, phone, email, address }}
+            trigger={<Button className="w-full">Edit Patient</Button>}
+          />
         </div>
       </CardContent>
     </Card>

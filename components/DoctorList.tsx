@@ -164,11 +164,11 @@ export default function DoctorList() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <Link href={`/doctors/${doctor.id}`}>
-                <DropdownMenuItem className="cursor-pointer">
-                  View doctor
-                </DropdownMenuItem>
-              </Link>
+              {/*<Link href={`/doctors/${doctor.id}`}>*/}
+              {/*  <DropdownMenuItem className="cursor-pointer">*/}
+              {/*    View doctor*/}
+              {/*  </DropdownMenuItem>*/}
+              {/*</Link>*/}
               <DropdownMenuItem
                 variant="destructive"
                 className="cursor-pointer"

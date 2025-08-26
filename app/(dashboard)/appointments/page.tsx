@@ -1,9 +1,11 @@
-import CalendarView from "@/components/appointments/CalenderView";
+import Appointments from "@/components/appointments";
 
 export default function Page() {
   return (
     <>
-      <CalendarView />
+      <div className="w-full flex flex-col gap-6">
+        <Appointments />
+      </div>
     </>
   );
 }

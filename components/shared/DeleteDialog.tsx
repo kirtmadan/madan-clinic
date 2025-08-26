@@ -47,12 +47,13 @@ export default function DeleteDialog({
               Cancel
             </Button>
           </AlertDialogCancel>
+
           <AlertDialogAction asChild>
             <Button
-              variant="destructive"
               className="cursor-pointer"
               onClick={onConfirm}
               loading={isLoading}
+              variant="destructive"
             >
               Delete
             </Button>

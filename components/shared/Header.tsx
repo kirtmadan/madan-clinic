@@ -41,15 +41,15 @@ export function NavLinks() {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent className="w-56" align="end">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuGroup>
-            <DropdownMenuItem className="cursor-pointer">
-              <UserIcon />
-              Profile
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
+          {/*<DropdownMenuLabel>My Account</DropdownMenuLabel>*/}
+          {/*<DropdownMenuGroup>*/}
+          {/*  <DropdownMenuItem className="cursor-pointer">*/}
+          {/*    <UserIcon />*/}
+          {/*    Profile*/}
+          {/*  </DropdownMenuItem>*/}
+          {/*</DropdownMenuGroup>*/}
 
-          <DropdownMenuSeparator />
+          {/*<DropdownMenuSeparator />*/}
 
           <DropdownMenuItem
             variant="destructive"

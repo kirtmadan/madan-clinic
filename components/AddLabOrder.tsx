@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -34,11 +34,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import {
-  useAddPatient,
-  useUpdatePatient,
-} from "@/lib/tanstack-query/patients/Mutations";
-import { useRouter } from "next/navigation";
+import { useAddPatient } from "@/lib/tanstack-query/patients/Mutations";
 
 const formSchema = z.object({
   name: z
@@ -67,12 +63,12 @@ const formSchema = z.object({
     .max(264, { message: "Address must be less than 264 characters" }),
 });
 
-interface AddPatientProps {
+interface AddLabOrderProps {
   trigger: React.ReactNode;
   editData?: any;
 }
 
-export default function AddPatient({ trigger, editData }: AddPatientProps) {
+export default function AddLabOrder({ trigger, editData }: AddLabOrderProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const mode = editData ? "edit" : "add";
 
@@ -90,7 +86,7 @@ export default function AddPatient({ trigger, editData }: AddPatientProps) {
           </DrawerClose>
         </DrawerHeader>
 
-        <AddPatientForm
+        <AddLabOrderForm
           editData={editData}
           onCancel={() => closeRef.current?.click()}
         />
@@ -99,16 +95,13 @@ export default function AddPatient({ trigger, editData }: AddPatientProps) {
   );
 }
 
-interface AddPatientFormProps {
+interface AddLabOrderFormProps {
   onCancel?: () => void;
   editData?: any;
 }
 
-export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
-  const router = useRouter();
-
+export function AddLabOrderForm({ onCancel }: AddLabOrderFormProps) {
   const { mutateAsync: addPatient } = useAddPatient();
-  const { mutateAsync: updatePatient } = useUpdatePatient();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -122,40 +115,8 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
     },
   });
 
-  useEffect(() => {
-    if (editData) {
-      form.reset({
-        name: editData?.name,
-        age: editData?.age?.toString(),
-        gender: editData?.gender,
-        phone: editData?.phone,
-        email: editData?.email,
-        address: editData?.address,
-      });
-    }
-  }, [editData, form]);
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
-
-    if (editData) {
-      return await updatePatient({
-        doc: {
-          address: values.address,
-          age: Number(values.age),
-          gender: values.gender,
-          email: values.email,
-          name: values.name,
-          phone: values.phone,
-        },
-        documentId: editData?.id,
-        onSuccess: () => {
-          onCancel?.();
-          form.reset();
-          router.refresh();
-        },
-      });
-    }
 
     return await addPatient({
       doc: {

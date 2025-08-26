@@ -1,5 +1,7 @@
 import {
+  BriefcaseMedicalIcon,
   CalendarIcon,
+  FlaskConicalIcon,
   LayoutGridIcon,
   UsersIcon,
   UserStarIcon,
@@ -7,13 +9,13 @@ import {
 
 export const sidebarData = {
   navMain: [
-    {
-      title: "Dashboard",
-      url: "/",
-      roles: ["OWNER", "MEMBER"],
-      icon: LayoutGridIcon,
-      isActive: true,
-    },
+    // {
+    //   title: "Dashboard",
+    //   url: "/",
+    //   roles: ["OWNER", "MEMBER"],
+    //   icon: LayoutGridIcon,
+    //   isActive: true,
+    // },
     {
       title: "Appointments",
       url: "/appointments",
@@ -30,6 +32,18 @@ export const sidebarData = {
       title: "Patients",
       url: "/patients",
       icon: UsersIcon,
+      roles: ["OWNER", "MEMBER"],
+    },
+    {
+      title: "Treatment Templates",
+      url: "/treatment-templates",
+      icon: BriefcaseMedicalIcon,
+      roles: ["OWNER", "MEMBER"],
+    },
+    {
+      title: "Lab Orders",
+      url: "/lab-orders",
+      icon: FlaskConicalIcon,
       roles: ["OWNER", "MEMBER"],
     },
   ],
