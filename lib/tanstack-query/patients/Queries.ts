@@ -8,7 +8,7 @@ export const useGetAllPatients = ({ limit }: { limit?: number }) => {
     queryFn: async () => {
       const res = await getCollectionData({
         tableName: "patients",
-        dataLimit: limit,
+        limit,
       });
 
       if (Array.isArray(res)) {
