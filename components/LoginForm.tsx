@@ -49,6 +49,7 @@ export function LoginForm({
       toast.error("Failed to login : Incorrect email or password");
     } else {
       toast.success("Successfully logged in!");
+      window.location.assign("/appointments");
     }
   };
 
