@@ -136,8 +136,6 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
   }, [editData, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-
     if (editData) {
       return await updatePatient({
         doc: {
