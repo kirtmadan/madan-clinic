@@ -51,6 +51,7 @@ import { cn } from "@/lib/utils";
 //   DialogTitle,
 // } from "@/components/ui/dialog";
 import { useAddAppointment } from "@/lib/tanstack-query/appointments/Mutations";
+import day from "@/lib/day";
 
 const formSchema = z.object({
   doctor_id: z.string().min(1, "Please select a doctor"),
@@ -329,9 +330,9 @@ export function CreateAppointmentForm({
                     mode="single"
                     selected={field.value}
                     onSelect={field.onChange}
-                    disabled={(date) =>
-                      date > new Date() || date < new Date("1900-01-01")
-                    }
+                    disabled={(date) => {
+                      return !day(date).isToday() && date < new Date();
+                    }}
                     captionLayout="dropdown"
                   />
                 </PopoverContent>
