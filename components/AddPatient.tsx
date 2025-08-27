@@ -60,7 +60,7 @@ const formSchema = z.object({
     message: "Gender is a required field",
   }),
   phone: z.string().min(10, { message: "Enter a valid phone number" }),
-  email: z.string().email({ message: "Invalid email address" }),
+  email: z.string().email({ message: "Invalid email address" }).optional(),
   address: z
     .string()
     .min(1, { message: "Address is required" })
@@ -115,7 +115,7 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
     defaultValues: {
       name: "",
       phone: "",
-      email: "",
+      email: undefined,
       age: "",
       gender: "",
       address: "",
@@ -282,7 +282,7 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email Address</FormLabel>
+                <FormLabel>Email Address (Optional)</FormLabel>
                 <FormControl>
                   <InputWithIcon
                     placeholder="Enter email address"

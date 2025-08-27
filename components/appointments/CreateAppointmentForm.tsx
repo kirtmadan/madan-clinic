@@ -44,12 +44,6 @@ import {
 } from "@/components/ui/popover";
 import dayjs from "dayjs";
 import { cn } from "@/lib/utils";
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogHeader,
-//   DialogTitle,
-// } from "@/components/ui/dialog";
 import { useAddAppointment } from "@/lib/tanstack-query/appointments/Mutations";
 import day from "@/lib/day";
 
@@ -137,6 +131,7 @@ export function CreateAppointmentForm({
       amount_to_charge: "",
       date: undefined,
       status: "scheduled",
+      notes: "",
     },
   });
 

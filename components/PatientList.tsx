@@ -9,7 +9,7 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
+  // getPaginationRowModel,
   getSortedRowModel,
   SortingState,
   useReactTable,
@@ -48,21 +48,17 @@ import {
   ArrowUpDown,
   MoreHorizontal,
   TrashIcon,
-  ArrowDownToLineIcon,
   Users,
   UserSearchIcon,
-  PenIcon,
 } from "lucide-react";
 
 import DataTableRow from "@/components/DataTableRow";
 
 import dayjs from "dayjs";
-import { exportToCSV } from "@/lib/utils";
 import { useGetAllPatients } from "@/lib/tanstack-query/patients/Queries";
 import DeleteDialog from "@/components/shared/DeleteDialog";
 import { useDeletePatient } from "@/lib/tanstack-query/patients/Mutations";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import AddPatient from "@/components/AddPatient";
 
 export type Patient = {
   id: string | number;
