@@ -56,7 +56,10 @@ const formSchema = z.object({
     .refine((val) => !isNaN(Number(val)), {
       message: "Please enter a valid amount",
     }),
-  notes: z.string().max(256, "Notes must be less than 256 characters"),
+  notes: z
+    .string()
+    .max(256, "Notes must be less than 256 characters")
+    .optional(),
   date: z.date({ error: "Date is required for the appointment" }),
   status: z.string(),
 });
@@ -131,7 +134,7 @@ export function CreateAppointmentForm({
       amount_to_charge: "",
       date: undefined,
       status: "scheduled",
-      notes: "",
+      notes: undefined,
     },
   });
 
