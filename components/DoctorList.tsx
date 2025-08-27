@@ -236,17 +236,17 @@ export default function DoctorList() {
             onChange={(event) => setGlobalFilter(event.target.value)}
           />
 
-          <Button
-            variant="outline"
-            className="h-10"
-            onClick={() => {
-              // @ts-expect-error - data will always be an array
-              exportToCSV(data, "doctor-data.csv");
-            }}
-          >
-            <ArrowDownToLineIcon />
-            Export
-          </Button>
+          {/*<Button*/}
+          {/*  variant="outline"*/}
+          {/*  className="h-10"*/}
+          {/*  onClick={() => {*/}
+          {/*    // @ts-expect-error - data will always be an array*/}
+          {/*    exportToCSV(data, "doctor-data.csv");*/}
+          {/*  }}*/}
+          {/*>*/}
+          {/*  <ArrowDownToLineIcon />*/}
+          {/*  Export*/}
+          {/*</Button>*/}
         </div>
       </CardHeader>
 

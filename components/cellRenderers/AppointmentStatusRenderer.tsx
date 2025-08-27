@@ -11,7 +11,9 @@ type Status = keyof typeof statusClasses;
 
 export default function AppointmentStatusRenderer({
   status,
+  children,
 }: {
+  children?: React.ReactNode;
   status: Status;
 }) {
   return (
@@ -21,7 +23,7 @@ export default function AppointmentStatusRenderer({
         statusClasses[status],
       )}
     >
-      {status}
+      {children ? children : status}
     </span>
   );
 }

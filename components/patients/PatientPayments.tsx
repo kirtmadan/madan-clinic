@@ -1,18 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import PatientAppointmentsTable from "@/components/patients/PatientAppointmentsTable";
+import PatientPaymentsTable from "@/components/patients/PatientPaymentsTable";
 
-export default function PatientAppointments({ id }: { id: string }) {
+export default function PatientPayments({ id }: { id: string }) {
   return (
-    <Card className="overflow-hidden pb-0! h-full">
+    <Card className="overflow-hidden pb-0!">
       <CardHeader className="flex! flex-row justify-between items-center">
         <CardTitle className="font-medium text-lg">
-          Recent Appointments
+          Payment Transactions
         </CardTitle>
       </CardHeader>
 
       <CardContent className="p-0!">
         <div className="w-full h-full">
-          <PatientAppointmentsTable id={id} />
+          <PatientPaymentsTable id={id} />
         </div>
       </CardContent>
     </Card>

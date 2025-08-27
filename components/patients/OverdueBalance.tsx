@@ -25,14 +25,17 @@ export default function OverdueBalance({
         <CardTitle className="font-medium text-lg">Overdue Balance</CardTitle>
 
         <CardAction>
-          <Button variant="outline" size="icon">
-            <FilePenLine />
-          </Button>
+          {overdueUpdatedAt && (
+            <p className="text-muted-foreground text-sm">
+              Last Updated on :{" "}
+              {dayjs(overdueUpdatedAt).format("DD MMM YYYY HH:mm")}
+            </p>
+          )}
         </CardAction>
       </CardHeader>
 
       <CardContent>
-        <div className="w-full h-full flex items-start justify-center flex-col gap-2">
+        <div className="w-full pb-6 h-full flex items-start justify-center flex-col gap-2">
           <h2
             className={cn(
               "font-medium text-3xl text-destructive/60",
@@ -41,13 +44,6 @@ export default function OverdueBalance({
           >
             ₹ {overdueAmount}
           </h2>
-
-          {overdueUpdatedAt && (
-            <p className="text-muted-foreground text-sm">
-              Last Updated on :{" "}
-              {dayjs(overdueUpdatedAt).format("DD MMM YYYY HH:mm")}
-            </p>
-          )}
         </div>
       </CardContent>
     </Card>

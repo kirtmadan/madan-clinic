@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import PatientPayments from "@/components/patients/PatientPayments";
 
 export default async function PatientDetailsPage({
   params,
@@ -88,6 +89,10 @@ export default async function PatientDetailsPage({
           />
 
           <PatientAppointments id={id} />
+        </div>
+
+        <div className="w-full col-span-3">
+          <PatientPayments id={id} />
         </div>
       </div>
     </div>

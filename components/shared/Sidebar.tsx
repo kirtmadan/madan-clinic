@@ -21,10 +21,16 @@ import {
   Sidebar as ShadSidebar,
 } from "@/components/ui/sidebar";
 
-import { CalendarClock, ChevronLeftIcon, type LucideIcon } from "lucide-react";
+import {
+  CalendarClock,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  type LucideIcon,
+} from "lucide-react";
 import { sidebarData } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 export default function Sidebar() {
   const user = { user_role: "OWNER" };
@@ -83,31 +89,69 @@ export function NavMain({
     | any[];
 }) {
   const pathname = usePathname();
+  const [expand, setExpand] = useState<boolean>(true);
 
   return (
-    <SidebarProvider>
+    <SidebarProvider
+      style={{
+        // @ts-expect-error - this is needed
+        "--sidebar-width": expand ? "15rem" : "4.5rem",
+        transition: "width 0.5s ease-in-out",
+      }}
+    >
       <ShadSidebar
         collapsible="offcanvas"
-        className="px-0 pt-4 bg-sidebar  drop-shadow-xs"
+        className={cn(
+          "px-0 pt-4 bg-sidebar drop-shadow-xs transition-[width] duration-300",
+          !expand && "w-fit",
+        )}
       >
         <div className="flex items-center justify-between mx-4 pb-4 border-b">
           <div className="flex items-center gap-4 w-full">
-            <div className="size-8 bg-sidebar-primary text-sidebar-primary-foreground rounded-lg grid place-items-center">
-              <CalendarClock size={20} />
+            <div
+              className={cn(
+                "size-8 bg-sidebar-primary text-sidebar-primary-foreground rounded-lg grid place-items-center group",
+                !expand &&
+                  "group-hover:bg-secondary group-hover:text-secondary-foreground/60 group-hover:border cursor-pointer",
+              )}
+              onClick={() => {
+                if (!expand) setExpand(true);
+              }}
+            >
+              <CalendarClock
+                size={20}
+                className={cn(!expand && "group-hover:hidden")}
+              />
+
+              <ChevronRightIcon
+                size={20}
+                className={cn(!expand && "group-hover:block", "hidden")}
+              />
             </div>
 
-            <h1 className="text-2xl font-semibold text-sidebar-primary">
-              Madan
-            </h1>
+            {expand && (
+              <h1 className="text-2xl font-semibold text-sidebar-primary">
+                Madan
+              </h1>
+            )}
           </div>
 
-          <Button variant="outline" size="icon" className="size-6">
-            <ChevronLeftIcon />
-          </Button>
+          {expand && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-6"
+              onClick={() => setExpand((prev: boolean) => !prev)}
+            >
+              <ChevronLeftIcon />
+            </Button>
+          )}
         </div>
 
         <SidebarGroup className="pl-0 pr-4">
-          <SidebarGroupLabel className="pl-5">Main Menu</SidebarGroupLabel>
+          {expand && (
+            <SidebarGroupLabel className="pl-5">Main Menu</SidebarGroupLabel>
+          )}
 
           <SidebarMenu>
             {items.map((item) => {
@@ -130,9 +174,11 @@ export function NavMain({
                           )}
                         >
                           {item.icon && <item.icon />}
-                          <span className="text-sm font-medium ml-2 leading-[150%]">
-                            {item.title}
-                          </span>
+                          {expand && (
+                            <span className="text-sm font-medium ml-2 leading-[150%]">
+                              {item.title}
+                            </span>
+                          )}
                           {/*<ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />*/}
                         </SidebarMenuButton>
                       </CollapsibleTrigger>
@@ -185,9 +231,11 @@ export function NavMain({
                         variant="primary"
                       >
                         {item.icon && <item.icon />}
-                        <span className="text-sm ml-2 leading-[150%]">
-                          {item.title}
-                        </span>
+                        {expand && (
+                          <span className="text-sm ml-2 leading-[150%]">
+                            {item.title}
+                          </span>
+                        )}
                       </SidebarMenuButton>
                     </Link>
                   </SidebarMenuItem>

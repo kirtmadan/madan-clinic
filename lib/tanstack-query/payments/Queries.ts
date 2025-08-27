@@ -1,14 +1,26 @@
 import { useQuery } from "@tanstack/react-query";
 import { getCollectionData } from "@/lib/actions/supabase.actions";
-import { TREATMENT_TEMPLATES_QUERY_KEYS } from "@/lib/tanstack-query/treatment-templates/Keys";
+import { PAYMENTS_QUERY_KEYS } from "@/lib/tanstack-query/payments/Keys";
 
-export const useGetAllTreatmentTemplates = ({ limit }: { limit?: number }) => {
+export const useGetAllPayments = ({
+  filters,
+  queryKeys,
+  select,
+  limit,
+}: {
+  filters?: any[];
+  queryKeys?: unknown[];
+  select?: string;
+  limit?: number;
+}) => {
   return useQuery({
-    queryKey: [TREATMENT_TEMPLATES_QUERY_KEYS.GET_ALL_TEMPLATES],
+    queryKey: [PAYMENTS_QUERY_KEYS.GET_ALL_PAYMENTS, ...(queryKeys ?? [])],
     queryFn: async () => {
       const res = await getCollectionData({
-        tableName: "treatments",
+        tableName: "payments",
         limit,
+        select,
+        filters,
       });
 
       if (Array.isArray(res)) {

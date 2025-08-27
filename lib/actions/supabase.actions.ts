@@ -115,9 +115,9 @@ export const getCollectionData = async ({
   let query: any = supabase.from(tableName);
 
   if (select) {
-    query = query.select(select);
+    query = query.select(select).order("created_at", { ascending: false });
   } else {
-    query = query.select();
+    query = query.select().order("created_at", { ascending: false });
   }
 
   if (filters && filters?.length > 0) {

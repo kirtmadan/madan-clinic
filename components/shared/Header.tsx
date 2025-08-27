@@ -36,7 +36,9 @@ export function NavLinks() {
         <DropdownMenuTrigger asChild>
           <Avatar className="size-10 cursor-pointer">
             <AvatarImage src="/images/s.png" />
-            <AvatarFallback>CN</AvatarFallback>
+            <AvatarFallback>
+              <UserIcon className="text-secondary-foreground/60" />
+            </AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
 

@@ -155,13 +155,13 @@ export default function AppointmentsTable() {
     },
     {
       id: "patient.name",
-      accessorFn: (row) => row.patient.name,
+      accessorFn: (row) => row?.patient?.name,
       header: "Patient Name",
       cell: ({ row }) => {
         const patientName: string = row.getValue("patient.name");
 
         return (
-          <Link href={`/patients/${row.original.patient.id}`}>
+          <Link href={`/patients/${row.original.patient?.id}`}>
             <div className="font-medium w-full flex items-center gap-3 hover:text-primary">
               <Avatar>
                 <AvatarFallback className="border-[0.5px] uppercase">
