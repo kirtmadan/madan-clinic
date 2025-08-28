@@ -87,30 +87,30 @@ export default function TreatmentTemplatesList() {
   const [openDelete, setOpenDelete] = useState<TreatmentTemplate | null>(null);
 
   const columns: ColumnDef<TreatmentTemplate>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-          className="bg-transparent! data-[state=checked]:bg-primary!"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-          className="bg-transparent! data-[state=checked]:bg-primary!"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
+    // {
+    //   id: "select",
+    //   header: ({ table }) => (
+    //     <Checkbox
+    //       checked={
+    //         table.getIsAllPageRowsSelected() ||
+    //         (table.getIsSomePageRowsSelected() && "indeterminate")
+    //       }
+    //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+    //       aria-label="Select all"
+    //       className="bg-transparent! data-[state=checked]:bg-primary!"
+    //     />
+    //   ),
+    //   cell: ({ row }) => (
+    //     <Checkbox
+    //       checked={row.getIsSelected()}
+    //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+    //       aria-label="Select row"
+    //       className="bg-transparent! data-[state=checked]:bg-primary!"
+    //     />
+    //   ),
+    //   enableSorting: false,
+    //   enableHiding: false,
+    // },
     {
       accessorKey: "name",
       header: "Treatment Name",
@@ -365,10 +365,10 @@ function DataTable({ table }: { table: TableType<TreatmentTemplate> }) {
       </Table>
 
       <div className="flex items-center justify-end space-x-2 py-4 px-6">
-        <div className="text-muted-foreground flex-1 text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} template(s) selected.
-        </div>
+        {/*<div className="text-muted-foreground flex-1 text-sm">*/}
+        {/*  {table.getFilteredSelectedRowModel().rows.length} of{" "}*/}
+        {/*  {table.getFilteredRowModel().rows.length} template(s) selected.*/}
+        {/*</div>*/}
 
         <div className="space-x-2 px-6">
           <Button
