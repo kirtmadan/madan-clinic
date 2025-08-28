@@ -50,6 +50,7 @@ import day from "@/lib/day";
 const formSchema = z.object({
   doctor_id: z.string().min(1, "Please select a doctor"),
   patient_id: z.string().min(1, "Please select a patient"),
+  treatment_id: z.string().min(1, "Please select a treatment"),
   amount_to_charge: z
     .string()
     .min(1, "Please enter a valid amount to charge")
@@ -124,12 +125,11 @@ export function CreateAppointmentForm({
   const { data: doctorsData } = useGetAllDoctors({});
   const { data: treatmentTemplates } = useGetAllTreatmentTemplates({});
 
-  const [template, setTemplate] = useState<any>("");
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       doctor_id: "",
+      treatment_id: "",
       patient_id: "",
       amount_to_charge: "",
       date: undefined,
@@ -198,6 +198,7 @@ export function CreateAppointmentForm({
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="patient_id"
@@ -235,44 +236,61 @@ export function CreateAppointmentForm({
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="treatment_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Treatment</FormLabel>
+
+              <FormControl>
+                <Select
+                  onValueChange={(value: string) => {
+                    field.onChange(value);
+
+                    if (
+                      treatmentTemplates &&
+                      Array.isArray(treatmentTemplates)
+                    ) {
+                      const obj = treatmentTemplates?.find(
+                        (x) => x?.id === value,
+                      );
+
+                      form.setValue("amount_to_charge", obj?.cost?.toString());
+                      form.clearErrors("amount_to_charge");
+                    }
+                  }}
+                  value={field?.value}
+                >
+                  <SelectTrigger className="w-full bg-white">
+                    <SelectValue placeholder="Select a treatment template" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    {(Array.isArray(treatmentTemplates)
+                      ? treatmentTemplates
+                      : []
+                    ).map((template) => (
+                      <SelectItem value={template?.id} key={template?.id}>
+                        <div
+                          className="size-4 rounded-sm"
+                          style={{ backgroundColor: template?.color }}
+                        ></div>
+                        {template?.name} - ₹ {template?.cost}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className="border bg-primary/85 rounded-md w-full p-4 border-dashed flex flex-col gap-2">
           <p className="text-sm text-primary-foreground">Amount to charge</p>
-
-          <Select
-            onValueChange={(value: string) => {
-              setTemplate(value);
-
-              if (treatmentTemplates && Array.isArray(treatmentTemplates)) {
-                const obj = treatmentTemplates?.find((x) => x?.id === value);
-                form.setValue("amount_to_charge", obj?.cost?.toString());
-                form.clearErrors("amount_to_charge");
-              }
-            }}
-            value={template}
-          >
-            <SelectTrigger className="w-full bg-white">
-              <SelectValue placeholder="Select a treatment template" />
-            </SelectTrigger>
-
-            <SelectContent>
-              {(Array.isArray(treatmentTemplates)
-                ? treatmentTemplates
-                : []
-              ).map((template) => (
-                <SelectItem value={template?.id} key={template?.id}>
-                  <div
-                    className="size-4 rounded-sm"
-                    style={{ backgroundColor: template?.color }}
-                  ></div>
-                  {template?.name} - ₹ {template?.cost}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <span className="flex items-center justify-center text-primary-foreground text-sm p-2 border border-dashed my-1 rounded-md">
-            OR
-          </span>
 
           <FormField
             control={form.control}
@@ -287,7 +305,6 @@ export function CreateAppointmentForm({
                     {...field}
                     onChange={(e) => {
                       field.onChange(e);
-                      setTemplate("");
                     }}
                   />
                 </FormControl>
