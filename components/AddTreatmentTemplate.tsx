@@ -81,7 +81,7 @@ export default function AddTreatmentTemplate({
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
 
-      <DialogContent className="max-w-full xl:max-w-4xl overflow-y-auto">
+      <DialogContent className="h-[85vh] max-w-full xl:max-w-4xl overflow-y-auto">
         <DialogHeader className="border-b pb-4">
           <DialogTitle className="font-medium">
             Add Treatment Template
@@ -136,7 +136,7 @@ export function AddTreatmentTemplateForm({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-8 px-4 py-6 w-full overflow-y-auto"
+          className="space-y-8 px-4 pb-4 w-full overflow-y-auto"
         >
           <FormField
             control={form.control}

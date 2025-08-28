@@ -179,7 +179,7 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-8 px-4 py-6"
+          className="space-y-8 px-4 py-6 overflow-y-auto"
         >
           <FormField
             control={form.control}
