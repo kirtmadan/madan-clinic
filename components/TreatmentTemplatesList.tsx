@@ -13,6 +13,7 @@ import {
   useReactTable,
   VisibilityState,
   type Table as TableType,
+  getPaginationRowModel,
 } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -230,7 +230,7 @@ export default function TreatmentTemplatesList() {
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    // getPaginationRowModel: getPaginationRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,

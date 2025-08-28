@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useState } from "react";
 
 import {
@@ -26,7 +25,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,7 +47,6 @@ import {
   ArrowUpDown,
   MoreHorizontal,
   TrashIcon,
-  ArrowDownToLineIcon,
   Users,
   UserSearchIcon,
 } from "lucide-react";
@@ -57,7 +54,6 @@ import {
 import DataTableRow from "@/components/DataTableRow";
 
 import dayjs from "dayjs";
-import { exportToCSV } from "@/lib/utils";
 import { useGetAllDoctors } from "@/lib/tanstack-query/doctors/Queries";
 import DeleteDialog from "@/components/shared/DeleteDialog";
 import { useDeleteDoctor } from "@/lib/tanstack-query/doctors/Mutationts";
