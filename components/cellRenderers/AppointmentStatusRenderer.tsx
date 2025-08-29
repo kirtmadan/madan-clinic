@@ -3,7 +3,10 @@ import { cn } from "@/lib/utils";
 
 const statusClasses = {
   scheduled: "bg-yellow-100 text-yellow-700 border-yellow-200",
+  ongoing: "bg-yellow-100 text-yellow-700 border-yellow-200",
   completed: "bg-green-100 text-green-700 border-green-200",
+  active: "bg-green-100 text-green-700 border-green-200",
+  paid: "bg-green-100 text-green-700 border-green-200",
   cancelled: "bg-red-100 text-red-700 border-red-200",
 } as const;
 
@@ -19,7 +22,7 @@ export default function AppointmentStatusRenderer({
   return (
     <span
       className={cn(
-        "py-1 text-sm px-2 rounded-lg border",
+        "py-1 text-sm px-2 rounded-sm border",
         statusClasses[status],
       )}
     >

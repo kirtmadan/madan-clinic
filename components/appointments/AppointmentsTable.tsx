@@ -9,7 +9,7 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
+  // getPaginationRowModel,
   getSortedRowModel,
   SortingState,
   useReactTable,
@@ -18,23 +18,7 @@ import {
 } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  // CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-// import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { InputWithIcon } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -44,22 +28,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import {
-  ArrowUpDown,
-  MoreHorizontal,
-  TrashIcon,
-  ArrowDownToLineIcon,
-  UserSearchIcon,
-  CalendarIcon,
-} from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 
 import DataTableRow from "@/components/DataTableRow";
 
 import dayjs from "dayjs";
-import { exportToCSV } from "@/lib/utils";
-// import DeleteDialog from "@/components/shared/DeleteDialog";
-// import { useDeletePatient } from "@/lib/tanstack-query/patients/Mutations";
-// import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useGetAllAppointments } from "@/lib/tanstack-query/appointments/Queries";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import AppointmentDrawer from "@/components/appointments/AppointmentDrawer";
@@ -87,10 +60,10 @@ export default function AppointmentsTable() {
   const { data } = useGetAllAppointments({
     select: `
     id,
+    appointment_number,
     date,
     status,
     notes,
-    amount_to_charge,
     created_at,
     doctor:doctor_id ( id, name ),
     patient:patient_id ( id, name )
@@ -129,13 +102,13 @@ export default function AppointmentsTable() {
     //   enableHiding: false,
     // },
     {
-      accessorKey: "id",
-      header: "Appointment ID",
+      accessorKey: "appointment_number",
+      header: "Appointment Number",
       cell: ({ row }) => (
         <AppointmentDrawer
           key={row.id}
           appointmentData={row.original}
-          trigger={<span># {row.getValue("id")}</span>}
+          trigger={<span># {row.getValue("appointment_number")}</span>}
         />
       ),
     },

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { AlertCircleIcon, PlusIcon } from "lucide-react";
+import { AlertCircleIcon, CalendarPlusIcon, PlusIcon } from "lucide-react";
 
 import AddPatient from "@/components/AddPatient";
 import PatientProfile from "@/components/patients/PatientProfile";
@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import PatientPayments from "@/components/patients/PatientPayments";
+import TreatmentPlans from "@/components/TreatmentPlans";
+import AddTreatmentPlan from "@/components/AddTreatmentPlan";
 
 export default async function PatientDetailsPage({
   params,
@@ -58,14 +59,26 @@ export default async function PatientDetailsPage({
       <div className="w-full h-full flex items-center justify-end">
         <PatientBreadcrumb className="p-0" id={data?.name} />
 
-        <AddPatient
-          trigger={
-            <Button>
-              <PlusIcon className="size-4" />
-              Add Patient
-            </Button>
-          }
-        />
+        <div className="flex items-center gap-4">
+          <AddPatient
+            trigger={
+              <Button variant="outline">
+                <PlusIcon className="size-4" />
+                Add Patient
+              </Button>
+            }
+          />
+
+          <AddTreatmentPlan
+            patientId={id}
+            trigger={
+              <Button>
+                <CalendarPlusIcon className="size-4" />
+                Add Treatment Plan
+              </Button>
+            }
+          />
+        </div>
       </div>
 
       <div className="w-full grid gap-4 grid-cols-3">
@@ -75,6 +88,7 @@ export default async function PatientDetailsPage({
             name={data?.name}
             age={data?.age}
             gender={data?.gender}
+            patient_number={data?.patient_number}
             address={data?.address}
             email={data?.email}
             createdAt={data?.created_at}
@@ -92,8 +106,12 @@ export default async function PatientDetailsPage({
         </div>
 
         <div className="w-full col-span-3">
-          <PatientPayments id={id} />
+          <TreatmentPlans patientId={id} />
         </div>
+
+        {/*<div className="w-full col-span-3">*/}
+        {/*  <PatientPayments id={id} />*/}
+        {/*</div>*/}
       </div>
     </div>
   );

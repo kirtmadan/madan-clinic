@@ -16,6 +16,7 @@ interface PatientProfileProps {
   createdAt: string;
   email: string;
   age: number;
+  patient_number: number;
   gender: string;
   phone: string;
   address: string;
@@ -27,6 +28,7 @@ export default function PatientProfile({
   createdAt,
   email,
   age,
+  patient_number,
   gender,
   phone,
   address,
@@ -52,6 +54,7 @@ export default function PatientProfile({
               ({gender})
             </span>
           </h3>
+          <p className="text-muted-foreground text-sm"># {patient_number}</p>
           <p className="text-muted-foreground text-sm">Age : {age} years</p>
         </div>
 

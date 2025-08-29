@@ -9,7 +9,7 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
+  // getPaginationRowModel,
   getSortedRowModel,
   SortingState,
   useReactTable,
@@ -18,23 +18,8 @@ import {
 } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  // CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-// import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { InputWithIcon } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import {
   Table,
   TableBody,
@@ -44,23 +29,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import {
-  ArrowUpDown,
-  MoreHorizontal,
-  TrashIcon,
-  ArrowDownToLineIcon,
-  UserSearchIcon,
-  CalendarIcon,
-  FlaskConicalIcon,
-} from "lucide-react";
+import { FlaskConicalIcon } from "lucide-react";
 
 import DataTableRow from "@/components/DataTableRow";
 
 import dayjs from "dayjs";
-import { exportToCSV } from "@/lib/utils";
-// import DeleteDialog from "@/components/shared/DeleteDialog";
-// import { useDeletePatient } from "@/lib/tanstack-query/patients/Mutations";
-// import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
 import { useGetAllAppointments } from "@/lib/tanstack-query/appointments/Queries";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import AppointmentDrawer from "@/components/appointments/AppointmentDrawer";
@@ -88,6 +62,7 @@ export default function LabOrdersTable() {
   const { data } = useGetAllAppointments({
     select: `
     id,
+    appointment_number,
     date,
     status,
     notes,
@@ -106,13 +81,13 @@ export default function LabOrdersTable() {
 
   const columns: ColumnDef<LabOrder>[] = [
     {
-      accessorKey: "id",
-      header: "Appointment ID",
+      accessorKey: "appointment_number",
+      header: "Appointment Number",
       cell: ({ row }) => (
         <AppointmentDrawer
           key={row.id}
           appointmentData={row.original}
-          trigger={<span># {row.getValue("id")}</span>}
+          trigger={<span># {row.getValue("appointment_number")}</span>}
         />
       ),
     },
@@ -132,13 +107,13 @@ export default function LabOrdersTable() {
     },
     {
       id: "patient.name",
-      accessorFn: (row) => row.patient.name,
+      accessorFn: (row) => row?.patient?.name,
       header: "Patient Name",
       cell: ({ row }) => {
         const patientName: string = row.getValue("patient.name");
 
         return (
-          <Link href={`/patients/${row.original.patient.id}`}>
+          <Link href={`/patients/${row.original?.patient?.id}`}>
             <div className="font-medium w-full flex items-center gap-3 hover:text-primary">
               <Avatar>
                 <AvatarFallback className="border-[0.5px] uppercase">
@@ -156,7 +131,7 @@ export default function LabOrdersTable() {
     },
     {
       id: "doctor.name",
-      accessorFn: (row) => row.doctor.name,
+      accessorFn: (row) => row?.doctor?.name,
       header: "Doctor Name",
       cell: ({ row }) => {
         const doctorName: string = row.getValue("doctor.name");

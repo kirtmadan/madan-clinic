@@ -21,16 +21,6 @@ export default function CompleteAppointment({
     });
   };
 
-  const completeAppointmentWithoutPayment = async () => {
-    await updateAppointment({
-      doc: { status: "completed" },
-      documentId: appointmentData?.id,
-      onSuccess: () => {
-        toast.success("Appointment completed successfully.");
-      },
-    });
-  };
-
   const cancelAppointment = async () => {
     await updateAppointment({
       doc: { status: "cancelled" },
@@ -42,21 +32,13 @@ export default function CompleteAppointment({
   };
 
   return (
-    <div className="w-full flex items-center gap-4">
+    <div className="w-full flex items-center justify-end gap-4">
       <Button
         disabled={isPending}
         onClick={cancelAppointment}
         variant="destructive"
       >
         Cancel Appointment
-      </Button>
-
-      <Button
-        disabled={isPending}
-        onClick={completeAppointmentWithoutPayment}
-        variant="outline"
-      >
-        Mark as Completed – Payment Pending
       </Button>
 
       <Button disabled={isPending} onClick={completeAppointment}>

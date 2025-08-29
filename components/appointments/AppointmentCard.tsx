@@ -4,7 +4,6 @@ import dayjs from "dayjs";
 import AppointmentDrawer from "@/components/appointments/AppointmentDrawer";
 
 interface AppointmentCardProps {
-  amount_to_charge: number;
   created_at: string | number;
   date: string;
   doctor_id: string;
@@ -23,7 +22,7 @@ interface AppointmentCardProps {
 }
 
 export default function AppointmentCard(props: AppointmentCardProps) {
-  const { amount_to_charge, created_at, patient, doctor } = props;
+  const { created_at, patient, doctor } = props;
 
   return (
     <AppointmentDrawer
@@ -43,9 +42,9 @@ export default function AppointmentCard(props: AppointmentCardProps) {
                 {patient?.name}
               </h3>
 
-              <p className="text-sm text-muted-foreground">
-                Amount : ₹ {amount_to_charge}
-              </p>
+              {/*<p className="text-sm text-muted-foreground">*/}
+              {/*  Amount : ₹ {amount_to_charge}*/}
+              {/*</p>*/}
 
               <p className="text-sm text-muted-foreground">
                 Created at : {dayjs(created_at).format("DD MMM YYYY")}

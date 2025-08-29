@@ -24,10 +24,10 @@ export default function AppointmentsByStatus({
     filters,
     select: `
     id,
+    appointment_number,
     date,
     status,
     notes,
-    amount_to_charge,
     created_at,
     doctor:doctor_id ( id, name ),
     patient:patient_id ( id, name )

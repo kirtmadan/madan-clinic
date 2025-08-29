@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 
 import {
@@ -18,21 +17,8 @@ import {
 } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { InputWithIcon } from "@/components/ui/input";
 import {
   Table,
@@ -43,46 +29,48 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import {
-  ArrowUpDown,
-  MoreHorizontal,
-  TrashIcon,
-  Users,
-  UserSearchIcon,
-} from "lucide-react";
+import { ArrowUpDown, SearchIcon, WavesIcon } from "lucide-react";
 
 import DataTableRow from "@/components/DataTableRow";
 
 import dayjs from "dayjs";
-import { useGetAllPatients } from "@/lib/tanstack-query/patients/Queries";
-import DeleteDialog from "@/components/shared/DeleteDialog";
-import { useDeletePatient } from "@/lib/tanstack-query/patients/Mutations";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import AppointmentStatusRenderer from "@/components/cellRenderers/AppointmentStatusRenderer";
+import { useGetAllTreatmentPlans } from "@/lib/tanstack-query/treatment-plans/Queries";
+import TreatmentPlanDrawer from "@/components/treatment-plans/TreatmentPlanDrawer";
 
-export type Patient = {
+export type TreatmentPlan = {
   id: string | number;
-  name: string;
-  created_on: string | number;
-  age: number;
-  phone: string;
+  description: string;
+  created_at: string | number;
+  updated_at: string | number;
   status: string;
-  email: string;
 };
 
-export default function PatientList() {
-  const { data } = useGetAllPatients({});
-
-  const { mutateAsync: deletePatient, isPending: isDeletingPatient } =
-    useDeletePatient();
+export default function TreatmentPlans({ patientId }: { patientId: string }) {
+  const { data } = useGetAllTreatmentPlans({
+    select: `
+    id,
+    description,
+    created_at,
+    updated_at,
+    status,
+    paid_total,
+    authorized_amount,
+    treatment_plan_items (
+      quantity,
+      recorded_unit_price
+    )
+    `,
+    filters: [(query: any) => query.eq("patient_id", patientId)],
+  });
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [globalFilter, setGlobalFilter] = useState("");
-  const [openDelete, setOpenDelete] = useState<Patient | null>(null);
 
-  const columns: ColumnDef<Patient>[] = [
+  const columns: ColumnDef<TreatmentPlan>[] = [
     // {
     //   id: "select",
     //   header: ({ table }) => (
@@ -108,47 +96,21 @@ export default function PatientList() {
     //   enableHiding: false,
     // },
     {
-      accessorKey: "patient_number",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            className="p-0!"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Patient Number
-            <ArrowUpDown />
-          </Button>
-        );
-      },
-      cell: ({ row }) => <># {row.getValue("patient_number")}</>,
-    },
-    {
-      accessorKey: "name",
-      header: "Patient Name",
+      accessorKey: "id",
+      header: "Plan ID",
       cell: ({ row }) => {
-        const name: string = row.getValue("name");
-
         return (
-          <Link href={`/patients/${row.original.id}`}>
-            <div className="font-medium w-full flex items-center gap-3 hover:text-primary">
-              <Avatar>
-                <AvatarFallback className="border-[0.5px] uppercase">
-                  {name?.split(" ")?.[0]?.[0]}
-                  {name?.split(" ")?.[1]?.[0] || name?.split(" ")?.[0]?.[1]}
-                </AvatarFallback>
-              </Avatar>
-
-              <span>{name}</span>
-            </div>
-          </Link>
+          <TreatmentPlanDrawer
+            trigger={<span># {row.getValue("id")}</span>}
+            planData={row?.original}
+          />
         );
       },
     },
     {
-      accessorKey: "age",
-      header: "Age",
-      cell: ({ row }) => <>{row.getValue("age")}</>,
+      accessorKey: "description",
+      header: "Description",
+      cell: ({ row }) => <>{row.getValue("description")}</>,
     },
     {
       accessorKey: "created_at",
@@ -169,64 +131,65 @@ export default function PatientList() {
       ),
     },
     {
-      accessorKey: "phone",
-      header: "Phone",
-      cell: ({ row }) => {
-        return <>{row.getValue("phone")}</>;
-      },
+      accessorKey: "updated_at",
+      header: "Updated On",
+      cell: ({ row }) => (
+        <>
+          {dayjs(
+            row.getValue("updated_at") || row.getValue("created_at"),
+          ).format("DD MMM YYYY")}
+        </>
+      ),
     },
     {
-      accessorKey: "email",
-      header: "Email",
+      accessorKey: "status",
+      header: "Status",
       cell: ({ row }) => {
-        return <>{row.getValue("email")}</>;
-      },
-    },
-    {
-      accessorKey: "gender",
-      header: "Gender",
-      cell: ({ row }) => {
-        return <span className="capitalize">{row.getValue("gender")}</span>;
-      },
-    },
-    {
-      id: "actions",
-      enableHiding: false,
-      cell: ({ row }: { row: any }) => {
-        const patient = row.original;
-
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-
-              <Link href={`/patients/${patient.id}`}>
-                <DropdownMenuItem className="cursor-pointer">
-                  View patient
-                </DropdownMenuItem>
-              </Link>
-
-              <DropdownMenuItem
-                variant="destructive"
-                className="cursor-pointer"
-                onClick={() => setOpenDelete(patient)}
-              >
-                <TrashIcon size={18} />
-                <span>Delete patient</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <AppointmentStatusRenderer status={row.getValue("status")}>
+            {row.getValue("status")}
+          </AppointmentStatusRenderer>
         );
       },
     },
+    // {
+    //   id: "actions",
+    //   enableHiding: false,
+    //   cell: ({ row }: { row: any }) => {
+    //     return (
+    //       <DropdownMenu>
+    //         <DropdownMenuTrigger asChild>
+    //           <Button variant="ghost" className="h-8 w-8 p-0">
+    //             <span className="sr-only">Open menu</span>
+    //             <MoreHorizontal />
+    //           </Button>
+    //         </DropdownMenuTrigger>
+    //
+    //         <DropdownMenuContent align="end">
+    //           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+    //           <DropdownMenuSeparator />
+    //
+    //           {/*<Link href={`/patients/${patient.id}`}>*/}
+    //           {/*</Link>*/}
+    //
+    //           <DropdownMenuItem className="cursor-pointer">
+    //             <PenIcon size={18} />
+    //             Edit plan
+    //           </DropdownMenuItem>
+    //
+    //           {/*<DropdownMenuItem*/}
+    //           {/*  variant="destructive"*/}
+    //           {/*  className="cursor-pointer"*/}
+    //           {/*  onClick={() => setOpenDelete(patient)}*/}
+    //           {/*>*/}
+    //           {/*  <TrashIcon size={18} />*/}
+    //           {/*  <span>Delete patient</span>*/}
+    //           {/*</DropdownMenuItem>*/}
+    //         </DropdownMenuContent>
+    //       </DropdownMenu>
+    //     );
+    //   },
+    // },
   ];
 
   const table = useReactTable({
@@ -260,22 +223,22 @@ export default function PatientList() {
             size="icon"
             className="text-primary border round-lg cur"
           >
-            <Users />
+            <WavesIcon />
           </Button>
 
-          <span className="text-lg font-medium">Patient List</span>
+          <span className="text-lg font-medium">Treatment Plans</span>
         </CardTitle>
 
         <div className="flex items-center gap-6">
           <InputWithIcon
             type="text"
             StartIcon={
-              <UserSearchIcon
+              <SearchIcon
                 className="text-muted-foreground pointer-events-none absolute left-2 top-1/2 -translate-y-1/2"
                 size={18}
               />
             }
-            placeholder="Search patients"
+            placeholder="Search treatment plans"
             className="w-[400px] h-10"
             value={globalFilter}
             onChange={(event) => setGlobalFilter(event.target.value)}
@@ -299,30 +262,12 @@ export default function PatientList() {
         <DataTable table={table} />
       </CardContent>
 
-      <CardFooter>
-        <DeleteDialog
-          open={Boolean(openDelete)}
-          isLoading={isDeletingPatient}
-          title={`Delete the patient "${openDelete?.name}"?`}
-          description={`This action cannot be undone.`}
-          onConfirm={async () => {
-            await deletePatient({
-              documentId: openDelete?.id,
-              onSuccess: () => {
-                setOpenDelete(null);
-              },
-            });
-          }}
-          onCancel={() => {
-            setOpenDelete(null);
-          }}
-        />
-      </CardFooter>
+      {/*<CardFooter></CardFooter>*/}
     </Card>
   );
 }
 
-function DataTable({ table }: { table: TableType<Patient> }) {
+function DataTable({ table }: { table: TableType<TreatmentPlan> }) {
   return (
     <div className="w-full">
       <Table>
@@ -370,11 +315,6 @@ function DataTable({ table }: { table: TableType<Patient> }) {
       </Table>
 
       <div className="flex items-center justify-end space-x-2 py-4 px-6">
-        {/*<div className="text-muted-foreground flex-1 text-sm">*/}
-        {/*  {table.getFilteredSelectedRowModel().rows.length} of{" "}*/}
-        {/*  {table.getFilteredRowModel().rows.length} patient(s) selected.*/}
-        {/*</div>*/}
-
         <div className="space-x-2 px-6">
           <Button
             variant="outline"

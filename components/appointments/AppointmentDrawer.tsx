@@ -35,7 +35,7 @@ export default function AppointmentDrawer({
         <DrawerHeader className="border-b flex-col w-full gap-3">
           <div className="flex flex-row w-full justify-between items-center">
             <DrawerTitle className="font-medium">
-              # {appointmentData?.id}
+              # {appointmentData?.appointment_number}
             </DrawerTitle>
             <DrawerClose className="cursor-pointer" ref={closeRef}>
               <XIcon className="size-4" />
@@ -100,12 +100,12 @@ export default function AppointmentDrawer({
               </span>
             </div>
 
-            <div className="border border-dashed p-3 rounded-lg text-sm w-full h-full flex flex-col gap-1">
-              <span>Amount to be charged</span>
-              <span className="text-muted-foreground">
-                ₹ {appointmentData?.amount_to_charge}
-              </span>
-            </div>
+            {/*<div className="border border-dashed p-3 rounded-lg text-sm w-full h-full flex flex-col gap-1">*/}
+            {/*  <span>Amount to be charged</span>*/}
+            {/*  <span className="text-muted-foreground">*/}
+            {/*    ₹ {appointmentData?.amount_to_charge}*/}
+            {/*  </span>*/}
+            {/*</div>*/}
           </div>
 
           <AppointmentNotes notes={appointmentData?.notes} />

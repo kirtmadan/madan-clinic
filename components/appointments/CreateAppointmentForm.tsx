@@ -9,12 +9,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import {
   Select,
   SelectContent,
@@ -34,7 +33,6 @@ import {
 import { CalendarIcon, XIcon } from "lucide-react";
 import { useGetAllPatients } from "@/lib/tanstack-query/patients/Queries";
 import { useGetAllDoctors } from "@/lib/tanstack-query/doctors/Queries";
-import { useGetAllTreatmentTemplates } from "@/lib/tanstack-query/treatment-templates/Queries";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -50,13 +48,6 @@ import day from "@/lib/day";
 const formSchema = z.object({
   doctor_id: z.string().min(1, "Please select a doctor"),
   patient_id: z.string().min(1, "Please select a patient"),
-  treatment_id: z.string().min(1, "Please select a treatment"),
-  amount_to_charge: z
-    .string()
-    .min(1, "Please enter a valid amount to charge")
-    .refine((val) => !isNaN(Number(val)), {
-      message: "Please enter a valid amount",
-    }),
   notes: z
     .string()
     .max(256, "Notes must be less than 256 characters")
@@ -123,15 +114,12 @@ export function CreateAppointmentForm({
 
   const { data: patientsData } = useGetAllPatients({});
   const { data: doctorsData } = useGetAllDoctors({});
-  const { data: treatmentTemplates } = useGetAllTreatmentTemplates({});
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       doctor_id: "",
-      treatment_id: "",
       patient_id: "",
-      amount_to_charge: "",
       date: undefined,
       status: "scheduled",
       notes: undefined,
@@ -144,7 +132,6 @@ export function CreateAppointmentForm({
     await addAppointment({
       doc: {
         ...values,
-        amount_to_charge: Number(values.amount_to_charge),
         created_at: new Date().toISOString(),
       },
       onSuccess: () => {
@@ -236,84 +223,6 @@ export function CreateAppointmentForm({
             </FormItem>
           )}
         />
-
-        <FormField
-          control={form.control}
-          name="treatment_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Treatment</FormLabel>
-
-              <FormControl>
-                <Select
-                  onValueChange={(value: string) => {
-                    field.onChange(value);
-
-                    if (
-                      treatmentTemplates &&
-                      Array.isArray(treatmentTemplates)
-                    ) {
-                      const obj = treatmentTemplates?.find(
-                        (x) => x?.id === value,
-                      );
-
-                      form.setValue("amount_to_charge", obj?.cost?.toString());
-                      form.clearErrors("amount_to_charge");
-                    }
-                  }}
-                  value={field?.value}
-                >
-                  <SelectTrigger className="w-full bg-white">
-                    <SelectValue placeholder="Select a treatment template" />
-                  </SelectTrigger>
-
-                  <SelectContent>
-                    {(Array.isArray(treatmentTemplates)
-                      ? treatmentTemplates
-                      : []
-                    ).map((template) => (
-                      <SelectItem value={template?.id} key={template?.id}>
-                        <div
-                          className="size-4 rounded-sm"
-                          style={{ backgroundColor: template?.color }}
-                        ></div>
-                        {template?.name} - ₹ {template?.cost}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="border bg-primary/85 rounded-md w-full p-4 border-dashed flex flex-col gap-2">
-          <p className="text-sm text-primary-foreground">Amount to charge</p>
-
-          <FormField
-            control={form.control}
-            name="amount_to_charge"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    type="number"
-                    className="bg-white"
-                    placeholder="Enter the amount manually"
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                    }}
-                  />
-                </FormControl>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
 
         <FormField
           control={form.control}

@@ -1,7 +1,6 @@
 // "use server";
 
 import { createClient } from "@/lib/supabase/client";
-import { PostgrestFilterBuilder } from "@supabase/postgrest-js";
 
 interface AddDocumentProps {
   tableName: string;
@@ -25,6 +24,95 @@ export const addDocument = async ({ tableName, doc }: AddDocumentProps) => {
   } catch (error) {
     console.log("Error adding document: ", error);
     return { error: "Error adding document" };
+  }
+};
+
+export const addTreatmentPlan = async ({
+  patientId,
+  description,
+  treatmentItems,
+}: {
+  patientId: string;
+  description: string;
+  treatmentItems: { treatment_id: string; quantity: number | string }[];
+}) => {
+  const supabase = createClient();
+
+  const { status, error } = await supabase.rpc(
+    "add_treatment_plan_with_items",
+    {
+      _patient_id: patientId,
+      _description: description,
+      _status: "ongoing",
+      _items: treatmentItems?.map((item) => ({
+        ...item,
+        quantity: parseInt(item?.quantity?.toString()),
+      })),
+    },
+  );
+
+  if (status === 200) {
+    return { message: "Successfully added the treatment plan" };
+  } else {
+    console.error("Error inserting treatment plan with items:", error);
+    return { error: "Error adding the treatment plan" };
+  }
+};
+
+export const updateTreatmentPlanPayment = async ({
+  amount,
+  auth_amount,
+  plan_id,
+}: {
+  amount: number;
+  auth_amount: number;
+  plan_id: string;
+}) => {
+  const supabase = createClient();
+
+  const { status, error } = await supabase.rpc(
+    "update_paid_amount_in_treatment_plan",
+    {
+      amount,
+      auth_amount,
+      plan_id,
+    },
+  );
+
+  if ([200, 204].includes(status)) {
+    return { message: "Successfully updated the payment details" };
+  } else {
+    console.error("Error updating the payment details:", error);
+    return { error: "Error updating the payment details" };
+  }
+};
+
+export const updateTreatmentPlanItems = async ({
+  _plan_id,
+  treatmentItems,
+}: {
+  _plan_id: string;
+  treatmentItems: {
+    plan_item_id?: string;
+    treatment_id: string;
+    quantity: number | string;
+  }[];
+}) => {
+  const supabase = createClient();
+
+  const { status, error } = await supabase.rpc("upsert_treatment_plan_items", {
+    _plan_id,
+    _items: treatmentItems?.map((item) => ({
+      ...item,
+      quantity: parseInt(item?.quantity?.toString()),
+    })),
+  });
+
+  if (status === 200) {
+    return { message: "Successfully updated the treatment plan items" };
+  } else {
+    console.error("Error updating treatment plan items:", error);
+    return { error: "Error updating the treatment plan items" };
   }
 };
 
