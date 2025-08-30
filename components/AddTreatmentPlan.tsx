@@ -50,8 +50,8 @@ const planItemSchema = z.object({
 const formSchema = z.object({
   description: z
     .string()
-    .min(1, { message: "Plan description is required" })
-    .max(128, { message: "Plan description must be less than 128 characters" }),
+    .max(128, { message: "Plan description must be less than 128 characters" })
+    .optional(),
   items: z.array(planItemSchema),
   // .min(1, "At least one treatment is required"),
 });
@@ -132,14 +132,14 @@ export function AddTreatmentPlanForm({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-8 px-4 py-6"
+          className="space-y-8 px-4 py-6 overflow-y-auto"
         >
           <FormField
             control={form.control}
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
+                <FormLabel>Description (Optional)</FormLabel>
                 <FormControl>
                   <Textarea
                     {...field}

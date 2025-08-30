@@ -33,7 +33,7 @@ export const addTreatmentPlan = async ({
   treatmentItems,
 }: {
   patientId: string;
-  description: string;
+  description?: string;
   treatmentItems: { treatment_id: string; quantity: number | string }[];
 }) => {
   const supabase = createClient();

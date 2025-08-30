@@ -18,7 +18,7 @@ export const useAddTreatmentPlan = () => {
       onSuccess,
     }: {
       patientId: string;
-      description: string;
+      description?: string;
       treatmentItems: { treatment_id: string; quantity: number | string }[];
       onSuccess?: () => void;
     }) => {

@@ -65,7 +65,7 @@ export default function PatientAppointmentsTable({ id }: { id: string }) {
     patient:patient_id ( id, name )
   `,
     filters: [(query: any) => query.eq("patient_id", id)],
-    limit: 5,
+    // limit: 5,
   });
 
   const [sorting, setSorting] = useState<SortingState>([]);

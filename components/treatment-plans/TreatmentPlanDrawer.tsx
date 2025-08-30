@@ -72,7 +72,7 @@ export default function TreatmentPlanDrawer({
     <Drawer direction="right">
       <DrawerTrigger asChild>{trigger}</DrawerTrigger>
 
-      <DrawerContent className="sm:w-[800px]! sm:max-w-none!">
+      <DrawerContent className="sm:w-[800px]! sm:max-w-none! overflow-x-hidden overflow-y-auto">
         <DrawerHeader className="border-b flex-col w-full gap-3">
           <div className="flex flex-row w-full justify-between items-center">
             <DrawerTitle className="font-medium"># {planData?.id}</DrawerTitle>
@@ -124,10 +124,20 @@ export default function TreatmentPlanDrawer({
                 </div>
 
                 <div className="border border-dashed p-3 rounded-lg text-sm w-full h-full flex flex-col gap-1">
-                  <span>Total amount to be charged</span>
-                  <span className="text-muted-foreground">
-                    ₹ {totalAmountToBeCharged}
-                  </span>
+                  <span>Authorized amount</span>
+                  {planData?.authorized_amount === totalAmountToBeCharged ||
+                  !planData?.authorized_amount ? (
+                    <span className="text-muted-foreground">
+                      ₹ {totalAmountToBeCharged}
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground">
+                      <span className="line-through mr-2">
+                        {totalAmountToBeCharged}
+                      </span>
+                      ₹{planData?.authorized_amount}
+                    </span>
+                  )}
                 </div>
               </div>
 

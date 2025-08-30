@@ -39,6 +39,7 @@ import {
   useUpdatePatient,
 } from "@/lib/tanstack-query/patients/Mutations";
 import { useRouter } from "next/navigation";
+import { Switch } from "@/components/ui/switch";
 
 const formSchema = z.object({
   name: z
@@ -65,6 +66,7 @@ const formSchema = z.object({
     .string()
     .min(1, { message: "Address is required" })
     .max(264, { message: "Address must be less than 264 characters" }),
+  charge_fee: z.boolean(),
 });
 
 interface AddPatientProps {
@@ -119,6 +121,7 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
       age: "",
       gender: "",
       address: "",
+      charge_fee: false,
     },
   });
 
@@ -320,6 +323,24 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
                 </FormControl>
 
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="charge_fee"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <FormLabel>Charge Fee</FormLabel>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
               </FormItem>
             )}
           />
