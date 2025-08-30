@@ -47,6 +47,7 @@ import {
 } from "@/lib/tanstack-query/treatment-plans/Mutations";
 import { isEqual } from "lodash";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { cn } from "@/lib/utils";
 
 interface TreatmentPlanDrawerProps {
   trigger: React.ReactNode;
@@ -147,7 +148,12 @@ export default function TreatmentPlanDrawer({
 
               <h4>Plan Items</h4>
 
-              <TreatmentPlanItems treatment_plan_id={planData?.id} />
+              <TreatmentPlanItems
+                disableEditing={["partially_paid", "paid"].includes(
+                  planData?.status,
+                )}
+                treatment_plan_id={planData?.id}
+              />
             </div>
           </TabsContent>
           <TabsContent value="payment">
@@ -196,8 +202,10 @@ const planItemSchema = z.object({
 
 function TreatmentPlanItems({
   treatment_plan_id,
+  disableEditing,
 }: {
   treatment_plan_id: string;
+  disableEditing: boolean;
 }) {
   const formSchema = z.object({
     items: z.array(planItemSchema),
@@ -244,6 +252,7 @@ function TreatmentPlanItems({
     useUpdateTreatmentPlanItems();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (disableEditing) return;
     if (arePlanItemsSame) return;
 
     await updatePlanItems({
@@ -284,7 +293,12 @@ function TreatmentPlanItems({
                           }}
                           value={field?.value}
                         >
-                          <SelectTrigger className="w-full bg-white">
+                          <SelectTrigger
+                            className={cn(
+                              "w-full bg-white",
+                              disableEditing && "pointer-events-none",
+                            )}
+                          >
                             <SelectValue placeholder="Select a treatment template" />
                           </SelectTrigger>
 
@@ -324,6 +338,7 @@ function TreatmentPlanItems({
 
                       <FormControl>
                         <Input
+                          readOnly={disableEditing}
                           type="number"
                           className="w-full bg-white"
                           placeholder="Qt."
@@ -336,7 +351,12 @@ function TreatmentPlanItems({
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 w-full">
+              <div
+                className={cn(
+                  "flex items-center justify-end gap-2 w-full",
+                  disableEditing && "hidden",
+                )}
+              >
                 <Button
                   variant="destructive"
                   size="icon"
@@ -363,7 +383,12 @@ function TreatmentPlanItems({
             </div>
           ))}
 
-          <div className="flex items-center gap-2 justify-end w-full">
+          <div
+            className={cn(
+              "flex items-center gap-2 justify-end w-full",
+              disableEditing && "hidden",
+            )}
+          >
             <Button
               type="submit"
               loading={isPending}

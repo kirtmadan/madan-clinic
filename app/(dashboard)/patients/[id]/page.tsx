@@ -43,6 +43,8 @@ export default async function PatientDetailsPage({
     treatment_plans (
       id,
       authorized_amount,
+      status,
+      paid_total,
       treatment_plan_items (
         quantity,
         recorded_unit_price
@@ -73,18 +75,29 @@ export default async function PatientDetailsPage({
     );
   }
 
-  const totalOverdueAmount = data?.treatment_plans?.reduce(
-    (grandTotal: number, plan: any) => {
-      const planTotal = plan?.treatment_plan_items?.reduce(
-        (total: number, item: any) =>
-          total + item?.quantity * item?.recorded_unit_price,
-        0,
-      );
+  const totalOverdueAmount = data?.treatment_plans
+    ?.filter((plan: any) => plan?.status !== "paid") // exclude fully paid
+    ?.reduce((grandTotal: number, plan: any) => {
+      // Decide whether to use authorized_amount or compute from items
+      const planAuthorizedOrCalc =
+        plan?.authorized_amount ??
+        plan?.treatment_plan_items?.reduce(
+          (total: number, item: any) =>
+            total + item?.quantity * item?.recorded_unit_price,
+          0,
+        );
 
-      return grandTotal + planTotal;
-    },
-    0,
-  );
+      let overdue = 0;
+
+      if (plan?.status === "partially_paid") {
+        overdue = planAuthorizedOrCalc - (plan?.paid_total ?? 0);
+      } else {
+        // for unpaid → take full amount
+        overdue = planAuthorizedOrCalc;
+      }
+
+      return grandTotal + overdue;
+    }, 0);
 
   return (
     <div className="w-full flex flex-col gap-6">

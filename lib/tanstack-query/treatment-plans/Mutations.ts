@@ -6,6 +6,7 @@ import {
 } from "@/lib/actions/supabase.actions";
 import { toast } from "sonner";
 import { TREATMENT_PLANS_QUERY_KEYS } from "@/lib/tanstack-query/treatment-plans/Keys";
+import { revalidateCache } from "@/lib/actions/server.actions";
 
 export const useAddTreatmentPlan = () => {
   const queryClient = useQueryClient();
@@ -39,6 +40,8 @@ export const useAddTreatmentPlan = () => {
       void queryClient.invalidateQueries({
         queryKey: [TREATMENT_PLANS_QUERY_KEYS.GET_ALL_TREATMENT_PLANS],
       });
+
+      void revalidateCache(`/patients`);
     },
   });
 };
@@ -76,6 +79,8 @@ export const useUpdateTreatmentPlanItems = () => {
       void queryClient.invalidateQueries({
         queryKey: [TREATMENT_PLANS_QUERY_KEYS.GET_ALL_TREATMENT_PLAN_ITEMS],
       });
+
+      void revalidateCache(`/patients`);
     },
   });
 };
@@ -112,6 +117,8 @@ export const useUpdateTreatmentPlanPayment = () => {
       void queryClient.invalidateQueries({
         queryKey: [TREATMENT_PLANS_QUERY_KEYS.GET_ALL_TREATMENT_PLANS],
       });
+
+      void revalidateCache(`/patients`);
     },
   });
 };
