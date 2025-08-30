@@ -30,6 +30,25 @@ export default async function PatientDetailsPage({
   const data: any = await getData({
     tableName: "patients",
     documentId: id,
+    select: `
+    id,
+    name,
+    age,
+    gender,
+    patient_number,
+    address,
+    email,  
+    phone,
+    created_at,
+    treatment_plans (
+      id,
+      authorized_amount,
+      treatment_plan_items (
+        quantity,
+        recorded_unit_price
+      )
+    )
+    `,
   });
 
   if (data?.error) {
@@ -53,6 +72,19 @@ export default async function PatientDetailsPage({
       </div>
     );
   }
+
+  const totalOverdueAmount = data?.treatment_plans?.reduce(
+    (grandTotal: number, plan: any) => {
+      const planTotal = plan?.treatment_plan_items?.reduce(
+        (total: number, item: any) =>
+          total + item?.quantity * item?.recorded_unit_price,
+        0,
+      );
+
+      return grandTotal + planTotal;
+    },
+    0,
+  );
 
   return (
     <div className="w-full flex flex-col gap-6">
@@ -98,7 +130,7 @@ export default async function PatientDetailsPage({
 
         <div className="col-span-2 flex flex-col gap-4">
           <OverdueBalance
-            overdueAmount={data?.overdue_amount}
+            overdueAmount={totalOverdueAmount || 0}
             overdueUpdatedAt={data?.overdue_updated_at}
           />
 

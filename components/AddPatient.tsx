@@ -163,8 +163,6 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
         email: values.email,
         name: values.name,
         phone: values.phone,
-        overdue_amount: 0,
-        overdue_updated_at: null,
         created_at: new Date().toISOString(),
       },
       onSuccess: () => {

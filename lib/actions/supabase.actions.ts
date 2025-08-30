@@ -169,16 +169,21 @@ export const deleteDocument = async ({
 export const getData = async ({
   tableName,
   documentId,
+  select,
 }: {
   tableName: string;
   documentId: string;
+  select?: string;
 }) => {
   const supabase = createClient();
 
-  const { data, error } = await supabase
-    .from(tableName)
-    .select()
-    .eq("id", documentId);
+  let query = supabase.from(tableName).select().eq("id", documentId);
+
+  if (select) {
+    query = supabase.from(tableName).select(select).eq("id", documentId);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     return { error: error.message };

@@ -126,8 +126,6 @@ export function AddLabOrderForm({ onCancel }: AddLabOrderFormProps) {
         email: values.email,
         name: values.name,
         phone: values.phone,
-        overdue_amount: 0,
-        overdue_updated_at: null,
       },
       onSuccess: () => {
         onCancel?.();
