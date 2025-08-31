@@ -15,6 +15,7 @@ import CompleteAppointment from "@/components/appointments/CompleteAppointment";
 import { toast } from "sonner";
 import AppointmentNotes from "@/components/appointments/AppointmentNotes";
 import AppointmentStatusRenderer from "@/components/cellRenderers/AppointmentStatusRenderer";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface AppointmentDrawerProps {
   trigger: React.ReactNode;
@@ -26,13 +27,14 @@ export default function AppointmentDrawer({
   appointmentData,
 }: AppointmentDrawerProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const isMobile = useIsMobile();
 
   return (
-    <Drawer direction="right">
+    <Drawer direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>{trigger}</DrawerTrigger>
 
-      <DrawerContent className="sm:w-[800px]! sm:max-w-none!">
-        <DrawerHeader className="border-b flex-col w-full gap-3">
+      <DrawerContent className="sm:w-[800px]! sm:max-w-none! bg-card overflow-y-auto">
+        <DrawerHeader className="border-b flex-col w-full gap-3 group-data-[vaul-drawer-direction=bottom]/drawer-content:text-left">
           <div className="flex flex-row w-full justify-between items-center">
             <DrawerTitle className="font-medium">
               # {appointmentData?.appointment_number}
@@ -49,9 +51,9 @@ export default function AppointmentDrawer({
         </DrawerHeader>
 
         <div className="flex flex-col gap-4 p-4 w-full">
-          <div className="flex gap-6 items-center w-full">
+          <div className="flex flex-col md:flex-row gap-6 md:items-center w-full">
             <div className="flex items-center gap-4">
-              <Avatar className="size-14 cursor-pointer border">
+              <Avatar className="size-10 md:size-14 cursor-pointer border">
                 <AvatarFallback>
                   {appointmentData?.patient?.name?.split(" ")?.[0]?.[0]}
                   {appointmentData?.patient?.name?.split(" ")?.[1]?.[0] ||
@@ -69,7 +71,7 @@ export default function AppointmentDrawer({
             <ArrowLeftRightIcon className="ml-4 text-muted-foreground" />
 
             <div className="flex items-center gap-4">
-              <Avatar className="size-14 cursor-pointer border">
+              <Avatar className="size-10 md:size-14 cursor-pointer border">
                 <AvatarFallback>
                   {appointmentData?.doctor?.name?.split(" ")?.[0]?.[0]}
                   {appointmentData?.doctor?.name?.split(" ")?.[1]?.[0] ||

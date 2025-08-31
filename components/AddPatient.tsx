@@ -40,6 +40,7 @@ import {
 } from "@/lib/tanstack-query/patients/Mutations";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const formSchema = z.object({
   name: z
@@ -78,11 +79,13 @@ export default function AddPatient({ trigger, editData }: AddPatientProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const mode = editData ? "edit" : "add";
 
+  const isMobile = useIsMobile();
+
   return (
-    <Drawer direction="right">
+    <Drawer direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>{trigger}</DrawerTrigger>
 
-      <DrawerContent className="max-w-xl">
+      <DrawerContent className="md:max-w-xl">
         <DrawerHeader className="border-b flex-row w-full justify-between items-center">
           <DrawerTitle className="font-medium capitalize">
             {mode} Patient
@@ -129,10 +132,10 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
     if (editData) {
       form.reset({
         name: editData?.name,
-        age: editData?.age?.toString(),
-        gender: editData?.gender,
         phone: editData?.phone,
         email: editData?.email,
+        age: editData?.age?.toString(),
+        gender: editData?.gender,
         address: editData?.address,
       });
     }
@@ -327,23 +330,25 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="charge_fee"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                <div className="space-y-0.5">
-                  <FormLabel>Charge Fee</FormLabel>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+          {!editData && (
+            <FormField
+              control={form.control}
+              name="charge_fee"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Charge Fee</FormLabel>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          )}
 
           <div className="w-full flex items-center justify-end gap-4">
             <Button

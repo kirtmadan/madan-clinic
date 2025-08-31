@@ -34,6 +34,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useGetAllTreatmentTemplates } from "@/lib/tanstack-query/treatment-templates/Queries";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const planItemSchema = z.object({
   treatment_id: z.string().min(1, { message: "Select a treatment" }),
@@ -66,12 +67,13 @@ export default function AddTreatmentPlan({
   patientId,
 }: AddTreatmentPlanProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const isMobile = useIsMobile();
 
   return (
-    <Drawer direction="right">
+    <Drawer direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>{trigger}</DrawerTrigger>
 
-      <DrawerContent className="lg:max-w-3xl!">
+      <DrawerContent className="max-w-full lg:max-w-3xl!">
         <DrawerHeader className="border-b flex-row w-full justify-between items-center">
           <DrawerTitle className="font-medium">Add Treatment Plan</DrawerTitle>
           <DrawerClose className="cursor-pointer" ref={closeRef}>
@@ -160,7 +162,7 @@ export function AddTreatmentPlanForm({
               className="grid grid-cols-8 items-end gap-2 w-full"
               key={field?.id}
             >
-              <div className="col-span-5 max-w-full overflow-hidden">
+              <div className="col-span-8 md:col-span-5 max-w-full overflow-hidden">
                 <FormField
                   control={form.control}
                   name={`items.${index}.treatment_id`}
@@ -174,7 +176,7 @@ export function AddTreatmentPlanForm({
                           }}
                           value={field?.value}
                         >
-                          <SelectTrigger className="w-full bg-white">
+                          <SelectTrigger className="w-full bg-white truncate">
                             <SelectValue placeholder="Select a treatment template" />
                           </SelectTrigger>
 
@@ -204,7 +206,7 @@ export function AddTreatmentPlanForm({
                 />
               </div>
 
-              <div className="col-span-2">
+              <div className="col-span-4 md:col-span-2">
                 <FormField
                   control={form.control}
                   name={`items.${index}.quantity`}
@@ -226,7 +228,7 @@ export function AddTreatmentPlanForm({
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 w-full">
+              <div className="col-span-4 md:col-span-1 flex items-center justify-end gap-2 w-full">
                 <Button
                   variant="destructive"
                   size="icon"

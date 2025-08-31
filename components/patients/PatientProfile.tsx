@@ -34,15 +34,15 @@ export default function PatientProfile({
   address,
 }: PatientProfileProps) {
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden w-full">
       <CardHeader className="flex! flex-row justify-between items-center">
         <CardTitle className="font-medium text-lg">Patient Profile</CardTitle>
       </CardHeader>
 
       <CardContent>
-        <div className="border-b pb-4 w-full h-full flex items-center justify-center flex-col gap-2">
-          <Avatar className="size-28">
-            <AvatarFallback className="text-3xl uppercase!">
+        <div className="border-b pb-4 w-full md:h-full flex items-center justify-center flex-col gap-2">
+          <Avatar className="size-20 md:size-28">
+            <AvatarFallback className="text-lg md:text-3xl uppercase!">
               {name?.split(" ")?.[0]?.[0]}
               {name?.split(" ")?.[1]?.[0] || name?.split(" ")?.[0]?.[1]}
             </AvatarFallback>
@@ -85,7 +85,7 @@ export default function PatientProfile({
               Email Address
             </div>
 
-            <span className="text-base pl-5">{email}</span>
+            <span className="text-base pl-5">{email || "Not available"}</span>
           </div>
 
           <div className="flex flex-col gap-1">

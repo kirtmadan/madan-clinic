@@ -101,10 +101,10 @@ export default async function PatientDetailsPage({
 
   return (
     <div className="w-full flex flex-col gap-6">
-      <div className="w-full h-full flex items-center justify-end">
+      <div className="w-full h-full flex gap-4 flex-col md:flex-row md:items-center justify-end">
         <PatientBreadcrumb className="p-0" id={data?.name} />
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col md:flex-row md:items-center gap-4">
           <AddPatient
             trigger={
               <Button variant="outline">
@@ -126,22 +126,20 @@ export default async function PatientDetailsPage({
         </div>
       </div>
 
-      <div className="w-full grid gap-4 grid-cols-3">
-        <div className="col-span-1">
-          <PatientProfile
-            id={id}
-            name={data?.name}
-            age={data?.age}
-            gender={data?.gender}
-            patient_number={data?.patient_number}
-            address={data?.address}
-            email={data?.email}
-            createdAt={data?.created_at}
-            phone={data?.phone}
-          />
-        </div>
+      <div className="w-full grid gap-4 grid-cols-1 md:grid-cols-3">
+        <PatientProfile
+          id={id}
+          name={data?.name}
+          age={data?.age}
+          gender={data?.gender}
+          patient_number={data?.patient_number}
+          address={data?.address}
+          email={data?.email}
+          createdAt={data?.created_at}
+          phone={data?.phone}
+        />
 
-        <div className="col-span-2 flex flex-col gap-4">
+        <div className="col-span-1 md:col-span-2 flex flex-col gap-4">
           <OverdueBalance
             overdueAmount={totalOverdueAmount || 0}
             overdueUpdatedAt={data?.overdue_updated_at}
@@ -150,7 +148,7 @@ export default async function PatientDetailsPage({
           <PatientAppointments id={id} />
         </div>
 
-        <div className="w-full col-span-3">
+        <div className="w-full col-span-1 md:col-span-3">
           <TreatmentPlans patientId={id} />
         </div>
 
