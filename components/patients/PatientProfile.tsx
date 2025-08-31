@@ -40,7 +40,7 @@ export default function PatientProfile({
       </CardHeader>
 
       <CardContent>
-        <div className="border-b pb-4 w-full md:h-full flex items-center justify-center flex-col gap-2">
+        <div className="border-b pb-4 w-full flex items-center justify-center flex-col gap-2">
           <Avatar className="size-20 md:size-28">
             <AvatarFallback className="text-lg md:text-3xl uppercase!">
               {name?.split(" ")?.[0]?.[0]}
