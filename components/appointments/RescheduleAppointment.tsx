@@ -29,7 +29,11 @@ export default function RescheduleAppointment({
 
   const rescheduleAppointment = async (date: Date) => {
     await updateAppointment({
-      doc: { status: "scheduled", date: day(date).format("YYYY-MM-DD") },
+      doc: {
+        status: "rescheduled",
+        rs_date: day().format("YYYY-MM-DD"),
+        date: day(date).format("YYYY-MM-DD"),
+      },
       documentId: appointmentData?.id,
       onSuccess: () => {
         setDate(undefined);

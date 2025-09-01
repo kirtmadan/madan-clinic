@@ -93,17 +93,20 @@ export const useUpdateTreatmentPlanPayment = () => {
       amount,
       auth_amount,
       treatmentPlanId,
+      patientId,
       onSuccess,
     }: {
       treatmentPlanId: string;
       amount: number;
       auth_amount: number;
+      patientId: string;
       onSuccess?: () => void;
     }) => {
       const res = await updateTreatmentPlanPayment({
-        amount,
-        auth_amount,
-        plan_id: treatmentPlanId,
+        _amount: amount,
+        _auth_amount: auth_amount,
+        _plan_id: treatmentPlanId,
+        _patient_id: patientId,
       });
 
       if ("error" in res) {

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+// import Link from "next/link";
 import { useState } from "react";
 
 import {
@@ -30,13 +30,11 @@ import {
 
 import { CalendarIcon } from "lucide-react";
 
-import DataTableRow from "@/components/DataTableRow";
-
 import dayjs from "dayjs";
 import { useGetAllAppointments } from "@/lib/tanstack-query/appointments/Queries";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import AppointmentDrawer from "@/components/appointments/AppointmentDrawer";
-import AppointmentStatusRenderer from "@/components/cellRenderers/AppointmentStatusRenderer";
+// import AppointmentStatusRenderer from "@/components/cellRenderers/AppointmentStatusRenderer";
 
 export type Appointment = {
   id: string | number;
@@ -65,7 +63,6 @@ export default function AppointmentsTable() {
     status,
     notes,
     created_at,
-    doctor:doctor_id ( id, name ),
     patient:patient_id ( id, name )
   `,
   });
@@ -101,31 +98,15 @@ export default function AppointmentsTable() {
     //   enableSorting: false,
     //   enableHiding: false,
     // },
-    {
-      accessorKey: "appointment_number",
-      header: "Appointment Number",
-      cell: ({ row }) => (
-        <AppointmentDrawer
-          key={row.id}
-          appointmentData={row.original}
-          trigger={<span># {row.getValue("appointment_number")}</span>}
-        />
-      ),
-    },
-    {
-      accessorKey: "date",
-      header: "Appointment Date",
-      cell: ({ row }) => (
-        <>{dayjs(row.getValue("date")).format("DD MMM YYYY")}</>
-      ),
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        return <AppointmentStatusRenderer status={row.getValue("status")} />;
-      },
-    },
+
+    // {
+    //   accessorKey: "status",
+    //   header: "Status",
+    //   cell: ({ row }) => {
+    //     return <AppointmentStatusRenderer status={row.getValue("status")} />;
+    //   },
+    // },
+
     {
       id: "patient.name",
       accessorFn: (row) => row?.patient?.name,
@@ -134,43 +115,26 @@ export default function AppointmentsTable() {
         const patientName: string = row.getValue("patient.name");
 
         return (
-          <Link href={`/patients/${row.original.patient?.id}`}>
-            <div className="font-medium w-full flex items-center gap-3 hover:text-primary">
-              <Avatar>
-                <AvatarFallback className="border-[0.5px] uppercase">
-                  {patientName?.split(" ")?.[0]?.[0]}
-                  {patientName?.split(" ")?.[1]?.[0] ||
-                    patientName?.split(" ")?.[0]?.[1]}
-                </AvatarFallback>
-              </Avatar>
+          <div className="font-medium w-full flex items-center gap-3">
+            <Avatar>
+              <AvatarFallback className="border-[0.5px] uppercase">
+                {patientName?.split(" ")?.[0]?.[0]}
+                {patientName?.split(" ")?.[1]?.[0] ||
+                  patientName?.split(" ")?.[0]?.[1]}
+              </AvatarFallback>
+            </Avatar>
 
-              <span>{patientName}</span>
-            </div>
-          </Link>
+            <span>{patientName}</span>
+          </div>
         );
       },
     },
     {
-      id: "doctor.name",
-      accessorFn: (row) => row.doctor.name,
-      header: "Doctor Name",
-      cell: ({ row }) => {
-        const doctorName: string = row.getValue("doctor.name");
-
-        return (
-          <div className="font-medium w-full flex items-center gap-3">
-            <Avatar>
-              <AvatarFallback className="border-[0.5px] uppercase">
-                {doctorName?.split(" ")?.[0]?.[0]}
-                {doctorName?.split(" ")?.[1]?.[0] ||
-                  doctorName?.split(" ")?.[0]?.[1]}
-              </AvatarFallback>
-            </Avatar>
-
-            <span>Dr. {doctorName}</span>
-          </div>
-        );
-      },
+      accessorKey: "date",
+      header: "Appointment Date",
+      cell: ({ row }) => (
+        <>{dayjs(row.getValue("date")).format("DD MMM YYYY")}</>
+      ),
     },
   ];
 
@@ -295,15 +259,24 @@ function DataTable({ table }: { table: TableType<Appointment> }) {
 
         <TableBody>
           {table.getRowModel().rows?.length ? (
-            table
-              .getRowModel()
-              .rows.map((row) => (
-                <DataTableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  row={row}
-                />
-              ))
+            table.getRowModel().rows.map((row) => (
+              <AppointmentDrawer
+                key={row?.id}
+                trigger={
+                  <TableRow>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="px-6 py-4">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                }
+                appointmentData={row?.original}
+              />
+            ))
           ) : (
             <TableRow>
               <TableCell colSpan={7} className="h-24 text-center">

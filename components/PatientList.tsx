@@ -66,7 +66,7 @@ export type Patient = {
   age: number;
   phone: string;
   status: string;
-  email: string;
+  // email: string;
 };
 
 export default function PatientList() {
@@ -152,18 +152,7 @@ export default function PatientList() {
     },
     {
       accessorKey: "created_at",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            className="p-0!"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Created On
-            <ArrowUpDown />
-          </Button>
-        );
-      },
+      header: "Created On",
       cell: ({ row }) => (
         <>{dayjs(row.getValue("created_at")).format("DD MMM YYYY")}</>
       ),
@@ -175,13 +164,13 @@ export default function PatientList() {
         return <>{row.getValue("phone")}</>;
       },
     },
-    {
-      accessorKey: "email",
-      header: "Email",
-      cell: ({ row }) => {
-        return <>{row.getValue("email")}</>;
-      },
-    },
+    // {
+    //   accessorKey: "email",
+    //   header: "Email",
+    //   cell: ({ row }) => {
+    //     return <>{row.getValue("email")}</>;
+    //   },
+    // },
     {
       accessorKey: "gender",
       header: "Gender",

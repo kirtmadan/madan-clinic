@@ -14,11 +14,15 @@ export default function AppointmentsByStatus({
 }: {
   date: Date | undefined;
 }) {
+  const formattedDate = dayjs(date).format("YYYY-MM-DD");
+
   const filters = useMemo(() => {
     if (!date) return undefined;
 
-    return [(q: any) => q.eq("date", dayjs(date).format("YYYY-MM-DD"))];
-  }, [date]);
+    return [
+      (q: any) => q.or(`date.eq.${formattedDate},rs_date.eq.${formattedDate}`),
+    ];
+  }, [formattedDate, date]);
 
   const { data, isFetching } = useGetAllAppointments({
     filters,
@@ -36,15 +40,23 @@ export default function AppointmentsByStatus({
   });
 
   const pendingAppointments = Array.isArray(data)
-    ? data?.filter((appointment) => appointment.status === "scheduled")
+    ? data?.filter(
+        (appointment) =>
+          ["scheduled", "rescheduled"].includes(appointment?.status) &&
+          appointment?.rs_date !== formattedDate,
+      )
     : [];
 
   const completedAppointments = Array.isArray(data)
     ? data?.filter((appointment) => appointment.status === "completed")
     : [];
 
-  const cancelledAppointments = Array.isArray(data)
-    ? data?.filter((appointment) => appointment.status === "cancelled")
+  const rescheduledAppointments = Array.isArray(data)
+    ? data?.filter(
+        (appointment) =>
+          appointment.status === "rescheduled" &&
+          appointment?.rs_date === formattedDate,
+      )
     : [];
 
   return (
@@ -53,7 +65,7 @@ export default function AppointmentsByStatus({
         {Array.isArray(data) && data?.length > 0 ? (
           <div className="grid grid-cols-3 gap-6 p-4 max-w-full w-full">
             <div className="w-full flex flex-col gap-4">
-              <Button className="cursor-pointer w-full" variant="secondary">
+              <Button className="cursor-pointer w-full bg-amber-500 hover:bg-amber-600">
                 Pending Appointments
               </Button>
 
@@ -97,8 +109,8 @@ export default function AppointmentsByStatus({
             </div>
 
             <div className="w-full flex flex-col gap-4">
-              <Button className="cursor-pointer w-full" variant="destructive">
-                Cancelled Appointments
+              <Button className="cursor-pointer w-full bg-blue-500 hover:bg-blue-600">
+                Re-scheduled Appointments
               </Button>
 
               <div className="w-full flex flex-col gap-4">
@@ -110,7 +122,7 @@ export default function AppointmentsByStatus({
                   </div>
                 ) : (
                   <>
-                    {cancelledAppointments?.map((appointment: any) => (
+                    {rescheduledAppointments?.map((appointment: any) => (
                       <AppointmentCard key={appointment.id} {...appointment} />
                     ))}
                   </>

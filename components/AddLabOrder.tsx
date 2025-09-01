@@ -35,6 +35,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useAddPatient } from "@/lib/tanstack-query/patients/Mutations";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const formSchema = z.object({
   name: z
@@ -70,10 +71,11 @@ interface AddLabOrderProps {
 
 export default function AddLabOrder({ trigger, editData }: AddLabOrderProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const isMobile = useIsMobile();
   const mode = editData ? "edit" : "add";
 
   return (
-    <Drawer direction="right">
+    <Drawer direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>{trigger}</DrawerTrigger>
 
       <DrawerContent className="max-w-xl">

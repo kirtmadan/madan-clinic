@@ -55,6 +55,7 @@ export default function TreatmentPlans({ patientId }: { patientId: string }) {
     updated_at,
     status,
     paid_total,
+    patient:patient_id ( id, name ),
     authorized_amount,
     treatment_plan_items (
       quantity,

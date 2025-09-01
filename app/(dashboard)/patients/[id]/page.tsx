@@ -19,6 +19,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import TreatmentPlans from "@/components/TreatmentPlans";
 import AddTreatmentPlan from "@/components/AddTreatmentPlan";
+import PatientPayments from "@/components/patients/PatientPayments";
 
 export default async function PatientDetailsPage({
   params,
@@ -37,7 +38,6 @@ export default async function PatientDetailsPage({
     gender,
     patient_number,
     address,
-    email,  
     phone,
     created_at,
     treatment_plans (
@@ -54,6 +54,7 @@ export default async function PatientDetailsPage({
   });
 
   if (data?.error) {
+    console.log(data?.error);
     return (
       <div>
         <PatientBreadcrumb id={data?.name} />
@@ -152,9 +153,9 @@ export default async function PatientDetailsPage({
           <TreatmentPlans patientId={id} />
         </div>
 
-        {/*<div className="w-full col-span-3">*/}
-        {/*  <PatientPayments id={id} />*/}
-        {/*</div>*/}
+        <div className="w-full col-span-3">
+          <PatientPayments id={id} />
+        </div>
       </div>
     </div>
   );

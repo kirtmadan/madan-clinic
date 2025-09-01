@@ -48,6 +48,7 @@ import {
 import { isEqual } from "lodash";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TreatmentPlanDrawerProps {
   trigger: React.ReactNode;
@@ -59,6 +60,8 @@ export default function TreatmentPlanDrawer({
   planData,
 }: TreatmentPlanDrawerProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const isMobile = useIsMobile();
+
   const totalAmountToBeCharged = useMemo(() => {
     return (
       planData?.treatment_plan_items?.reduce(
@@ -70,7 +73,7 @@ export default function TreatmentPlanDrawer({
   }, [planData]);
 
   return (
-    <Drawer direction="right">
+    <Drawer direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>{trigger}</DrawerTrigger>
 
       <DrawerContent className="sm:w-[800px]! sm:max-w-none! overflow-x-hidden overflow-y-auto">
@@ -167,6 +170,7 @@ export default function TreatmentPlanDrawer({
                   totalPaidAmount={planData?.paid_total}
                   treatmentPlanId={planData?.id}
                   authorized_amount={planData?.authorized_amount}
+                  patientId={planData?.patient?.id}
                 />
               )}
             </div>
@@ -408,11 +412,13 @@ function TreatmentPlanPayments({
   totalPaidAmount,
   treatmentPlanId,
   authorized_amount,
+  patientId,
 }: {
   totalAmountToBeCharged: number;
   totalPaidAmount: number;
   treatmentPlanId: string;
   authorized_amount: number;
+  patientId: string;
 }) {
   const { mutateAsync: updateTreatmentPlanPayment, isPending } =
     useUpdateTreatmentPlanPayment();
@@ -459,6 +465,7 @@ function TreatmentPlanPayments({
       amount: Number(values.amount),
       auth_amount: Number(values.authorized_amount),
       treatmentPlanId,
+      patientId,
     });
   }
 

@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { MailIcon, MapPinIcon, PhoneIcon, XIcon } from "lucide-react";
+import { MapPinIcon, PhoneIcon, XIcon } from "lucide-react";
 
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -62,7 +62,6 @@ const formSchema = z.object({
     message: "Gender is a required field",
   }),
   phone: z.string().min(10, { message: "Enter a valid phone number" }),
-  email: z.string().email({ message: "Invalid email address" }).optional(),
   address: z
     .string()
     .min(1, { message: "Address is required" })
@@ -120,7 +119,6 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
     defaultValues: {
       name: "",
       phone: "",
-      email: undefined,
       age: "",
       gender: "",
       address: "",
@@ -133,7 +131,6 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
       form.reset({
         name: editData?.name,
         phone: editData?.phone,
-        email: editData?.email,
         age: editData?.age?.toString(),
         gender: editData?.gender,
         address: editData?.address,
@@ -148,7 +145,6 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
           address: values.address,
           age: Number(values.age),
           gender: values.gender,
-          email: values.email,
           name: values.name,
           phone: values.phone,
         },
@@ -166,7 +162,6 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
         address: values.address,
         age: Number(values.age),
         gender: values.gender,
-        email: values.email,
         name: values.name,
         phone: values.phone,
         created_at: new Date().toISOString(),
@@ -272,31 +267,6 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
                       />
                     }
                     type="number"
-                    {...field}
-                  />
-                </FormControl>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email Address (Optional)</FormLabel>
-                <FormControl>
-                  <InputWithIcon
-                    placeholder="Enter email address"
-                    type="email"
-                    StartIcon={
-                      <MailIcon
-                        className="text-muted-foreground pointer-events-none absolute left-2 top-1/2 -translate-y-1/2"
-                        size={16}
-                      />
-                    }
                     {...field}
                   />
                 </FormControl>

@@ -44,6 +44,7 @@ import dayjs from "dayjs";
 import { cn } from "@/lib/utils";
 import { useAddAppointment } from "@/lib/tanstack-query/appointments/Mutations";
 import day from "@/lib/day";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const formSchema = z.object({
   doctor_id: z.string().min(1, "Please select a doctor"),
@@ -68,9 +69,10 @@ export default function CreateAppointmentFormWithDrawer({
   trigger,
 }: CreateAppointmentFormWithModalProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const isMobile = useIsMobile();
 
   return (
-    <Drawer direction="right">
+    <Drawer direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>{trigger}</DrawerTrigger>
 
       <DrawerContent className="max-w-xl">

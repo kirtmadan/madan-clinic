@@ -60,22 +60,25 @@ export const addTreatmentPlan = async ({
 };
 
 export const updateTreatmentPlanPayment = async ({
-  amount,
-  auth_amount,
-  plan_id,
+  _amount,
+  _auth_amount,
+  _plan_id,
+  _patient_id,
 }: {
-  amount: number;
-  auth_amount: number;
-  plan_id: string;
+  _amount: number;
+  _auth_amount: number;
+  _plan_id: string;
+  _patient_id: string;
 }) => {
   const supabase = createClient();
 
   const { status, error } = await supabase.rpc(
     "update_paid_amount_in_treatment_plan",
     {
-      amount,
-      auth_amount,
-      plan_id,
+      _amount,
+      _auth_amount,
+      _plan_id,
+      _patient_id,
     },
   );
 
