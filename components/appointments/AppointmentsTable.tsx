@@ -15,6 +15,7 @@ import {
   useReactTable,
   VisibilityState,
   type Table as TableType,
+  getPaginationRowModel,
 } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
@@ -54,7 +55,17 @@ export type Appointment = {
   email: string;
 };
 
-export default function AppointmentsTable() {
+export default function AppointmentsTable({ status }: { status: string }) {
+  // const filters = useMemo(() => {
+  //   if (!status) return undefined;
+  //
+  //   if (status === "completed") {
+  //     return [(q: any) => q.eq("status", "completed")];
+  //   }
+  //
+  //   return [(q: any) => q.neq("status", "completed")];
+  // }, [status]);
+
   const { data } = useGetAllAppointments({
     select: `
     id,
@@ -63,8 +74,12 @@ export default function AppointmentsTable() {
     status,
     notes,
     created_at,
+    call_status,
+    doctor:doctor_id ( id, name ),
     patient:patient_id ( id, name )
   `,
+    // filters,
+    // queryKeys: ["appointments", status],
   });
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -144,7 +159,7 @@ export default function AppointmentsTable() {
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    // getPaginationRowModel: getPaginationRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -261,7 +276,7 @@ function DataTable({ table }: { table: TableType<Appointment> }) {
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <AppointmentDrawer
-                key={row?.id}
+                key={row?.original?.id}
                 trigger={
                   <TableRow>
                     {row.getVisibleCells().map((cell) => (

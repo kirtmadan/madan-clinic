@@ -7,6 +7,7 @@ import {
 import { toast } from "sonner";
 import { TREATMENT_PLANS_QUERY_KEYS } from "@/lib/tanstack-query/treatment-plans/Keys";
 import { revalidateCache } from "@/lib/actions/server.actions";
+import { PAYMENTS_QUERY_KEYS } from "@/lib/tanstack-query/payments/Keys";
 
 export const useAddTreatmentPlan = () => {
   const queryClient = useQueryClient();
@@ -16,17 +17,20 @@ export const useAddTreatmentPlan = () => {
       patientId,
       description,
       treatmentItems,
+      authorized_amount,
       onSuccess,
     }: {
       patientId: string;
       description?: string;
       treatmentItems: { treatment_id: string; quantity: number | string }[];
       onSuccess?: () => void;
+      authorized_amount?: number;
     }) => {
       const res = await addTreatmentPlan({
         patientId,
         description,
         treatmentItems,
+        authorized_amount,
       });
 
       if ("error" in res) {
@@ -91,21 +95,18 @@ export const useUpdateTreatmentPlanPayment = () => {
   return useMutation({
     mutationFn: async ({
       amount,
-      auth_amount,
-      treatmentPlanId,
+      // treatmentPlanId,
       patientId,
       onSuccess,
     }: {
-      treatmentPlanId: string;
+      // treatmentPlanId: string;
       amount: number;
-      auth_amount: number;
       patientId: string;
       onSuccess?: () => void;
     }) => {
       const res = await updateTreatmentPlanPayment({
         _amount: amount,
-        _auth_amount: auth_amount,
-        _plan_id: treatmentPlanId,
+        // _plan_id: treatmentPlanId,
         _patient_id: patientId,
       });
 
@@ -119,6 +120,14 @@ export const useUpdateTreatmentPlanPayment = () => {
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: [TREATMENT_PLANS_QUERY_KEYS.GET_ALL_TREATMENT_PLANS],
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: [PAYMENTS_QUERY_KEYS.GET_ALL_PAYMENTS],
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: ["patientsOverdueAmount"],
       });
 
       void revalidateCache(`/patients`);

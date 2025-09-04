@@ -1,5 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { AlertCircleIcon, CalendarPlusIcon, PlusIcon } from "lucide-react";
+import {
+  AlertCircleIcon,
+  CalendarPlusIcon,
+  IndianRupeeIcon,
+  PlusIcon,
+} from "lucide-react";
 
 import AddPatient from "@/components/AddPatient";
 import PatientProfile from "@/components/patients/PatientProfile";
@@ -20,6 +25,7 @@ import { cn } from "@/lib/utils";
 import TreatmentPlans from "@/components/TreatmentPlans";
 import AddTreatmentPlan from "@/components/AddTreatmentPlan";
 import PatientPayments from "@/components/patients/PatientPayments";
+import AddPaymentTransaction from "@/components/AddPaymentTransaction";
 
 export default async function PatientDetailsPage({
   params,
@@ -76,30 +82,6 @@ export default async function PatientDetailsPage({
     );
   }
 
-  const totalOverdueAmount = data?.treatment_plans
-    ?.filter((plan: any) => plan?.status !== "paid") // exclude fully paid
-    ?.reduce((grandTotal: number, plan: any) => {
-      // Decide whether to use authorized_amount or compute from items
-      const planAuthorizedOrCalc =
-        plan?.authorized_amount ??
-        plan?.treatment_plan_items?.reduce(
-          (total: number, item: any) =>
-            total + item?.quantity * item?.recorded_unit_price,
-          0,
-        );
-
-      let overdue = 0;
-
-      if (plan?.status === "partially_paid") {
-        overdue = planAuthorizedOrCalc - (plan?.paid_total ?? 0);
-      } else {
-        // for unpaid → take full amount
-        overdue = planAuthorizedOrCalc;
-      }
-
-      return grandTotal + overdue;
-    }, 0);
-
   return (
     <div className="w-full flex flex-col gap-6">
       <div className="w-full h-full flex gap-4 flex-col md:flex-row md:items-center justify-end">
@@ -124,6 +106,16 @@ export default async function PatientDetailsPage({
               </Button>
             }
           />
+
+          <AddPaymentTransaction
+            patientId={id}
+            trigger={
+              <Button>
+                <IndianRupeeIcon className="size-4" />
+                Add Payment Transaction
+              </Button>
+            }
+          />
         </div>
       </div>
 
@@ -141,10 +133,7 @@ export default async function PatientDetailsPage({
         />
 
         <div className="col-span-1 md:col-span-2 flex flex-col gap-4">
-          <OverdueBalance
-            overdueAmount={totalOverdueAmount || 0}
-            overdueUpdatedAt={data?.overdue_updated_at}
-          />
+          <OverdueBalance id={id} />
 
           <PatientAppointments id={id} />
         </div>

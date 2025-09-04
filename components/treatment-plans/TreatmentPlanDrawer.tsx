@@ -49,6 +49,8 @@ import { isEqual } from "lodash";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useQuery } from "@tanstack/react-query";
+import { getData } from "@/lib/actions/supabase.actions";
 
 interface TreatmentPlanDrawerProps {
   trigger: React.ReactNode;
@@ -128,7 +130,12 @@ export default function TreatmentPlanDrawer({
                 </div>
 
                 <div className="border border-dashed p-3 rounded-lg text-sm w-full h-full flex flex-col gap-1">
-                  <span>Authorized amount</span>
+                  <span>Authorized Amount</span>
+
+                  {/*<span className="text-muted-foreground">*/}
+                  {/*  ₹ {totalAmountToBeCharged}*/}
+                  {/*</span>*/}
+
                   {planData?.authorized_amount === totalAmountToBeCharged ||
                   !planData?.authorized_amount ? (
                     <span className="text-muted-foreground">
@@ -152,27 +159,27 @@ export default function TreatmentPlanDrawer({
               <h4>Plan Items</h4>
 
               <TreatmentPlanItems
-                disableEditing={["partially_paid", "paid"].includes(
-                  planData?.status,
-                )}
+                disableEditing={false}
+                // disableEditing={["partially_paid", "paid"].includes(
+                //   planData?.status,
+                // )}
                 treatment_plan_id={planData?.id}
               />
             </div>
           </TabsContent>
           <TabsContent value="payment">
             <div className="flex flex-col gap-4 p-4 w-full">
-              <h4>Total paid amount : ₹ {planData?.paid_total || 0}</h4>
-              {planData?.status === "paid" ? (
-                <TreatmentPaid />
-              ) : (
-                <TreatmentPlanPayments
-                  totalAmountToBeCharged={totalAmountToBeCharged}
-                  totalPaidAmount={planData?.paid_total}
-                  treatmentPlanId={planData?.id}
-                  authorized_amount={planData?.authorized_amount}
-                  patientId={planData?.patient?.id}
-                />
-              )}
+              {/*<h4>Total paid amount : ₹ {planData?.paid_total || 0}</h4>*/}
+              {/*// {planData?.status === "paid" ? (*/}
+              {/*//   <TreatmentPaid />*/}
+              {/*// ) : (*/}
+              <TreatmentPlanPayments
+                // totalPaidAmount={planData?.paid_total}
+                // treatmentPlanId={planData?.id}
+                // authorized_amount={planData?.authorized_amount}
+                patientId={planData?.patient?.id}
+              />
+              {/*)}*/}
             </div>
           </TabsContent>
         </Tabs>
@@ -407,53 +414,42 @@ function TreatmentPlanItems({
   );
 }
 
-function TreatmentPlanPayments({
-  totalAmountToBeCharged,
-  totalPaidAmount,
-  treatmentPlanId,
-  authorized_amount,
-  patientId,
-}: {
-  totalAmountToBeCharged: number;
-  totalPaidAmount: number;
-  treatmentPlanId: string;
-  authorized_amount: number;
-  patientId: string;
-}) {
+export function TreatmentPlanPayments({ patientId }: { patientId: string }) {
+  const { data: totalAmountToBeCharged } = useQuery({
+    queryKey: ["patientsOverdueAmount", patientId],
+    queryFn: async () => {
+      const data = await getData({
+        tableName: "patient_overdue_summary",
+        documentId: patientId,
+        select: `*`,
+        comparisonKey: "patient_id",
+      });
+
+      return data?.outstanding ?? data?.authorized_total ?? 0;
+    },
+    enabled: !!patientId,
+  });
+
   const { mutateAsync: updateTreatmentPlanPayment, isPending } =
     useUpdateTreatmentPlanPayment();
 
-  const formSchema = z.object({
-    authorized_amount: z
-      .string()
-      .min(1, { message: "Enter valid amount" })
-      .refine((val) => Number(val) >= 0, {
-        message: "Enter valid amount",
-      })
-      .refine((val) => Number(val) <= totalAmountToBeCharged, {
-        message: "Authorized amount can not be more than total amount",
-      }),
-    amount: z
-      .string()
-      .min(1, { message: "Enter valid amount" })
-      .refine((val) => Number(val) >= 0, {
-        message: "Enter valid amount",
-      })
-      .refine(
-        (val) => Number(val) <= totalAmountToBeCharged - (totalPaidAmount || 0),
-        {
+  const formSchema = useMemo(() => {
+    return z.object({
+      amount: z
+        .string()
+        .min(1, { message: "Enter valid amount" })
+        .refine((val) => Number(val) >= 0, {
+          message: "Enter valid amount",
+        })
+        .refine((val) => Number(val) <= totalAmountToBeCharged, {
           message: "Received amount can not be more than total amount",
-        },
-      ),
-  });
+        }),
+    });
+  }, [totalAmountToBeCharged]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      authorized_amount:
-        authorized_amount?.toString() ||
-        totalAmountToBeCharged?.toString() ||
-        "",
       amount: "",
     },
   });
@@ -463,40 +459,26 @@ function TreatmentPlanPayments({
 
     await updateTreatmentPlanPayment({
       amount: Number(values.amount),
-      auth_amount: Number(values.authorized_amount),
-      treatmentPlanId,
       patientId,
+      onSuccess: () => {
+        form.reset({
+          amount: "",
+        });
+      },
     });
   }
 
   return (
     <div className="w-full h-full border p-4 border-dashed flex flex-col gap-4 rounded-lg">
+      <p className="border-b border-dashed pb-2">
+        Total overdue of patient : {totalAmountToBeCharged}
+      </p>
+
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="grid grid-cols-2 gap-4"
         >
-          <FormField
-            control={form.control}
-            name="authorized_amount"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Authorized Amount</FormLabel>
-
-                <FormControl>
-                  <Input
-                    type="number"
-                    className="w-full bg-white"
-                    placeholder="Authorized amount"
-                    {...field}
-                  />
-                </FormControl>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           <FormField
             control={form.control}
             name="amount"
@@ -519,8 +501,12 @@ function TreatmentPlanPayments({
           />
 
           <div className="col-span-2 flex items-center justify-end gap-2 w-full">
-            <Button type="submit" loading={isPending}>
-              Update
+            <Button
+              type="submit"
+              loading={isPending}
+              disabled={!totalAmountToBeCharged}
+            >
+              Add transaction
             </Button>
           </div>
         </form>

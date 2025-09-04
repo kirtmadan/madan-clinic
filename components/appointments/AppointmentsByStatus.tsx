@@ -21,6 +21,8 @@ export default function AppointmentsByStatus({
 
     return [
       (q: any) => q.or(`date.eq.${formattedDate},rs_date.eq.${formattedDate}`),
+      // (q: any) =>
+      //   q.order("name", { referencedTable: "patient", ascending: true }),
     ];
   }, [formattedDate, date]);
 
@@ -40,23 +42,44 @@ export default function AppointmentsByStatus({
   });
 
   const pendingAppointments = Array.isArray(data)
-    ? data?.filter(
-        (appointment) =>
-          ["scheduled", "rescheduled"].includes(appointment?.status) &&
-          appointment?.rs_date !== formattedDate,
-      )
+    ? data
+        ?.filter(
+          (appointment) =>
+            ["scheduled", "rescheduled"].includes(appointment?.status) &&
+            appointment?.rs_date !== formattedDate,
+        )
+        ?.sort((a, b) =>
+          a?.patient?.name
+            ?.trim()
+            ?.toLowerCase()
+            ?.localeCompare(b?.patient?.name?.toLowerCase()),
+        )
     : [];
 
   const completedAppointments = Array.isArray(data)
-    ? data?.filter((appointment) => appointment.status === "completed")
+    ? data
+        ?.filter((appointment) => appointment.status === "completed")
+        ?.sort((a, b) =>
+          a?.patient?.name
+            ?.trim()
+            ?.toLowerCase()
+            ?.localeCompare(b?.patient?.name?.toLowerCase()),
+        )
     : [];
 
   const rescheduledAppointments = Array.isArray(data)
-    ? data?.filter(
-        (appointment) =>
-          appointment.status === "rescheduled" &&
-          appointment?.rs_date === formattedDate,
-      )
+    ? data
+        ?.filter(
+          (appointment) =>
+            appointment.status === "rescheduled" &&
+            appointment?.rs_date === formattedDate,
+        )
+        ?.sort((a, b) =>
+          a?.patient?.name
+            ?.trim()
+            ?.toLowerCase()
+            ?.localeCompare(b?.patient?.name?.toLowerCase()),
+        )
     : [];
 
   return (

@@ -28,7 +28,6 @@ import {
 import DataTableRow from "@/components/DataTableRow";
 
 import dayjs from "dayjs";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import AppointmentStatusRenderer from "@/components/cellRenderers/AppointmentStatusRenderer";
 import { useGetAllPayments } from "@/lib/tanstack-query/payments/Queries";
 
@@ -114,13 +113,13 @@ export default function PatientPaymentsTable({ id }: { id: string }) {
         <>{dayjs(row.getValue("created_at")).format("DD MMM YYYY")}</>
       ),
     },
-    {
-      accessorKey: "notes",
-      header: "Payment Notes",
-      cell: ({ row }) => {
-        return <> {row.getValue("notes")} </>;
-      },
-    },
+    // {
+    //   accessorKey: "notes",
+    //   header: "Payment Notes",
+    //   cell: ({ row }) => {
+    //     return <> {row.getValue("notes")} </>;
+    //   },
+    // },
   ];
 
   const table = useReactTable({

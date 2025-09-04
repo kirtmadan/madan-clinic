@@ -31,10 +31,12 @@ export const addTreatmentPlan = async ({
   patientId,
   description,
   treatmentItems,
+  authorized_amount,
 }: {
   patientId: string;
   description?: string;
   treatmentItems: { treatment_id: string; quantity: number | string }[];
+  authorized_amount?: number;
 }) => {
   const supabase = createClient();
 
@@ -43,6 +45,7 @@ export const addTreatmentPlan = async ({
     {
       _patient_id: patientId,
       _description: description,
+      _authorized_amount: authorized_amount,
       _status: "ongoing",
       _items: treatmentItems?.map((item) => ({
         ...item,
@@ -61,31 +64,35 @@ export const addTreatmentPlan = async ({
 
 export const updateTreatmentPlanPayment = async ({
   _amount,
-  _auth_amount,
-  _plan_id,
+  // _plan_id,
   _patient_id,
 }: {
   _amount: number;
-  _auth_amount: number;
-  _plan_id: string;
+  // _plan_id: string;
   _patient_id: string;
 }) => {
   const supabase = createClient();
+  const res = await supabase.from("payments").insert({
+    amount: _amount,
+    // plan_id: _plan_id,
+    patient_id: _patient_id,
+    created_at: new Date().toISOString(),
+  });
 
-  const { status, error } = await supabase.rpc(
-    "update_paid_amount_in_treatment_plan",
-    {
-      _amount,
-      _auth_amount,
-      _plan_id,
-      _patient_id,
-    },
-  );
+  // const { status, error } = await supabase.rpc(
+  //   "update_paid_amount_in_treatment_plan",
+  //   {
+  //     _amount,
+  //     _auth_amount,
+  //     // _plan_id,
+  //     _patient_id,
+  //   },
+  // );
 
-  if ([200, 204].includes(status)) {
+  if ([201].includes(res?.status)) {
     return { message: "Successfully updated the payment details" };
   } else {
-    console.error("Error updating the payment details:", error);
+    console.error("Error updating the payment details:");
     return { error: "Error updating the payment details" };
   }
 };
@@ -173,17 +180,22 @@ export const getData = async ({
   tableName,
   documentId,
   select,
+  comparisonKey = "id",
 }: {
   tableName: string;
   documentId: string;
   select?: string;
+  comparisonKey?: string;
 }) => {
   const supabase = createClient();
 
-  let query = supabase.from(tableName).select().eq("id", documentId);
+  let query = supabase.from(tableName).select().eq(comparisonKey, documentId);
 
   if (select) {
-    query = supabase.from(tableName).select(select).eq("id", documentId);
+    query = supabase
+      .from(tableName)
+      .select(select)
+      .eq(comparisonKey, documentId);
   }
 
   const { data, error } = await query;

@@ -34,7 +34,6 @@ import { ArrowUpDown, SearchIcon, WavesIcon } from "lucide-react";
 import DataTableRow from "@/components/DataTableRow";
 
 import dayjs from "dayjs";
-import AppointmentStatusRenderer from "@/components/cellRenderers/AppointmentStatusRenderer";
 import { useGetAllTreatmentPlans } from "@/lib/tanstack-query/treatment-plans/Queries";
 import TreatmentPlanDrawer from "@/components/treatment-plans/TreatmentPlanDrawer";
 
@@ -55,9 +54,12 @@ export default function TreatmentPlans({ patientId }: { patientId: string }) {
     updated_at,
     status,
     paid_total,
-    patient:patient_id ( id, name ),
+    patient:patient_id( 
+      id, 
+      name
+    ),
     authorized_amount,
-    treatment_plan_items (
+    treatment_plan_items(
       quantity,
       recorded_unit_price
     )
@@ -142,17 +144,17 @@ export default function TreatmentPlans({ patientId }: { patientId: string }) {
         </>
       ),
     },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        return (
-          <AppointmentStatusRenderer status={row.getValue("status")}>
-            {row.getValue("status")}
-          </AppointmentStatusRenderer>
-        );
-      },
-    },
+    // {
+    //   accessorKey: "status",
+    //   header: "Status",
+    //   cell: ({ row }) => {
+    //     return (
+    //       <AppointmentStatusRenderer status={row.getValue("status")}>
+    //         {row.getValue("status")}
+    //       </AppointmentStatusRenderer>
+    //     );
+    //   },
+    // },
     // {
     //   id: "actions",
     //   enableHiding: false,

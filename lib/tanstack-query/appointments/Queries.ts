@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { APPOINTMENT_QUERY_KEYS } from "@/lib/tanstack-query/appointments/Keys";
 import { getCollectionData } from "@/lib/actions/supabase.actions";
+import { toast } from "sonner";
 
 export const useGetAllAppointments = ({
   filters,
@@ -29,7 +30,8 @@ export const useGetAllAppointments = ({
       if (Array.isArray(res)) {
         return res;
       } else {
-        return { error: "Error fetching appointments" };
+        toast.error("Error fetching appointments");
+        return [];
       }
     },
   });

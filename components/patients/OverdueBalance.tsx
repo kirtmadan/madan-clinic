@@ -1,77 +1,28 @@
 "use client";
 
-// import { Button } from "@/components/ui/button";
-import {
-  Card,
-  // CardAction,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-// import { FilePenLine } from "lucide-react";
-// import dayjs from "dayjs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { cn } from "@/lib/utils";
 import { getData } from "@/lib/actions/supabase.actions";
 import { useQuery } from "@tanstack/react-query";
 
 interface PatientOverdueBalanceProps {
-  overdueAmount: number;
-  id?: string;
+  id: string;
   overdueUpdatedAt?: string | null;
 }
 
-export default function OverdueBalance({
-  overdueAmount,
-  id,
-  // overdueUpdatedAt,
-}: PatientOverdueBalanceProps) {
+export default function OverdueBalance({ id }: PatientOverdueBalanceProps) {
   const { data: total } = useQuery({
-    queryKey: ["patientsOverdue", id],
+    queryKey: ["patientsOverdueAmount", id],
     queryFn: async () => {
-      const data: any = await getData({
-        tableName: "patients",
-        // @ts-expect-error - id is not null
+      const data = await getData({
+        tableName: "patient_overdue_summary",
         documentId: id,
-        select: `
-        id,
-        treatment_plans (
-          id,
-          authorized_amount,
-          status,
-          paid_total,
-          treatment_plan_items (
-            quantity,
-            recorded_unit_price
-          )
-        )
-    `,
+        select: `*`,
+        comparisonKey: "patient_id",
       });
 
-      return (
-        data?.treatment_plans
-          ?.filter((plan: any) => plan?.status !== "paid") // exclude fully paid
-          ?.reduce((grandTotal: number, plan: any) => {
-            // Decide whether to use authorized_amount or compute from items
-            const planAuthorizedOrCalc =
-              plan?.authorized_amount ??
-              plan?.treatment_plan_items?.reduce(
-                (total: number, item: any) =>
-                  total + item?.quantity * item?.recorded_unit_price,
-                0,
-              );
-
-            let overdue = 0;
-
-            if (plan?.status === "partially_paid") {
-              overdue = planAuthorizedOrCalc - (plan?.paid_total ?? 0);
-            } else {
-              // for unpaid → take full amount
-              overdue = planAuthorizedOrCalc;
-            }
-
-            return grandTotal + overdue;
-          }, 0) || 0
-      );
+      return data?.outstanding ?? data?.authorized_total ?? 0;
     },
     enabled: !!id,
   });
@@ -96,10 +47,10 @@ export default function OverdueBalance({
           <h2
             className={cn(
               "font-medium text-3xl text-destructive/60",
-              overdueAmount === 0 && "text-primary",
+              total === 0 && "text-primary",
             )}
           >
-            ₹ {id ? total : overdueAmount ? overdueAmount : 0}
+            ₹ {total ?? 0}
           </h2>
         </div>
       </CardContent>

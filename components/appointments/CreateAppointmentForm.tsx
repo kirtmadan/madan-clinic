@@ -129,11 +129,10 @@ export function CreateAppointmentForm({
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-
     await addAppointment({
       doc: {
         ...values,
+        date: dayjs(values.date).format("YYYY-MM-DD"),
         created_at: new Date().toISOString(),
       },
       onSuccess: () => {
@@ -274,12 +273,12 @@ export function CreateAppointmentForm({
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Notes</FormLabel>
+              <FormLabel>Remarks</FormLabel>
 
               <FormControl>
                 <Textarea
                   className="max-h-40"
-                  placeholder="Enter appointment notes (Optional)"
+                  placeholder="Enter appointment remarks (Optional)"
                   {...field}
                 />
               </FormControl>

@@ -13,7 +13,10 @@ import {
 
 import { ChevronDownIcon } from "lucide-react";
 import day from "@/lib/day";
-import { useUpdateAppointment } from "@/lib/tanstack-query/appointments/Mutations";
+import {
+  useAddAppointment,
+  useUpdateAppointment,
+} from "@/lib/tanstack-query/appointments/Mutations";
 
 export default function RescheduleAppointment({
   appointmentData,
@@ -23,9 +26,13 @@ export default function RescheduleAppointment({
   onSuccessAction?: () => void;
 }) {
   const { mutateAsync: updateAppointment, isPending } = useUpdateAppointment();
+  const { mutateAsync: addAppointment, isPending: isAdding } =
+    useAddAppointment();
 
   const [open, setOpen] = useState(false);
+  const [reOpen, setReOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
+  const [reDate, setReDate] = useState<Date | undefined>(undefined);
 
   const rescheduleAppointment = async (date: Date) => {
     await updateAppointment({
@@ -36,8 +43,32 @@ export default function RescheduleAppointment({
       },
       documentId: appointmentData?.id,
       onSuccess: () => {
+        setReDate(undefined);
+        onSuccessAction?.();
+      },
+    });
+  };
+
+  const completeAndAppointNew = async (date: Date) => {
+    await updateAppointment({
+      doc: {
+        status: "completed",
+      },
+      documentId: appointmentData?.id,
+      onSuccess: () => {
         setDate(undefined);
         onSuccessAction?.();
+      },
+    });
+
+    await addAppointment({
+      doc: {
+        doctor_id: appointmentData?.doctor?.id,
+        patient_id: appointmentData?.patient?.id,
+        date: day(date).format("YYYY-MM-DD"),
+        status: "scheduled",
+        notes: undefined,
+        created_at: new Date().toISOString(),
       },
     });
   };
@@ -68,7 +99,7 @@ export default function RescheduleAppointment({
           New Appointment Date
         </Label>
 
-        <Popover modal={true} open={open} onOpenChange={setOpen}>
+        <Popover modal open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
@@ -91,6 +122,42 @@ export default function RescheduleAppointment({
               onSelect={async (date) => {
                 setDate(date);
                 setOpen(false);
+
+                if (date) await completeAndAppointNew(date);
+              }}
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3">
+        <Label htmlFor="date" className="px-1 font-normal">
+          Reschedule Date
+        </Label>
+
+        <Popover modal open={reOpen} onOpenChange={setReOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              id="date"
+              className="w-48 justify-between font-normal"
+              disabled={isPending}
+            >
+              {reDate ? day(reDate).format("DD MMM YYYY") : "Select date"}
+              <ChevronDownIcon />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={reDate}
+              disabled={(date) => {
+                return !day(date).isToday() && date < new Date();
+              }}
+              captionLayout="dropdown"
+              onSelect={async (date) => {
+                setReDate(date);
+                setReOpen(false);
 
                 if (date) await rescheduleAppointment(date);
               }}

@@ -68,6 +68,7 @@ export default function LabOrdersTable() {
     notes,
     amount_to_charge,
     created_at,
+    call_status,
     doctor:doctor_id ( id, name ),
     patient:patient_id ( id, name )
   `,

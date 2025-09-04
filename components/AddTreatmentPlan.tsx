@@ -48,15 +48,6 @@ const planItemSchema = z.object({
     }),
 });
 
-const formSchema = z.object({
-  description: z
-    .string()
-    .max(128, { message: "Plan description must be less than 128 characters" })
-    .optional(),
-  items: z.array(planItemSchema),
-  // .min(1, "At least one treatment is required"),
-});
-
 interface AddTreatmentPlanProps {
   trigger: React.ReactNode;
   patientId: string;
@@ -102,10 +93,50 @@ export function AddTreatmentPlanForm({
   const { data: treatmentTemplates } = useGetAllTreatmentTemplates({});
   const { mutateAsync: addTreatmentPlan } = useAddTreatmentPlan();
 
+  const formSchema = z
+    .object({
+      description: z
+        .string()
+        .max(128, {
+          message: "Plan description must be less than 128 characters",
+        })
+        .optional(),
+      items: z.array(planItemSchema),
+      authorized_amount: z.string().refine((val) => Number(val) >= 1, {
+        message: "Authorized amount must be at-least 1",
+      }),
+
+      // .refine((val) => Number(val) <= 999, {
+      //   message: "Authorized amount is too large",
+      // }),
+      // .min(1, "At least one treatment is required"),
+    })
+    .superRefine((data, ctx) => {
+      const totalCost = data?.items?.reduce((acc, item) => {
+        const template =
+          Array.isArray(treatmentTemplates) && treatmentTemplates?.length > 0
+            ? treatmentTemplates.find((t: any) => t?.id === item?.treatment_id)
+            : null;
+
+        return acc + Number(item?.quantity) * Number(template?.cost || 0);
+      }, 0);
+
+      const amt = Number(data.authorized_amount);
+
+      if (totalCost && amt > totalCost) {
+        ctx.addIssue({
+          path: ["authorized_amount"],
+          code: z.ZodIssueCode.custom,
+          message: "Authorized amount cannot exceed the total cost",
+        });
+      }
+    });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       description: "",
+      authorized_amount: "",
       items: [{ treatment_id: "", quantity: "1" }],
     },
   });
@@ -115,12 +146,22 @@ export function AddTreatmentPlanForm({
     name: "items",
   });
 
+  const totalCost = form.watch("items")?.reduce((acc, item) => {
+    const template =
+      Array.isArray(treatmentTemplates) && treatmentTemplates?.length > 0
+        ? treatmentTemplates.find((t: any) => t?.id === item?.treatment_id)
+        : null;
+
+    return acc + Number(item?.quantity) * Number(template?.cost || 0);
+  }, 0);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
 
     await addTreatmentPlan({
       patientId,
       description: values.description,
+      authorized_amount: Number(values.authorized_amount),
       treatmentItems: values.items,
       onSuccess: () => {
         form.reset();
@@ -255,6 +296,31 @@ export function AddTreatmentPlanForm({
               </div>
             </div>
           ))}
+
+          <div className="flex items-center justify-between gap-4 w-full">
+            <span className="text-sm">Total Cost : {totalCost}</span>
+
+            <FormField
+              control={form.control}
+              name="authorized_amount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Authorized Amount</FormLabel>
+
+                  <FormControl>
+                    <Input
+                      type="number"
+                      className="w-full bg-white"
+                      placeholder="Authorized amount"
+                      {...field}
+                    />
+                  </FormControl>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
           <div className="w-full flex items-center justify-end gap-4">
             <Button

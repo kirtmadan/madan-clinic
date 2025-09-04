@@ -1,12 +1,7 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  CalendarClockIcon,
-  MailIcon,
-  MapPinIcon,
-  PhoneCallIcon,
-} from "lucide-react";
+import { CalendarClockIcon, MapPinIcon, PhoneCallIcon } from "lucide-react";
 import dayjs from "dayjs";
 import AddPatient from "@/components/AddPatient";
 
@@ -79,14 +74,14 @@ export default function PatientProfile({
             <span className="text-base pl-5">+91 {phone}</span>
           </div>
 
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2 text-base text-muted-foreground">
-              <MailIcon className="size-4" />
-              Email Address
-            </div>
+          {/*<div className="flex flex-col gap-1">*/}
+          {/*  <div className="flex items-center gap-2 text-base text-muted-foreground">*/}
+          {/*    <MailIcon className="size-4" />*/}
+          {/*    Email Address*/}
+          {/*  </div>*/}
 
-            <span className="text-base pl-5">{email || "Not available"}</span>
-          </div>
+          {/*  <span className="text-base pl-5">{email || "Not available"}</span>*/}
+          {/*</div>*/}
 
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2 text-base text-muted-foreground">

@@ -7,7 +7,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { CalendarIcon, CalendarPlusIcon, UserIcon, XIcon } from "lucide-react";
+import { CalendarIcon, IndianRupeeIcon, XIcon } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import dayjs from "dayjs";
 import RescheduleAppointment from "@/components/appointments/RescheduleAppointment";
@@ -17,8 +17,9 @@ import AppointmentNotes from "@/components/appointments/AppointmentNotes";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import OverdueBalance from "@/components/patients/OverdueBalance";
-import TreatmentPlans from "@/components/TreatmentPlans";
-import AddTreatmentPlan from "@/components/AddTreatmentPlan";
+import AppointmentCallingSwitch from "@/components/appointments/AppointmentCallingSwitch";
+import PatientAppointments from "@/components/patients/PatientAppointments";
+import AddPaymentTransaction from "@/components/AddPaymentTransaction";
 import { Button } from "@/components/ui/button";
 
 interface AppointmentDrawerProps {
@@ -106,8 +107,8 @@ export default function AppointmentDrawer({
                 value="patient-details"
                 className="rounded-none bg-transparent! h-full data-[state=active]:shadow-none border-0 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary w-fit!"
               >
-                <UserIcon />
-                Patient Details
+                <IndianRupeeIcon />
+                Payment Details
               </TabsTrigger>
             </TabsList>
 
@@ -115,7 +116,7 @@ export default function AppointmentDrawer({
               value="appointment-details"
               className="flex flex-col gap-4"
             >
-              <div className="flex flex-row gap-4 w-full">
+              <div className="grid grid-cols-2 gap-4 w-full">
                 <div className="border border-dashed p-3 rounded-lg text-sm w-full h-full flex flex-col gap-1">
                   <span>Appointment date</span>
                   <span className="text-muted-foreground">
@@ -136,9 +137,17 @@ export default function AppointmentDrawer({
                 {/*    ₹ {appointmentData?.amount_to_charge}*/}
                 {/*  </span>*/}
                 {/*</div>*/}
-              </div>
 
-              <AppointmentNotes notes={appointmentData?.notes} />
+                <AppointmentNotes
+                  id={appointmentData?.id}
+                  notes={appointmentData?.notes}
+                />
+
+                <AppointmentCallingSwitch
+                  id={appointmentData?.id}
+                  call_status={appointmentData?.call_status}
+                />
+              </div>
 
               <hr className="my-4" />
 
@@ -154,30 +163,37 @@ export default function AppointmentDrawer({
               {!["completed"].includes(appointmentData?.status) && (
                 <CompleteAppointment appointmentData={appointmentData} />
               )}
+
+              <PatientAppointments id={appointmentData?.patient?.id} />
             </TabsContent>
 
             <TabsContent
               value="patient-details"
               className="flex flex-col gap-4"
             >
-              <OverdueBalance
-                overdueAmount={1}
-                id={appointmentData?.patient?.id}
-              />
-
-              <AddTreatmentPlan
-                patientId={appointmentData?.patient?.id}
+              <OverdueBalance id={appointmentData?.patient?.id} />
+              <AddPaymentTransaction
                 trigger={
-                  <div className="flex items-center justify-end">
-                    <Button>
-                      <CalendarPlusIcon className="size-4" />
-                      Add Treatment Plan
-                    </Button>
-                  </div>
+                  <Button>
+                    <IndianRupeeIcon className="size-4" />
+                    Add Payment Transaction
+                  </Button>
                 }
+                patientId={appointmentData?.patient?.id}
               />
+              {/*<AddTreatmentPlan*/}
+              {/*  patientId={appointmentData?.patient?.id}*/}
+              {/*  trigger={*/}
+              {/*    <div className="flex items-center justify-end">*/}
+              {/*      <Button>*/}
+              {/*        <CalendarPlusIcon className="size-4" />*/}
+              {/*        Add Treatment Plan*/}
+              {/*      </Button>*/}
+              {/*    </div>*/}
+              {/*  }*/}
+              {/*/>*/}
 
-              <TreatmentPlans patientId={appointmentData?.patient?.id} />
+              {/*<TreatmentPlans patientId={appointmentData?.patient?.id}  />*/}
             </TabsContent>
           </Tabs>
         </div>
