@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   ColumnDef,
@@ -15,6 +15,7 @@ import {
   useReactTable,
   VisibilityState,
   type Table as TableType,
+  Row,
 } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
@@ -70,14 +71,37 @@ export type Patient = {
 };
 
 export default function PatientList() {
-  const { data } = useGetAllPatients({});
+  const { data } = useGetAllPatients({
+    select: `
+    id,
+    name,
+    age,
+    gender,
+    phone,
+    address,
+    created_at,
+    patient_number,
+    charge_fee,
+    treatment_plans (
+      id,
+      treatment_plan_items (
+        treatment_id,
+        treatments (
+          name
+        )
+      )
+    )
+    `,
+  });
 
   const { mutateAsync: deletePatient, isPending: isDeletingPatient } =
     useDeletePatient();
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    uniqueTemplates: false,
+  });
   const [rowSelection, setRowSelection] = useState({});
   const [globalFilter, setGlobalFilter] = useState("");
   const [openDelete, setOpenDelete] = useState<Patient | null>(null);
@@ -216,10 +240,39 @@ export default function PatientList() {
         );
       },
     },
+
+    {
+      accessorKey: "uniqueTemplates",
+      header: "Treatments",
+      cell: ({ row }) => {
+        return (
+          <span className="capitalize">{row.getValue("uniqueTemplates")}</span>
+        );
+      },
+    },
   ];
 
+  const modifiedData = useMemo(() => {
+    if (!Array.isArray(data)) return [];
+
+    return data.map((p) => {
+      const templates = p?.treatment_plans
+        ?.flatMap((tp: any) => tp?.treatment_plan_items || [])
+        ?.map((tpi: any) => tpi?.treatments?.name)
+        ?.filter(Boolean);
+
+      const uniqueTemplates = [...new Set(templates)].join(" ");
+
+      return {
+        ...p,
+        treatment_plans: [],
+        uniqueTemplates,
+      };
+    });
+  }, [data]);
+
   const table = useReactTable({
-    data: Array.isArray(data) ? data : [],
+    data: Array.isArray(modifiedData) ? modifiedData : [],
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,

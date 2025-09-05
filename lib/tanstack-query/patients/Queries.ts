@@ -2,13 +2,20 @@ import { useQuery } from "@tanstack/react-query";
 import { PATIENT_QUERY_KEYS } from "@/lib/tanstack-query/patients/Keys";
 import { getCollectionData, getData } from "@/lib/actions/supabase.actions";
 
-export const useGetAllPatients = ({ limit }: { limit?: number }) => {
+export const useGetAllPatients = ({
+  limit,
+  select,
+}: {
+  limit?: number;
+  select?: string;
+}) => {
   return useQuery({
     queryKey: [PATIENT_QUERY_KEYS.GET_ALL_PATIENTS],
     queryFn: async () => {
       const res = await getCollectionData({
         tableName: "patients",
         limit,
+        select,
       });
 
       if (Array.isArray(res)) {
