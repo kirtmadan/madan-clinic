@@ -1,5 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addDocument, deleteDocument } from "@/lib/actions/supabase.actions";
+import {
+  addDocument,
+  deleteDocument,
+  updateDocument,
+} from "@/lib/actions/supabase.actions";
 import { toast } from "sonner";
 import { TREATMENT_TEMPLATES_QUERY_KEYS } from "@/lib/tanstack-query/treatment-templates/Keys";
 
@@ -20,6 +24,40 @@ export const useAddTreatmentTemplate = () => {
         toast.error(res?.error);
       } else {
         toast.success(`Successfully added the treatment template`);
+        onSuccess?.();
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: [TREATMENT_TEMPLATES_QUERY_KEYS.GET_ALL_TEMPLATES],
+      });
+    },
+  });
+};
+
+export const useUpdateTreatmentTemplate = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      doc,
+      documentId,
+      onSuccess,
+    }: {
+      doc: any;
+      documentId: string;
+      onSuccess?: () => void;
+    }) => {
+      const res = await updateDocument({
+        tableName: "treatments",
+        doc,
+        documentId,
+      });
+
+      if ("error" in res) {
+        toast.error(res?.error);
+      } else {
+        toast.success(`Successfully updated the treatment template`);
         onSuccess?.();
       }
     },

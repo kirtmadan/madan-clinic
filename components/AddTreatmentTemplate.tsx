@@ -16,10 +16,13 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IndianRupeeIcon } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import { Textarea } from "@/components/ui/textarea";
-import { useAddTreatmentTemplate } from "@/lib/tanstack-query/treatment-templates/Mutations";
+import {
+  useAddTreatmentTemplate,
+  useUpdateTreatmentTemplate,
+} from "@/lib/tanstack-query/treatment-templates/Mutations";
 
 import { Sketch } from "@uiw/react-color";
 import {
@@ -70,10 +73,12 @@ const formSchema = z.object({
 
 interface AddTreatmentTemplateProps {
   trigger: React.ReactNode;
+  editData?: any;
 }
 
 export default function AddTreatmentTemplate({
   trigger,
+  editData,
 }: AddTreatmentTemplateProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -88,7 +93,10 @@ export default function AddTreatmentTemplate({
           </DialogTitle>
         </DialogHeader>
 
-        <AddTreatmentTemplateForm onCancel={() => closeRef.current?.click()} />
+        <AddTreatmentTemplateForm
+          editData={editData}
+          onCancel={() => closeRef.current?.click()}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -96,12 +104,15 @@ export default function AddTreatmentTemplate({
 
 interface AddTreatmentTemplateFormProps {
   onCancel?: () => void;
+  editData?: any;
 }
 
 export function AddTreatmentTemplateForm({
   onCancel,
+  editData,
 }: AddTreatmentTemplateFormProps) {
   const { mutateAsync: addTreatmentTemplate } = useAddTreatmentTemplate();
+  const { mutateAsync: updateTreatmentTemplate } = useUpdateTreatmentTemplate();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -116,7 +127,37 @@ export function AddTreatmentTemplateForm({
     },
   });
 
+  useEffect(() => {
+    if (editData) {
+      form.reset({
+        name: editData?.name,
+        description: editData?.description,
+        cost: editData?.cost?.toString(),
+        color: editData?.color,
+        total_sessions: editData?.total_sessions?.toString(),
+        minutes_per_session: editData?.minutes_per_session?.toString(),
+        active: Boolean(editData?.active),
+      });
+    }
+  }, [editData, form]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (editData) {
+      return await updateTreatmentTemplate({
+        doc: {
+          ...values,
+          cost: Number(values.cost),
+          total_sessions: Number(values.total_sessions),
+          minutes_per_session: Number(values.minutes_per_session),
+        },
+        documentId: editData?.id,
+        onSuccess: () => {
+          onCancel?.();
+          form.reset();
+        },
+      });
+    }
+
     await addTreatmentTemplate({
       doc: {
         ...values,

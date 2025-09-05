@@ -48,6 +48,7 @@ import {
   TrashIcon,
   SearchIcon,
   BriefcaseMedical,
+  PencilIcon,
 } from "lucide-react";
 
 import DataTableRow from "@/components/DataTableRow";
@@ -60,6 +61,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import AddTreatmentTemplate from "@/components/AddTreatmentTemplate";
 
 export type TreatmentTemplate = {
   id: string | number;
@@ -194,31 +196,42 @@ export default function TreatmentTemplatesList() {
         const template = row.original;
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
+          <div className="flex items-center gap-2">
+            <AddTreatmentTemplate
+              trigger={
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <PencilIcon />
+                </Button>
+              }
+              editData={template}
+            />
 
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {/*  <DropdownMenuItem className="cursor-pointer">*/}
-              {/*    Edit template*/}
-              {/*  </DropdownMenuItem>*/}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal />
+                </Button>
+              </DropdownMenuTrigger>
 
-              <DropdownMenuItem
-                variant="destructive"
-                className="cursor-pointer"
-                onClick={() => setOpenDelete(template)}
-              >
-                <TrashIcon size={18} />
-                <span>Delete template</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {/*  <DropdownMenuItem className="cursor-pointer">*/}
+                {/*    Edit template*/}
+                {/*  </DropdownMenuItem>*/}
+
+                <DropdownMenuItem
+                  variant="destructive"
+                  className="cursor-pointer"
+                  onClick={() => setOpenDelete(template)}
+                >
+                  <TrashIcon size={18} />
+                  <span>Delete template</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         );
       },
     },
