@@ -32,6 +32,7 @@ export default function AppointmentsByStatus({
     id,
     appointment_number,
     date,
+    rs_date,
     status,
     notes,
     created_at,
@@ -52,7 +53,7 @@ export default function AppointmentsByStatus({
           a?.patient?.name
             ?.trim()
             ?.toLowerCase()
-            ?.localeCompare(b?.patient?.name?.toLowerCase()),
+            ?.localeCompare(b?.patient?.name?.trim()?.toLowerCase()),
         )
     : [];
 
@@ -63,7 +64,7 @@ export default function AppointmentsByStatus({
           a?.patient?.name
             ?.trim()
             ?.toLowerCase()
-            ?.localeCompare(b?.patient?.name?.toLowerCase()),
+            ?.localeCompare(b?.patient?.name?.trim()?.toLowerCase()),
         )
     : [];
 
@@ -78,7 +79,7 @@ export default function AppointmentsByStatus({
           a?.patient?.name
             ?.trim()
             ?.toLowerCase()
-            ?.localeCompare(b?.patient?.name?.toLowerCase()),
+            ?.localeCompare(b?.patient?.name?.trim()?.toLowerCase()),
         )
     : [];
 
