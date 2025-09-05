@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Drawer,
   DrawerClose,
@@ -8,9 +8,9 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import {
-  CheckCircle2Icon,
   IndianRupeeIcon,
   MinusIcon,
+  PencilIcon,
   PlusIcon,
   Rows4Icon,
   XIcon,
@@ -42,15 +42,20 @@ import { useGetAllTreatmentTemplates } from "@/lib/tanstack-query/treatment-temp
 import { useGetAllTreatmentPlanItems } from "@/lib/tanstack-query/treatment-plans/Queries";
 import { Progress } from "@/components/ui/progress";
 import {
+  useUpdateTreatmentPlan,
   useUpdateTreatmentPlanItems,
   useUpdateTreatmentPlanPayment,
 } from "@/lib/tanstack-query/treatment-plans/Mutations";
 import { isEqual } from "lodash";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { getData } from "@/lib/actions/supabase.actions";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface TreatmentPlanDrawerProps {
   trigger: React.ReactNode;
@@ -64,6 +69,10 @@ export default function TreatmentPlanDrawer({
   const closeRef = useRef<HTMLButtonElement>(null);
   const isMobile = useIsMobile();
 
+  const [editAuthAmount, setEditAuthAmount] = useState<boolean>(false);
+
+  const { mutateAsync: updateTreatmentPlan } = useUpdateTreatmentPlan();
+
   const totalAmountToBeCharged = useMemo(() => {
     return (
       planData?.treatment_plan_items?.reduce(
@@ -73,6 +82,21 @@ export default function TreatmentPlanDrawer({
       ) || 0
     );
   }, [planData]);
+
+  const updateAuthAmount = async (amount: number) => {
+    try {
+      await updateTreatmentPlan({
+        documentId: planData?.id,
+        doc: {
+          authorized_amount: amount,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setEditAuthAmount(false);
+    }
+  };
 
   return (
     <Drawer direction={isMobile ? "bottom" : "right"}>
@@ -130,7 +154,22 @@ export default function TreatmentPlanDrawer({
                 </div>
 
                 <div className="border border-dashed p-3 rounded-lg text-sm w-full h-full flex flex-col gap-1">
-                  <span>Authorized Amount</span>
+                  <span className="inline-flex gap-2 items-center justify-between">
+                    Authorized Amount
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <PencilIcon
+                          size={16}
+                          className="cursor-pointer"
+                          onClick={() => setEditAuthAmount(true)}
+                        />
+                      </TooltipTrigger>
+
+                      <TooltipContent>
+                        <p>Edit authorized amount</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </span>
 
                   {/*<span className="text-muted-foreground">*/}
                   {/*  ₹ {totalAmountToBeCharged}*/}
@@ -138,16 +177,60 @@ export default function TreatmentPlanDrawer({
 
                   {planData?.authorized_amount === totalAmountToBeCharged ||
                   !planData?.authorized_amount ? (
-                    <span className="text-muted-foreground">
-                      ₹ {totalAmountToBeCharged}
-                    </span>
+                    <>
+                      {editAuthAmount ? (
+                        <Input
+                          className="w-full"
+                          type="number"
+                          defaultValue={totalAmountToBeCharged}
+                          onBlur={async (e) => {
+                            if (e.target.value) {
+                              await updateAuthAmount(Number(e.target.value));
+                            }
+                          }}
+                          onKeyDown={async (e) => {
+                            if (e.key === "Enter" && e.currentTarget.value) {
+                              await updateAuthAmount(
+                                Number(e.currentTarget.value),
+                              );
+                            }
+                          }}
+                        />
+                      ) : (
+                        <span className="text-muted-foreground">
+                          ₹ {totalAmountToBeCharged}
+                        </span>
+                      )}
+                    </>
                   ) : (
-                    <span className="text-muted-foreground">
-                      <span className="line-through mr-2">
-                        {totalAmountToBeCharged}
-                      </span>
-                      ₹{planData?.authorized_amount}
-                    </span>
+                    <>
+                      {editAuthAmount ? (
+                        <Input
+                          className="w-full"
+                          type="number"
+                          defaultValue={planData?.authorized_amount}
+                          onBlur={async (e) => {
+                            if (e.target.value) {
+                              await updateAuthAmount(Number(e.target.value));
+                            }
+                          }}
+                          onKeyDown={async (e) => {
+                            if (e.key === "Enter" && e.currentTarget.value) {
+                              await updateAuthAmount(
+                                Number(e.currentTarget.value),
+                              );
+                            }
+                          }}
+                        />
+                      ) : (
+                        <span className="text-muted-foreground">
+                          <span className="line-through mr-2">
+                            {totalAmountToBeCharged}
+                          </span>
+                          ₹{planData?.authorized_amount}
+                        </span>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -515,15 +598,15 @@ export function TreatmentPlanPayments({ patientId }: { patientId: string }) {
   );
 }
 
-function TreatmentPaid() {
-  return (
-    <Alert className="text-green-700 border-green-200 bg-green-100">
-      <CheckCircle2Icon />
-      <AlertTitle>Plan Paid in Full!</AlertTitle>
-      <AlertDescription className="text-green-700">
-        The authorized amount for this treatment plan has been received. The
-        plan is now marked as paid.
-      </AlertDescription>
-    </Alert>
-  );
-}
+// function TreatmentPaid() {
+//   return (
+//     <Alert className="text-green-700 border-green-200 bg-green-100">
+//       <CheckCircle2Icon />
+//       <AlertTitle>Plan Paid in Full!</AlertTitle>
+//       <AlertDescription className="text-green-700">
+//         The authorized amount for this treatment plan has been received. The
+//         plan is now marked as paid.
+//       </AlertDescription>
+//     </Alert>
+//   );
+// }

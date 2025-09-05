@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   addTreatmentPlan,
+  updateDocument,
   updateTreatmentPlanItems,
   updateTreatmentPlanPayment,
 } from "@/lib/actions/supabase.actions";
@@ -46,6 +47,40 @@ export const useAddTreatmentPlan = () => {
       });
 
       void revalidateCache(`/patients`);
+    },
+  });
+};
+
+export const useUpdateTreatmentPlan = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      documentId,
+      doc,
+      onSuccess,
+    }: {
+      documentId: string;
+      doc: any;
+      onSuccess?: () => void;
+    }) => {
+      const res = await updateDocument({
+        tableName: "treatment_plans",
+        documentId,
+        doc,
+      });
+
+      if ("error" in res) {
+        toast.error(res?.error);
+      } else {
+        toast.success(`Successfully updated the treatment plans`);
+        onSuccess?.();
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: [TREATMENT_PLANS_QUERY_KEYS.GET_ALL_TREATMENT_PLANS],
+      });
     },
   });
 };
