@@ -1,6 +1,7 @@
 import {
   BriefcaseMedicalIcon,
   CalendarIcon,
+  ChartPieIcon,
   FlaskConicalIcon,
   // LayoutGridIcon,
   UsersIcon,
@@ -44,6 +45,12 @@ export const sidebarData = {
       title: "Lab Orders",
       url: "/lab-orders",
       icon: FlaskConicalIcon,
+      roles: ["OWNER", "MEMBER"],
+    },
+    {
+      title: "Reports",
+      url: "/reports",
+      icon: ChartPieIcon,
       roles: ["OWNER", "MEMBER"],
     },
   ],

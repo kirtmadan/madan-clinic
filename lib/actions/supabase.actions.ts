@@ -270,3 +270,33 @@ export const deleteUser = async ({
     console.error(error.message || errorFallback || "Failed to delete");
   }
 };
+
+export const fetchPaymentStats = async () => {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from("payment_stats")
+    .select("*")
+    .single();
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return data;
+};
+
+export const fetchAppointmentStats = async () => {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from("appointment_stats")
+    .select("*")
+    .single();
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return data;
+};
