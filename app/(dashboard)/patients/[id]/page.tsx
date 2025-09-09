@@ -26,6 +26,8 @@ import TreatmentPlans from "@/components/TreatmentPlans";
 import AddTreatmentPlan from "@/components/AddTreatmentPlan";
 import PatientPayments from "@/components/patients/PatientPayments";
 import AddPaymentTransaction from "@/components/AddPaymentTransaction";
+import DescriptiveStatCards from "@/components/reports/DescriptiveStat";
+import PatientStats from "@/components/patients/PatientStats";
 
 export default async function PatientDetailsPage({
   params,
@@ -145,6 +147,10 @@ export default async function PatientDetailsPage({
         <div className="w-full col-span-3">
           <PatientPayments id={id} />
         </div>
+      </div>
+
+      <div className="w-full grid gap-4 grid-cols-1 md:grid-cols-3">
+        <PatientStats id={id} />
       </div>
     </div>
   );

@@ -97,7 +97,7 @@ export function DescriptiveStatCard({
   title: string;
   description: string;
   dataToShow: string | number;
-  percentChange: number;
+  percentChange?: number | null | undefined;
 }) {
   return (
     <Card className="@container/card">
@@ -106,12 +106,15 @@ export function DescriptiveStatCard({
         <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
           {dataToShow}
         </CardTitle>
-        <CardAction>
-          <Badge variant="outline">
-            {percentChange < 0 ? <TrendingDownIcon /> : <TrendingUpIcon />}
-            {percentChange ?? 0}%
-          </Badge>
-        </CardAction>
+
+        {percentChange !== null && percentChange !== undefined && (
+          <CardAction>
+            <Badge variant="outline">
+              {percentChange < 0 ? <TrendingDownIcon /> : <TrendingUpIcon />}
+              {percentChange ?? 0}%
+            </Badge>
+          </CardAction>
+        )}
       </CardHeader>
       <CardFooter className="flex-col items-start gap-1.5 text-sm">
         <div className="text-muted-foreground">
