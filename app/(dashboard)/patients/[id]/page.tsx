@@ -28,6 +28,7 @@ import PatientPayments from "@/components/patients/PatientPayments";
 import AddPaymentTransaction from "@/components/AddPaymentTransaction";
 import DescriptiveStatCards from "@/components/reports/DescriptiveStat";
 import PatientStats from "@/components/patients/PatientStats";
+import CreateAppointmentFormWithDrawer from "@/components/appointments/CreateAppointmentForm";
 
 export default async function PatientDetailsPage({
   params,
@@ -90,6 +91,16 @@ export default async function PatientDetailsPage({
         <PatientBreadcrumb className="p-0" id={data?.name} />
 
         <div className="flex flex-col md:flex-row md:items-center gap-4">
+          <CreateAppointmentFormWithDrawer
+            patientId={id}
+            trigger={
+              <Button variant="outline">
+                <PlusIcon className="size-4" />
+                Create Appointment
+              </Button>
+            }
+          />
+
           <AddPatient
             trigger={
               <Button variant="outline">

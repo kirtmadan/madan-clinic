@@ -13,7 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import {
   Select,
   SelectContent,
@@ -59,14 +59,17 @@ const formSchema = z.object({
 
 interface CreateAppointmentFormProps {
   onCancel: () => void;
+  patientId?: string;
 }
 
 interface CreateAppointmentFormWithModalProps {
   trigger: React.ReactNode;
+  patientId?: string;
 }
 
 export default function CreateAppointmentFormWithDrawer({
   trigger,
+  patientId,
 }: CreateAppointmentFormWithModalProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const isMobile = useIsMobile();
@@ -83,7 +86,10 @@ export default function CreateAppointmentFormWithDrawer({
           </DrawerClose>
         </DrawerHeader>
 
-        <CreateAppointmentForm onCancel={() => closeRef.current?.click()} />
+        <CreateAppointmentForm
+          patientId={patientId}
+          onCancel={() => closeRef.current?.click()}
+        />
       </DrawerContent>
     </Drawer>
   );
@@ -111,6 +117,7 @@ export default function CreateAppointmentFormWithDrawer({
 
 export function CreateAppointmentForm({
   onCancel,
+  patientId,
 }: CreateAppointmentFormProps) {
   const { mutateAsync: addAppointment } = useAddAppointment();
 
@@ -127,6 +134,17 @@ export function CreateAppointmentForm({
       notes: undefined,
     },
   });
+
+  useEffect(() => {
+    if (patientId && Array.isArray(patientsData)) {
+      form.reset({
+        ...form.getValues(), // keep existing values
+        patient_id: patientId,
+      });
+
+      form.clearErrors("patient_id");
+    }
+  }, [patientId, patientsData, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await addAppointment({
@@ -196,8 +214,10 @@ export function CreateAppointmentForm({
 
               <FormControl>
                 <Select
+                  key={field.value}
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  disabled={!!patientId}
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
