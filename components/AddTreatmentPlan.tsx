@@ -93,44 +93,43 @@ export function AddTreatmentPlanForm({
   const { data: treatmentTemplates } = useGetAllTreatmentTemplates({});
   const { mutateAsync: addTreatmentPlan } = useAddTreatmentPlan();
 
-  const formSchema = z
-    .object({
-      description: z
-        .string()
-        .max(128, {
-          message: "Plan description must be less than 128 characters",
-        })
-        .optional(),
-      items: z.array(planItemSchema),
-      authorized_amount: z.string().refine((val) => Number(val) >= 1, {
-        message: "Authorized amount must be at-least 1",
-      }),
+  const formSchema = z.object({
+    description: z
+      .string()
+      .max(128, {
+        message: "Plan description must be less than 128 characters",
+      })
+      .optional(),
+    items: z.array(planItemSchema),
+    authorized_amount: z.string().refine((val) => Number(val) >= 1, {
+      message: "Authorized amount must be at-least 1",
+    }),
 
-      // .refine((val) => Number(val) <= 999, {
-      //   message: "Authorized amount is too large",
-      // }),
-      // .min(1, "At least one treatment is required"),
-    })
-    .superRefine((data, ctx) => {
-      const totalCost = data?.items?.reduce((acc, item) => {
-        const template =
-          Array.isArray(treatmentTemplates) && treatmentTemplates?.length > 0
-            ? treatmentTemplates.find((t: any) => t?.id === item?.treatment_id)
-            : null;
-
-        return acc + Number(item?.quantity) * Number(template?.cost || 0);
-      }, 0);
-
-      const amt = Number(data.authorized_amount);
-
-      if (totalCost && amt > totalCost) {
-        ctx.addIssue({
-          path: ["authorized_amount"],
-          code: z.ZodIssueCode.custom,
-          message: "Authorized amount cannot exceed the total cost",
-        });
-      }
-    });
+    // .refine((val) => Number(val) <= 999, {
+    //   message: "Authorized amount is too large",
+    // }),
+    // .min(1, "At least one treatment is required"),
+  });
+  // .superRefine((data, ctx) => {
+  //   const totalCost = data?.items?.reduce((acc, item) => {
+  //     const template =
+  //       Array.isArray(treatmentTemplates) && treatmentTemplates?.length > 0
+  //         ? treatmentTemplates.find((t: any) => t?.id === item?.treatment_id)
+  //         : null;
+  //
+  //     return acc + Number(item?.quantity) * Number(template?.cost || 0);
+  //   }, 0);
+  //
+  //   const amt = Number(data.authorized_amount);
+  //
+  //   if (totalCost && amt > totalCost) {
+  //     ctx.addIssue({
+  //       path: ["authorized_amount"],
+  //       code: z.ZodIssueCode.custom,
+  //       message: "Authorized amount cannot exceed the total cost",
+  //     });
+  //   }
+  // });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
