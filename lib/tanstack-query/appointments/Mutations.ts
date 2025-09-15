@@ -60,10 +60,6 @@ export const useUpdateAppointment = () => {
       void queryClient.invalidateQueries({
         queryKey: [APPOINTMENT_QUERY_KEYS.GET_ALL_APPOINTMENTS],
       });
-
-      // void queryClient.invalidateQueries({
-      //   queryKey: [APPOINTMENT_QUERY_KEYS.],
-      // });
     },
   });
 };

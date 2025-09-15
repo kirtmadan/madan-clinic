@@ -8,6 +8,7 @@ import { useMemo } from "react";
 
 import dayjs from "dayjs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 export default function AppointmentsByStatus({
   date,
@@ -35,6 +36,7 @@ export default function AppointmentsByStatus({
     rs_date,
     status,
     notes,
+    call_status,
     created_at,
     doctor:doctor_id ( id, name ),
     patient:patient_id ( id, name )
@@ -94,19 +96,9 @@ export default function AppointmentsByStatus({
               </Button>
 
               <div className="w-full flex flex-col gap-4">
-                {isFetching ? (
-                  <div className="w-full flex flex-col gap-4">
-                    <Skeleton className="h-52 w-full" />
-                    <Skeleton className="h-52 w-full" />
-                    <Skeleton className="h-52 w-full" />
-                  </div>
-                ) : (
-                  <>
-                    {pendingAppointments?.map((appointment: any) => (
-                      <AppointmentCard key={appointment.id} {...appointment} />
-                    ))}
-                  </>
-                )}
+                {pendingAppointments?.map((appointment: any) => (
+                  <AppointmentCard key={appointment.id} {...appointment} />
+                ))}
               </div>
             </div>
 
@@ -116,19 +108,9 @@ export default function AppointmentsByStatus({
               </Button>
 
               <div className="w-full flex flex-col gap-4">
-                {isFetching ? (
-                  <div className="w-full flex flex-col gap-4">
-                    <Skeleton className="h-52 w-full" />
-                    <Skeleton className="h-52 w-full" />
-                    <Skeleton className="h-52 w-full" />
-                  </div>
-                ) : (
-                  <>
-                    {completedAppointments?.map((appointment: any) => (
-                      <AppointmentCard key={appointment.id} {...appointment} />
-                    ))}
-                  </>
-                )}
+                {completedAppointments?.map((appointment: any) => (
+                  <AppointmentCard key={appointment.id} {...appointment} />
+                ))}
               </div>
             </div>
 
@@ -138,19 +120,9 @@ export default function AppointmentsByStatus({
               </Button>
 
               <div className="w-full flex flex-col gap-4">
-                {isFetching ? (
-                  <div className="w-full flex flex-col gap-4">
-                    <Skeleton className="h-52 w-full" />
-                    <Skeleton className="h-52 w-full" />
-                    <Skeleton className="h-52 w-full" />
-                  </div>
-                ) : (
-                  <>
-                    {rescheduledAppointments?.map((appointment: any) => (
-                      <AppointmentCard key={appointment.id} {...appointment} />
-                    ))}
-                  </>
-                )}
+                {rescheduledAppointments?.map((appointment: any) => (
+                  <AppointmentCard key={appointment.id} {...appointment} />
+                ))}
               </div>
             </div>
           </div>
