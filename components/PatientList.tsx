@@ -158,12 +158,13 @@ export default function PatientList() {
             <div className="font-medium w-full flex items-center gap-3 hover:text-primary">
               <Avatar>
                 <AvatarFallback className="border-[0.5px] uppercase">
-                  {name?.split(" ")?.[0]?.[0]}
-                  {name?.split(" ")?.[1]?.[0] || name?.split(" ")?.[0]?.[1]}
+                  {name?.toUpperCase()?.split(" ")?.[0]?.[0]}
+                  {name?.toUpperCase()?.split(" ")?.[1]?.[0] ||
+                    name?.split(" ")?.[0]?.[1]}
                 </AvatarFallback>
               </Avatar>
 
-              <span>{name}</span>
+              <span>{name?.toUpperCase()}</span>
             </div>
           </Link>
         );

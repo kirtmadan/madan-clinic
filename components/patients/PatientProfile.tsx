@@ -43,7 +43,7 @@ export default function PatientProfile({
             </AvatarFallback>
           </Avatar>
 
-          <h3 className="font-medium">
+          <h3 className="font-medium uppercase">
             {name}{" "}
             <span className="capitalize text-sm text-muted-foreground">
               ({gender})

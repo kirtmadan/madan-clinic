@@ -59,7 +59,7 @@ export default function AppointmentDrawer({
         <div className="flex flex-col gap-4 p-4 w-full">
           <div className="flex flex-col md:flex-row gap-6 md:items-center w-full">
             <div className="flex items-center gap-4">
-              <Avatar className="size-10 md:size-14 cursor-pointer border">
+              <Avatar className="size-10 md:size-14 cursor-pointer border uppercase">
                 <AvatarFallback>
                   {appointmentData?.patient?.name?.split(" ")?.[0]?.[0]}
                   {appointmentData?.patient?.name?.split(" ")?.[1]?.[0] ||
@@ -68,7 +68,7 @@ export default function AppointmentDrawer({
               </Avatar>
 
               <div className="flex flex-col gap-1">
-                <h3 className="font-medium text-secondary-foreground">
+                <h3 className="font-medium text-secondary-foreground uppercase">
                   {appointmentData?.patient?.name}
                 </h3>
               </div>

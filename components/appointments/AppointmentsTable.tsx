@@ -139,7 +139,7 @@ export default function AppointmentsTable({ status }: { status: string }) {
               </AvatarFallback>
             </Avatar>
 
-            <span>{patientName}</span>
+            <span className="uppercase">{patientName}</span>
           </div>
         );
       },

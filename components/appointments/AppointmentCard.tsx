@@ -29,7 +29,7 @@ export default function AppointmentCard(props: AppointmentCardProps) {
       trigger={
         <div className="w-full bg-secondary border-dashed border p-4 rounded-lg flex flex-col gap-1 cursor-pointer">
           <div className="flex items-center gap-4">
-            <Avatar className="size-14 cursor-pointer border">
+            <Avatar className="size-14 cursor-pointer border uppercase">
               <AvatarFallback>
                 {patient?.name?.split(" ")?.[0]?.[0]}
                 {patient?.name?.split(" ")?.[1]?.[0] ||
@@ -38,7 +38,7 @@ export default function AppointmentCard(props: AppointmentCardProps) {
             </Avatar>
 
             <div className="flex flex-col gap-1">
-              <h3 className="font-medium text-secondary-foreground">
+              <h3 className="font-medium text-secondary-foreground uppercase">
                 {patient?.name}
               </h3>
 
