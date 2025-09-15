@@ -132,15 +132,18 @@ export const useUpdateTreatmentPlanPayment = () => {
       amount,
       // treatmentPlanId,
       patientId,
+      method,
       onSuccess,
     }: {
       // treatmentPlanId: string;
       amount: number;
       patientId: string;
+      method: string;
       onSuccess?: () => void;
     }) => {
       const res = await updateTreatmentPlanPayment({
         _amount: amount,
+        _method: method,
         // _plan_id: treatmentPlanId,
         _patient_id: patientId,
       });

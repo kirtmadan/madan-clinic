@@ -536,6 +536,7 @@ export function TreatmentPlanPayments({ patientId }: { patientId: string }) {
         .refine((val) => Number(val) <= totalAmountToBeCharged, {
           message: "Received amount can not be more than total amount",
         }),
+      method: z.string(),
     });
   }, [totalAmountToBeCharged]);
 
@@ -543,6 +544,7 @@ export function TreatmentPlanPayments({ patientId }: { patientId: string }) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       amount: "",
+      method: "cash",
     },
   });
 
@@ -551,10 +553,12 @@ export function TreatmentPlanPayments({ patientId }: { patientId: string }) {
 
     await updateTreatmentPlanPayment({
       amount: Number(values.amount),
+      method: values.method,
       patientId,
       onSuccess: () => {
         form.reset({
           amount: "",
+          method: "cash",
         });
       },
     });
@@ -585,6 +589,39 @@ export function TreatmentPlanPayments({ patientId }: { patientId: string }) {
                     placeholder="Received amount"
                     {...field}
                   />
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="method"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Received Amount</FormLabel>
+
+                <FormControl>
+                  <Select
+                    onValueChange={(value: string) => {
+                      field.onChange(value);
+                    }}
+                    value={field?.value}
+                  >
+                    <SelectTrigger className={cn("w-full bg-white capitalize")}>
+                      <SelectValue placeholder="Select a treatment template" />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      {["cash", "online"].map((m) => (
+                        <SelectItem value={m} key={m} className="capitalize">
+                          {m}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormControl>
 
                 <FormMessage />

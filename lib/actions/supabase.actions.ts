@@ -66,14 +66,17 @@ export const updateTreatmentPlanPayment = async ({
   _amount,
   // _plan_id,
   _patient_id,
+  _method,
 }: {
   _amount: number;
+  _method: string;
   // _plan_id: string;
   _patient_id: string;
 }) => {
   const supabase = createClient();
   const res = await supabase.from("payments").insert({
     amount: _amount,
+    method: _method,
     // plan_id: _plan_id,
     patient_id: _patient_id,
     created_at: new Date().toISOString(),

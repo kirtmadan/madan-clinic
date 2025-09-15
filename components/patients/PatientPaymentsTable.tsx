@@ -86,11 +86,11 @@ export default function PatientPaymentsTable({ id }: { id: string }) {
     //   enableSorting: false,
     //   enableHiding: false,
     // },
-    {
-      accessorKey: "id",
-      header: "Payment ID",
-      cell: ({ row }) => <># {row.getValue("id")}</>,
-    },
+    // {
+    //   accessorKey: "id",
+    //   header: "Payment ID",
+    //   cell: ({ row }) => <># {row.getValue("id")}</>,
+    // },
     {
       accessorKey: "amount",
       header: "Amount",
@@ -105,6 +105,11 @@ export default function PatientPaymentsTable({ id }: { id: string }) {
           </AppointmentStatusRenderer>
         );
       },
+    },
+    {
+      accessorKey: "method",
+      header: "Payment Method",
+      cell: ({ row }) => <># {row.getValue("method")}</>,
     },
     {
       accessorKey: "created_at",
