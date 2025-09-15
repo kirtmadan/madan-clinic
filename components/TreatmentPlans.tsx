@@ -43,6 +43,7 @@ export type TreatmentPlan = {
   created_at: string | number;
   updated_at: string | number;
   status: string;
+  treatment_plan_items: any[];
 };
 
 export default function TreatmentPlans({ patientId }: { patientId: string }) {
@@ -60,6 +61,11 @@ export default function TreatmentPlans({ patientId }: { patientId: string }) {
     ),
     authorized_amount,
     treatment_plan_items(
+      t:treatment_id (
+        id,
+        name,
+        color
+      ),
       quantity,
       recorded_unit_price
     )
@@ -107,6 +113,33 @@ export default function TreatmentPlans({ patientId }: { patientId: string }) {
             trigger={<span># {row.getValue("id")}</span>}
             planData={row?.original}
           />
+        );
+      },
+    },
+    {
+      accessorKey: "treatment_plan_items",
+      header: "Treatments",
+      cell: ({ row }) => {
+        const r = row?.getValue("treatment_plan_items") || [];
+        console.log(r);
+
+        return (
+          <div>
+            {(Array.isArray(r) ? r : [])
+              .filter(
+                (item, index, self) =>
+                  index === self.findIndex((t) => t?.t?.id === item?.t?.id),
+              )
+              .map((item: any, index: number) => (
+                <div key={index} className="inline-flex items-center gap-2">
+                  <span
+                    className="size-3 inline-block rounded-full"
+                    style={{ backgroundColor: item?.t?.color }}
+                  />
+                  <span className="mr-2">{item?.t?.name},</span>
+                </div>
+              ))}
+          </div>
         );
       },
     },
