@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowUpDownIcon } from "lucide-react";
 import dayjs from "dayjs";
 import AppointmentDrawer from "@/components/appointments/AppointmentDrawer";
+import AppointmentCallingSwitch from "@/components/appointments/AppointmentCallingSwitch";
 
 interface AppointmentCardProps {
   created_at: string | number;
@@ -11,6 +12,7 @@ interface AppointmentCardProps {
   notes: string;
   patient_id: string;
   status: string;
+  call_status: number;
   patient: {
     id: string;
     name: string;
@@ -28,27 +30,36 @@ export default function AppointmentCard(props: AppointmentCardProps) {
     <AppointmentDrawer
       trigger={
         <div className="w-full bg-secondary border-dashed border p-4 rounded-lg flex flex-col gap-1 cursor-pointer">
-          <div className="flex items-center gap-4">
-            <Avatar className="size-14 cursor-pointer border uppercase">
-              <AvatarFallback>
-                {patient?.name?.split(" ")?.[0]?.[0]}
-                {patient?.name?.split(" ")?.[1]?.[0] ||
-                  patient?.name?.split(" ")?.[0]?.[1]}
-              </AvatarFallback>
-            </Avatar>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4 w-full flex-1">
+              <Avatar className="size-14 cursor-pointer border uppercase">
+                <AvatarFallback>
+                  {patient?.name?.split(" ")?.[0]?.[0]}
+                  {patient?.name?.split(" ")?.[1]?.[0] ||
+                    patient?.name?.split(" ")?.[0]?.[1]}
+                </AvatarFallback>
+              </Avatar>
 
-            <div className="flex flex-col gap-1">
-              <h3 className="font-medium text-secondary-foreground uppercase">
-                {patient?.name}
-              </h3>
+              <div className="flex flex-col gap-1">
+                <h3 className="font-medium text-secondary-foreground uppercase">
+                  {patient?.name}
+                </h3>
 
-              {/*<p className="text-sm text-muted-foreground">*/}
-              {/*  Amount : ₹ {amount_to_charge}*/}
-              {/*</p>*/}
+                {/*<p className="text-sm text-muted-foreground">*/}
+                {/*  Amount : ₹ {amount_to_charge}*/}
+                {/*</p>*/}
 
-              <p className="text-sm text-muted-foreground">
-                Created at : {dayjs(created_at).format("DD MMM YYYY")}
-              </p>
+                <p className="text-sm text-muted-foreground">
+                  Created at : {dayjs(created_at).format("DD MMM YYYY")}
+                </p>
+              </div>
+            </div>
+
+            <div className="w-[200px]">
+              <AppointmentCallingSwitch
+                call_status={props?.call_status}
+                id={props?.id}
+              />
             </div>
           </div>
 

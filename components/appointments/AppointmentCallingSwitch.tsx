@@ -11,7 +11,10 @@ export default function AppointmentCallingSwitch({
   const { mutateAsync: updateAppointment, isPending } = useUpdateAppointment();
 
   return (
-    <div className="w-full h-full border p-4 border-dashed flex flex-col gap-4 rounded-lg">
+    <div
+      className="w-full h-full border p-4 border-dashed flex flex-col gap-4 rounded-lg"
+      onClick={(e) => e.stopPropagation()}
+    >
       <span className="text-sm">Calling done</span>
 
       <Switch
