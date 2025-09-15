@@ -225,18 +225,27 @@ export function AddTreatmentPlanForm({
                             {(Array.isArray(treatmentTemplates)
                               ? treatmentTemplates
                               : []
-                            ).map((template) => (
-                              <SelectItem
-                                value={template?.id}
-                                key={template?.id}
-                              >
-                                <div
-                                  className="size-4 rounded-sm"
-                                  style={{ backgroundColor: template?.color }}
-                                ></div>
-                                {template?.name} - ₹ {template?.cost}
-                              </SelectItem>
-                            ))}
+                            )
+                              ?.sort((a, b) =>
+                                a?.name
+                                  ?.trim()
+                                  ?.toLowerCase()
+                                  ?.localeCompare(
+                                    b?.name?.trim()?.toLowerCase(),
+                                  ),
+                              )
+                              .map((template) => (
+                                <SelectItem
+                                  value={template?.id}
+                                  key={template?.id}
+                                >
+                                  <div
+                                    className="size-4 rounded-sm"
+                                    style={{ backgroundColor: template?.color }}
+                                  ></div>
+                                  {template?.name} - ₹ {template?.cost}
+                                </SelectItem>
+                              ))}
                           </SelectContent>
                         </Select>
                       </FormControl>

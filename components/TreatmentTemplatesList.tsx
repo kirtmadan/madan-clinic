@@ -81,7 +81,9 @@ export default function TreatmentTemplatesList() {
     isPending: isDeletingTemplate,
   } = useDeleteTreatmentTemplate();
 
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "name", desc: false },
+  ]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
@@ -114,6 +116,7 @@ export default function TreatmentTemplatesList() {
     //   enableHiding: false,
     // },
     {
+      id: "name",
       accessorKey: "name",
       header: "Treatment Name",
       cell: ({ row }) => {
