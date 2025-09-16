@@ -27,7 +27,7 @@ export default function AppointmentsByStatus({
     ];
   }, [formattedDate, date]);
 
-  const { data, isFetching } = useGetAllAppointments({
+  const { data } = useGetAllAppointments({
     filters,
     select: `
     id,
@@ -39,7 +39,7 @@ export default function AppointmentsByStatus({
     call_status,
     created_at,
     doctor:doctor_id ( id, name ),
-    patient:patient_id ( id, name )
+    patient:patient_id ( id, name, phone )
     `,
     queryKeys: [date?.toDateString()],
   });

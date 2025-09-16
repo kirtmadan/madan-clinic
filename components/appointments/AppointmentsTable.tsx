@@ -47,6 +47,7 @@ export type Appointment = {
   patient: {
     id: string;
     name: string;
+    phone: string | number;
   };
   created_on: string | number;
   age: number;
@@ -76,7 +77,7 @@ export default function AppointmentsTable({ status }: { status: string }) {
     created_at,
     call_status,
     doctor:doctor_id ( id, name ),
-    patient:patient_id ( id, name )
+    patient:patient_id ( id, name, phone )
   `,
     // filters,
     // queryKeys: ["appointments", status],
@@ -143,6 +144,12 @@ export default function AppointmentsTable({ status }: { status: string }) {
           </div>
         );
       },
+    },
+    {
+      id: "patient.phone",
+      accessorFn: (row) => row?.patient?.phone,
+      header: "Phone number",
+      cell: ({ row }) => <>{row.getValue("patient.phone")}</>,
     },
     {
       accessorKey: "date",

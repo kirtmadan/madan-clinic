@@ -16,6 +16,7 @@ interface AppointmentCardProps {
   patient: {
     id: string;
     name: string;
+    phone: string;
   };
   doctor: {
     id: string;
@@ -31,7 +32,7 @@ export default function AppointmentCard(props: AppointmentCardProps) {
       trigger={
         <div className="w-full bg-secondary border-dashed border p-4 rounded-lg flex flex-col gap-1 cursor-pointer">
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4 w-full flex-1">
+            <div className="flex items-center gap-4 w-full flex-[1]">
               <Avatar className="size-14 cursor-pointer border uppercase">
                 <AvatarFallback>
                   {patient?.name?.split(" ")?.[0]?.[0]}
@@ -50,17 +51,20 @@ export default function AppointmentCard(props: AppointmentCardProps) {
                 {/*</p>*/}
 
                 <p className="text-sm text-muted-foreground">
-                  Created at : {dayjs(created_at).format("DD MMM YYYY")}
+                  Created at : {dayjs(created_at).format("DD MMM")}
+                </p>
+
+                <p className="text-sm text-muted-foreground">
+                  Phone : {patient?.phone}
                 </p>
               </div>
             </div>
 
-            <div className="w-[200px]">
-              <AppointmentCallingSwitch
-                call_status={props?.call_status}
-                id={props?.id}
-              />
-            </div>
+            <AppointmentCallingSwitch
+              call_status={props?.call_status}
+              id={props?.id}
+              className="border-none w-fit"
+            />
           </div>
 
           <ArrowUpDownIcon className="ml-4 text-muted-foreground" />

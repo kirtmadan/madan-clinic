@@ -71,6 +71,13 @@ export default function AppointmentDrawer({
                 <h3 className="font-medium text-secondary-foreground uppercase">
                   {appointmentData?.patient?.name}
                 </h3>
+
+                <p className="text-sm font-normal text-muted-foreground">
+                  Phone:{" "}
+                  <span className="select-all">
+                    {appointmentData?.patient?.phone}
+                  </span>
+                </p>
               </div>
             </div>
 
