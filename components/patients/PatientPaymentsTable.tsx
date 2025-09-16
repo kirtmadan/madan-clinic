@@ -109,7 +109,9 @@ export default function PatientPaymentsTable({ id }: { id: string }) {
     {
       accessorKey: "method",
       header: "Payment Method",
-      cell: ({ row }) => <># {row.getValue("method")}</>,
+      cell: ({ row }) => (
+        <span className="capitalize">{row.getValue("method")}</span>
+      ),
     },
     {
       accessorKey: "created_at",
