@@ -13,14 +13,14 @@ export default function PatientStats({ id }: { id: string }) {
   const { data: completedAppointmentsCount } = useQuery({
     queryKey: ["completedAppointmentsCount", id, timeRange],
     queryFn: async () => {
-      let startDate = dayjs().startOf("month");
+      let startDate = dayjs().startOf("month").subtract(1, "second");
       let endDate = dayjs().endOf("month");
 
       if (timeRange === "1d") {
-        startDate = dayjs().startOf("day");
+        startDate = dayjs().startOf("day").subtract(1, "second");
         endDate = dayjs().endOf("day");
       } else if (timeRange === "7d") {
-        startDate = dayjs().startOf("week");
+        startDate = dayjs().startOf("week").subtract(1, "second");
         endDate = dayjs().endOf("week");
       }
 
@@ -31,7 +31,7 @@ export default function PatientStats({ id }: { id: string }) {
         .select("*", { count: "exact", head: true })
         .eq("patient_id", id)
         .eq("status", "completed")
-        .gte("date", startDate?.format("YYYY-MM-DD"))
+        .gt("date", startDate?.format("YYYY-MM-DD"))
         .lte("date", endDate?.format("YYYY-MM-DD"));
 
       return count || 0;
@@ -41,14 +41,14 @@ export default function PatientStats({ id }: { id: string }) {
   const { data: pendingAppointmentsCount } = useQuery({
     queryKey: ["pendingAppointmentsCount", id, timeRange],
     queryFn: async () => {
-      let startDate = dayjs().startOf("month");
+      let startDate = dayjs().startOf("month").subtract(1, "second");
       let endDate = dayjs().endOf("month");
 
       if (timeRange === "1d") {
-        startDate = dayjs().startOf("day");
+        startDate = dayjs().startOf("day").subtract(1, "second");
         endDate = dayjs().endOf("day");
       } else if (timeRange === "7d") {
-        startDate = dayjs().startOf("week");
+        startDate = dayjs().startOf("week").subtract(1, "second");
         endDate = dayjs().endOf("week");
       }
 
@@ -59,7 +59,7 @@ export default function PatientStats({ id }: { id: string }) {
         .select("*", { count: "exact", head: true })
         .eq("patient_id", id)
         .neq("status", "completed")
-        .gte("date", startDate?.format("YYYY-MM-DD"))
+        .gt("date", startDate?.format("YYYY-MM-DD"))
         .lte("date", endDate?.format("YYYY-MM-DD"));
 
       return count || 0;
@@ -69,14 +69,14 @@ export default function PatientStats({ id }: { id: string }) {
   const { data: totalPaymentsCount } = useQuery({
     queryKey: ["totalPaymentsCount", id, timeRange],
     queryFn: async () => {
-      let startDate = dayjs().startOf("month");
+      let startDate = dayjs().startOf("month").subtract(1, "second");
       let endDate = dayjs().endOf("month");
 
       if (timeRange === "1d") {
-        startDate = dayjs().startOf("day");
+        startDate = dayjs().startOf("day").subtract(1, "second");
         endDate = dayjs().endOf("day");
       } else if (timeRange === "7d") {
-        startDate = dayjs().startOf("week");
+        startDate = dayjs().startOf("week").subtract(1, "second");
         endDate = dayjs().endOf("week");
       }
 
@@ -86,8 +86,8 @@ export default function PatientStats({ id }: { id: string }) {
         .from("payments")
         .select("total:amount")
         .eq("patient_id", id)
-        .gte("created_at", startDate?.format("YYYY-MM-DD"))
-        .lte("created_at", endDate?.format("YYYY-MM-DD"));
+        .gt("created_at", startDate?.toISOString())
+        .lte("created_at", endDate?.toISOString());
 
       return res?.data?.reduce((acc, item) => acc + item?.total, 0) || 0;
     },
