@@ -87,7 +87,9 @@ export default function PatientList() {
       treatment_plan_items (
         treatment_id,
         treatments (
-          name
+          id,
+          name,
+          color
         )
       )
     )
@@ -176,13 +178,6 @@ export default function PatientList() {
       cell: ({ row }) => <>{row.getValue("age")}</>,
     },
     {
-      accessorKey: "created_at",
-      header: "Created On",
-      cell: ({ row }) => (
-        <>{dayjs(row.getValue("created_at")).format("DD MMM YYYY")}</>
-      ),
-    },
-    {
       accessorKey: "phone",
       header: "Phone",
       cell: ({ row }) => {
@@ -197,11 +192,48 @@ export default function PatientList() {
     //   },
     // },
     {
+      accessorKey: "treatment_plans",
+      header: "Treatments",
+      cell: ({ row }) => {
+        const r: any[] = row?.getValue("treatment_plans") || [];
+        const arrayToMap = (Array.isArray(r) ? r : []).filter(
+          (item, index, self) =>
+            index === self.findIndex((t) => t?.id === item?.id),
+        );
+        return (
+          <div>
+            {arrayToMap?.map((item: any, index: number) => (
+              <div key={index} className="inline-flex items-center gap-2">
+                <span
+                  className="size-3 inline-block rounded-full"
+                  style={{ backgroundColor: item?.color }}
+                />
+
+                <span className="mr-2 text-xs">
+                  {item?.name}
+                  {arrayToMap?.length > 1 && arrayToMap?.length - 1 !== index
+                    ? ","
+                    : null}
+                </span>
+              </div>
+            ))}
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: "gender",
       header: "Gender",
       cell: ({ row }) => {
         return <span className="capitalize">{row.getValue("gender")}</span>;
       },
+    },
+    {
+      accessorKey: "created_at",
+      header: "Created On",
+      cell: ({ row }) => (
+        <>{dayjs(row.getValue("created_at")).format("DD MMM YYYY")}</>
+      ),
     },
     {
       id: "actions",
@@ -262,11 +294,18 @@ export default function PatientList() {
         ?.map((tpi: any) => tpi?.treatments?.name)
         ?.filter(Boolean);
 
+      const treatment_plans = p?.treatment_plans
+        ?.flatMap((tp: any) => tp?.treatment_plan_items || [])
+        ?.map((tpi: any) => {
+          return { treatment_id: tpi?.treatment_id, ...tpi?.treatments };
+        })
+        ?.filter(Boolean);
+
       const uniqueTemplates = [...new Set(templates)].join(" ");
 
       return {
         ...p,
-        treatment_plans: [],
+        treatment_plans,
         uniqueTemplates,
       };
     });

@@ -121,7 +121,6 @@ export default function TreatmentPlans({ patientId }: { patientId: string }) {
       header: "Treatments",
       cell: ({ row }) => {
         const r = row?.getValue("treatment_plan_items") || [];
-        console.log(r);
 
         return (
           <div>
