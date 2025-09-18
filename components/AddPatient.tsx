@@ -41,6 +41,7 @@ import {
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z
@@ -134,6 +135,7 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
         age: editData?.age?.toString(),
         gender: editData?.gender,
         address: editData?.address,
+        charge_fee: true,
       });
     }
   }, [editData, form]);
@@ -152,6 +154,7 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
         onSuccess: () => {
           onCancel?.();
           form.reset();
+          toast.success("Successfully updated the patient details");
           router.refresh();
         },
       });
@@ -330,6 +333,7 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
             >
               Cancel
             </Button>
+
             <Button type="submit">Submit</Button>
           </div>
         </form>
