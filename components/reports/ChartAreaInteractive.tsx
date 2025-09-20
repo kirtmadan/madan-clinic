@@ -34,7 +34,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function ChartAreaInteractive() {
-  const { timeState } = useTime();
+  const { timeState, setReportsData } = useTime();
 
   // const calculateBarchartWidth = (numberOfItem: number = 9) => {
   //   if (numberOfItem > 9) return numberOfItem * 100;
@@ -82,6 +82,8 @@ export function ChartAreaInteractive() {
             new Set(pays?.map((p: any) => p.patient?.name || "Unknown")),
           ) || [];
 
+        let totalPayments = 0;
+
         pays?.forEach((p: any) => {
           const day = dayjs(p.created_at).format("YYYY-MM-DD");
           const patientName = p.patient?.name || "Unknown";
@@ -90,12 +92,16 @@ export function ChartAreaInteractive() {
             paymentsByDayAndPatient[day] = {};
           }
 
-          if (p.amount > 0)
+          if (p.amount > 0) {
             paymentsByDayAndPatient[day][patientName] =
               (paymentsByDayAndPatient[day][patientName] || 0) + p.amount;
+
+            totalPayments += p.amount;
+          }
         });
 
         const allDates = generateArrOfDates(startDate, endDate);
+        setReportsData((prev) => ({ ...prev, totalPayments }));
 
         return {
           chart: allDates?.map((date) => ({
@@ -126,6 +132,7 @@ export function ChartAreaInteractive() {
     return color;
   }
 
+  if (!timeState?.from || !timeState?.to) return null;
   return (
     <Card className="@container/card">
       <CardHeader>

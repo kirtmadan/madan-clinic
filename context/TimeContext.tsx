@@ -14,9 +14,17 @@ export interface CustomDateRange extends DateRange {
   value: string;
 }
 
+interface ReportsData {
+  totalPayments: number;
+  totalCompletedAppointments: number;
+}
+
 interface TimeContextType {
   timeState: CustomDateRange;
   setTimeState: Dispatch<SetStateAction<CustomDateRange>>;
+
+  reportsData: ReportsData;
+  setReportsData: Dispatch<SetStateAction<ReportsData>>;
 }
 
 const TimeContext = createContext<TimeContextType | undefined>(undefined);
@@ -28,11 +36,19 @@ const TimeContextProvider = ({ children }: { children: ReactNode }) => {
     to: new Date(),
   });
 
+  const [reportsData, setReportsData] = useState<ReportsData>({
+    totalPayments: 0,
+    totalCompletedAppointments: 0,
+  });
+
   return (
     <TimeContext.Provider
       value={{
         timeState,
         setTimeState,
+
+        reportsData,
+        setReportsData,
       }}
     >
       {children}

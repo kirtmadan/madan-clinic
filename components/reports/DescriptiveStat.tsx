@@ -1,6 +1,6 @@
 "use client";
 
-import { TrendingUpIcon, TrendingDownIcon } from "lucide-react";
+import { TrendingUpIcon, TrendingDownIcon, InfoIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -11,71 +11,72 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
-import {
-  fetchAppointmentStats,
-  fetchPaymentStats,
-} from "@/lib/actions/supabase.actions";
+import { useTime } from "@/context/TimeContext";
+import dayjs from "dayjs";
+import { createClient } from "@/lib/supabase/client";
 
 export default function DescriptiveStatCards() {
-  const { data } = useQuery({
-    queryKey: ["cardStats"],
+  const { timeState, reportsData, setReportsData } = useTime();
+
+  useQuery({
+    queryKey: ["appointmentStats", timeState],
     queryFn: async () => {
-      return await fetchPaymentStats();
+      const startDate = dayjs(timeState?.from).startOf("day");
+      const endDate = dayjs(timeState?.to).endOf("day");
+
+      const supabase = createClient();
+
+      try {
+        const { count } = await supabase
+          .from("appointments")
+          .select("status, patient:patient_id (id, name), id, date", {
+            count: "exact",
+            head: true,
+          })
+          .eq("status", "completed")
+          .gte("date", startDate?.format("YYYY-MM-DD"))
+          .lte("date", endDate?.format("YYYY-MM-DD"));
+
+        if (count) {
+          setReportsData((prev) => ({
+            ...(prev || {}),
+            totalCompletedAppointments: count,
+          }));
+
+          return count;
+        }
+
+        return 0;
+      } catch (error) {
+        console.log(error);
+        return 0;
+      }
     },
   });
 
-  const { data: appointmentStats } = useQuery({
-    queryKey: ["appointmentStats"],
-    queryFn: async () => {
-      return await fetchAppointmentStats();
-    },
-  });
-
-  const localMap: Record<string, string> = {
-    "1d": "today",
-    "7d": "this_week",
-    "30d": "this_month",
-  };
-
-  const getDataKey = (timeRange: string, type: string) => {
-    switch (timeRange) {
-      case "1d":
-        if (type === "percent_change") return "today_vs_yesterday_percent";
-        return "today";
-
-      case "7d":
-        if (type === "percent_change") return "this_week_vs_last_week_percent";
-        return "this_week";
-
-      case "30d":
-        if (type === "percent_change")
-          return "this_month_vs_last_month_percent";
-        return "this_month";
-
-      default:
-        return "today_total";
-    }
-  };
+  if (!timeState?.from || !timeState?.to)
+    return (
+      <div className="w-full h-full border bg-card max-w-xl mx-auto border-dashed flex flex-col gap-4 rounded-lg p-12">
+        <div className="flex items-center justify-center gap-4">
+          <InfoIcon />
+          <p className="text-sm">Select a date range to view the reports</p>
+        </div>
+      </div>
+    );
 
   return (
     <>
       <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2">
         <DescriptiveStatCard
           title="Total Payments"
-          description={`Total payments made ${localMap[timeRange]}`}
-          dataToShow={
-            "₹ " + (data?.[getDataKey(timeRange, "total") + "_total"] || 0)
-          }
+          description={`Total payments made`}
+          dataToShow={"₹ " + (reportsData?.totalPayments || 0)}
         />
 
         <DescriptiveStatCard
           title="Completed Appointments"
-          description={`Total appointments completed ${localMap[timeRange]}`}
-          dataToShow={
-            appointmentStats?.[
-              getDataKey(timeRange, "completed") + "_completed"
-            ] || 0
-          }
+          description={`Total appointments completed`}
+          dataToShow={reportsData?.totalCompletedAppointments || 0}
         />
       </div>
     </>

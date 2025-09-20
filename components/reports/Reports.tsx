@@ -7,7 +7,7 @@ export default function Reports() {
     <>
       <TimeSelector />
 
-      {/*<DescriptiveStatCards />*/}
+      <DescriptiveStatCards />
       <ChartAreaInteractive />
     </>
   );
