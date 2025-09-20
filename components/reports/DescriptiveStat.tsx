@@ -1,3 +1,5 @@
+"use client";
+
 import { TrendingUpIcon, TrendingDownIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,11 +16,7 @@ import {
   fetchPaymentStats,
 } from "@/lib/actions/supabase.actions";
 
-export default function DescriptiveStatCards({
-  timeRange,
-}: {
-  timeRange: string;
-}) {
+export default function DescriptiveStatCards() {
   const { data } = useQuery({
     queryKey: ["cardStats"],
     queryFn: async () => {
@@ -68,7 +66,6 @@ export default function DescriptiveStatCards({
           dataToShow={
             "₹ " + (data?.[getDataKey(timeRange, "total") + "_total"] || 0)
           }
-          percentChange={data?.[getDataKey(timeRange, "percent_change")]}
         />
 
         <DescriptiveStatCard
@@ -78,9 +75,6 @@ export default function DescriptiveStatCards({
             appointmentStats?.[
               getDataKey(timeRange, "completed") + "_completed"
             ] || 0
-          }
-          percentChange={
-            appointmentStats?.[getDataKey(timeRange, "percent_change")]
           }
         />
       </div>

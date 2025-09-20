@@ -1,57 +1,70 @@
 "use client";
 
+import * as React from "react";
+import { ChevronDownIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
-const TimeOptions = [
-  {
-    label: "Today",
-    value: "1d",
-  },
-  {
-    label: "This week",
-    value: "7d",
-  },
-  {
-    label: "This month",
-    value: "30d",
-  },
-];
+import { useTime } from "@/context/TimeContext";
+import { useState } from "react";
+import dayjs from "dayjs";
+import { DateRange } from "react-day-picker";
 
-export default function TimeSelector({
-  timeRange,
-  setTimeRangeAction,
-}: {
-  timeRange: string;
-  setTimeRangeAction: (timeRange: string) => void;
-}) {
+export default function TimeSelector() {
+  const { timeState, setTimeState } = useTime();
+
+  const [openEt, setOpenEt] = useState<boolean>(false);
+
   return (
     <div className="flex items-center justify-end gap-4">
-      <Select value={timeRange} onValueChange={setTimeRangeAction}>
-        <SelectTrigger
-          className="flex w-40 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
-          size="sm"
-          aria-label="Select a value"
-        >
-          <SelectValue placeholder="Last 3 months" />
-        </SelectTrigger>
-        <SelectContent className="rounded-xl">
-          {TimeOptions.map((item) => (
-            <SelectItem
-              value={item.value}
-              key={item.value}
-              className="rounded-lg"
+      <div className="flex flex-col gap-3">
+        <Popover open={openEt} onOpenChange={setOpenEt}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              id="date"
+              className="justify-between font-normal"
             >
-              {item.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+              {timeState?.from
+                ? `${dayjs(timeState?.from)?.format("DD MMM YYYY")} - ${dayjs(timeState?.to)?.format("DD MMM YYYY")}`
+                : "Select date range"}
+              <ChevronDownIcon />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+            <Calendar
+              mode="range"
+              defaultMonth={timeState?.from}
+              selected={timeState}
+              captionLayout="dropdown"
+              numberOfMonths={2}
+              onSelect={(dateRange: DateRange | undefined) => {
+                if (dateRange?.from && dateRange?.to) {
+                  const start = dayjs(dateRange.from).startOf("day");
+                  const end = dayjs(dateRange.to).endOf("day");
+                  const diff = end.diff(start, "month", true); // difference in months (float)
+
+                  if (diff > 1) {
+                    // If the range exceeds 1 month, clamp it
+                    dateRange.to = start.add(1, "month").toDate();
+                  }
+                }
+
+                setTimeState({
+                  value: "custom",
+                  from: dateRange?.from,
+                  to: dateRange?.to,
+                });
+              }}
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
     </div>
   );
 }

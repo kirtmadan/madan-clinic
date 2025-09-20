@@ -38,6 +38,7 @@ export default function RescheduleAppointment({
     await updateAppointment({
       doc: {
         status: "rescheduled",
+        call_status: 0,
         rs_date: day().format("YYYY-MM-DD"),
         date: day(date).format("YYYY-MM-DD"),
       },
@@ -67,6 +68,7 @@ export default function RescheduleAppointment({
         patient_id: appointmentData?.patient?.id,
         date: day(date).format("YYYY-MM-DD"),
         status: "scheduled",
+        call_status: 0,
         notes: undefined,
         created_at: new Date().toISOString(),
       },

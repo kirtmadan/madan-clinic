@@ -13,22 +13,19 @@ import {
 import {
   ChartConfig,
   ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
+  // ChartLegend,
+  // ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { useQuery } from "@tanstack/react-query";
 import dayjs, { Dayjs } from "dayjs";
 import { createClient } from "@/lib/supabase/client";
+import { useTime } from "@/context/TimeContext";
 
 const chartConfig = {
   visitors: {
     label: "Visitors",
-  },
-  completedAppointments: {
-    label: "Completed Appointments",
-    color: "var(--primary)",
   },
   payments: {
     label: "Payments",
@@ -36,7 +33,14 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ChartAreaInteractive({ timeRange }: { timeRange: string }) {
+export function ChartAreaInteractive() {
+  const { timeState } = useTime();
+
+  // const calculateBarchartWidth = (numberOfItem: number = 9) => {
+  //   if (numberOfItem > 9) return numberOfItem * 100;
+  //   return "100%";
+  // };
+
   function generateArrOfDates(start: Dayjs, end: Dayjs) {
     const dates = [];
     let current = start;
@@ -50,75 +54,82 @@ export function ChartAreaInteractive({ timeRange }: { timeRange: string }) {
   }
 
   const { data: chartData } = useQuery({
-    queryKey: ["appointmentsChart", timeRange],
+    queryKey: ["patientPaymentsChart", timeState],
     queryFn: async () => {
-      let startDate = dayjs().startOf("month");
-      let endDate = dayjs().endOf("month");
-
-      if (timeRange === "1d") {
-        startDate = dayjs().startOf("day");
-        endDate = dayjs().endOf("day");
-      } else if (timeRange === "7d") {
-        startDate = dayjs().startOf("week");
-        endDate = dayjs().endOf("week");
-      }
+      const startDate = dayjs(timeState?.from).startOf("day");
+      const endDate = dayjs(timeState?.to).endOf("day");
 
       const supabase = createClient();
 
       try {
-        // 1️⃣ Completed Appointments
-        const { data: appts, error: apptErr } = await supabase
-          .from("appointments")
-          .select("date")
-          .eq("status", "completed")
-          .gte("date", startDate?.format("YYYY-MM-DD"))
-          .lte("date", endDate?.format("YYYY-MM-DD"));
-
-        if (apptErr) throw apptErr;
-
-        // Count per day
-        const appointmentsByDay: Record<string, number> = {};
-
-        appts?.forEach((a) => {
-          const day = dayjs(a.date).format("YYYY-MM-DD");
-          appointmentsByDay[day] = (appointmentsByDay[day] || 0) + 1;
-        });
-
-        // 2️⃣ Payments
-
-        const { data: pays, error: payErr } = await supabase
+        const query = supabase
           .from("payments")
-          .select("created_at, amount")
-          .gte("created_at", startDate?.format("YYYY-MM-DD"))
-          .lte("created_at", endDate?.format("YYYY-MM-DD"));
+          .select("created_at, amount, patient:patient_id (id, name)")
+          .gte("created_at", startDate?.format("YYYY-MM-DD HH:mm"))
+          .lte("created_at", endDate?.format("YYYY-MM-DD HH:mm"));
+
+        const { data: pays, error: payErr } = await query;
 
         if (payErr) throw payErr;
 
-        const paymentsByDay: Record<string, number> = {};
+        const paymentsByDayAndPatient: Record<
+          string,
+          Record<string, number>
+        > = {};
+
+        const patients =
+          Array.from(
+            new Set(pays?.map((p: any) => p.patient?.name || "Unknown")),
+          ) || [];
+
         pays?.forEach((p: any) => {
           const day = dayjs(p.created_at).format("YYYY-MM-DD");
-          paymentsByDay[day] = (paymentsByDay[day] || 0) + p.amount;
+          const patientName = p.patient?.name || "Unknown";
+
+          if (!paymentsByDayAndPatient[day]) {
+            paymentsByDayAndPatient[day] = {};
+          }
+
+          if (p.amount > 0)
+            paymentsByDayAndPatient[day][patientName] =
+              (paymentsByDayAndPatient[day][patientName] || 0) + p.amount;
         });
 
-        // 3️⃣ Merge both into final chart data array
         const allDates = generateArrOfDates(startDate, endDate);
 
-        return allDates?.map((day) => ({
-          date: day,
-          completedAppointments: appointmentsByDay[day] || 0,
-          payments: paymentsByDay[day] || 0,
-        }));
+        return {
+          chart: allDates?.map((date) => ({
+            date,
+            ...(paymentsByDayAndPatient[date] || {}),
+          })),
+          patients,
+        };
       } catch (error) {
         console.error("Error fetching chart data:", error);
-        return [];
+        return { chart: [], patients: [] };
       }
     },
   });
 
+  function stringToColor(str: string) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    let color = "#";
+    for (let i = 0; i < 3; i++) {
+      const value = (hash >> (i * 8)) & 0xff;
+      color += ("00" + value.toString(16)).substr(-2);
+    }
+
+    return color;
+  }
+
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardTitle>Payments &amp; Completed Appointments</CardTitle>
+        <CardTitle>Payments ( by patients )</CardTitle>
         {/*<CardDescription>*/}
         {/*  <span className="hidden @[540px]/card:block">*/}
         {/*    Total for the last 3 months*/}
@@ -163,34 +174,7 @@ export function ChartAreaInteractive({ timeRange }: { timeRange: string }) {
           config={chartConfig}
           className="aspect-auto h-[400px] w-full"
         >
-          <BarChart data={chartData}>
-            <defs>
-              <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-desktop)"
-                  stopOpacity={1.0}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-desktop)"
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-              <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-mobile)"
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-mobile)"
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-            </defs>
-
+          <BarChart data={chartData?.chart} margin={{ left: 30, right: 30 }}>
             <CartesianGrid vertical={false} />
 
             <XAxis
@@ -198,10 +182,10 @@ export function ChartAreaInteractive({ timeRange }: { timeRange: string }) {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              minTickGap={32}
+              minTickGap={20}
+              scale="band"
               interval={
-                timeRange === "30d" ? 1 : 0
-                // Number(timeRange?.slice(0, timeRange?.length - 1)) - 2
+                1 // Number(timeRange?.slice(0, timeRange?.length - 1)) - 2
               }
               tickFormatter={(value) => {
                 return new Date(value).toLocaleDateString("en-US", {
@@ -210,9 +194,6 @@ export function ChartAreaInteractive({ timeRange }: { timeRange: string }) {
                 });
               }}
             />
-
-            {/*<YAxis />*/}
-            <ChartLegend content={<ChartLegendContent />} />
 
             <ChartTooltip
               cursor={false}
@@ -229,23 +210,14 @@ export function ChartAreaInteractive({ timeRange }: { timeRange: string }) {
               }
             />
 
-            <Bar
-              dataKey="payments"
-              // type="natural"
-              fill="var(--color-blue-500)"
-              // stroke="var(--color-mobile)"
-              stackId="a"
-              maxBarSize={24}
-            />
-
-            <Bar
-              dataKey="completedAppointments"
-              fill="var(--primary)"
-              // type="natural"
-              // stroke="var(--color-desktop)"
-              stackId="ab"
-              maxBarSize={50}
-            />
+            {chartData?.patients?.map((patient) => (
+              <Bar
+                key={patient}
+                dataKey={patient}
+                stackId="a"
+                fill={stringToColor(patient)}
+              />
+            ))}
           </BarChart>
         </ChartContainer>
       </CardContent>
