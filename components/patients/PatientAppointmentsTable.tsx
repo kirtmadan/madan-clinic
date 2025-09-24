@@ -60,7 +60,7 @@ export default function PatientAppointmentsTable({ id }: { id: string }) {
     call_status,
     created_at,
     doctor:doctor_id ( id, name ),
-    patient:patient_id ( id, name )
+    patient:patient_id ( id, name, status, phone )
   `,
     filters: [(query: any) => query.eq("patient_id", id)],
     queryKeys: [id],

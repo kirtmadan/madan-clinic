@@ -5,9 +5,11 @@ import { getCollectionData, getData } from "@/lib/actions/supabase.actions";
 export const useGetAllPatients = ({
   limit,
   select,
+  status,
 }: {
   limit?: number;
   select?: string;
+  status?: string;
 }) => {
   return useQuery({
     queryKey: [PATIENT_QUERY_KEYS.GET_ALL_PATIENTS],
@@ -16,6 +18,10 @@ export const useGetAllPatients = ({
         tableName: "patients",
         limit,
         select,
+        filters:
+          status === "completed"
+            ? [(query: any) => query.eq("status", "completed")]
+            : [(query: any) => query.neq("status", "completed")],
       });
 
       if (Array.isArray(res)) {

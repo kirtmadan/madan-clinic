@@ -15,7 +15,6 @@ import {
   useReactTable,
   VisibilityState,
   type Table as TableType,
-  Row,
 } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
@@ -55,10 +54,20 @@ import {
 import DataTableRow from "@/components/DataTableRow";
 
 import dayjs from "dayjs";
-import { useGetAllPatients } from "@/lib/tanstack-query/patients/Queries";
 import DeleteDialog from "@/components/shared/DeleteDialog";
 import { useDeletePatient } from "@/lib/tanstack-query/patients/Mutations";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useQuery } from "@tanstack/react-query";
+import { PATIENT_QUERY_KEYS } from "@/lib/tanstack-query/patients/Keys";
+import { getCollectionData } from "@/lib/actions/supabase.actions";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 export type Patient = {
   id: string | number;
@@ -71,29 +80,44 @@ export type Patient = {
 };
 
 export default function PatientList() {
-  const { data } = useGetAllPatients({
-    select: `
-    id,
-    name,
-    age,
-    gender,
-    phone,
-    address,
-    created_at,
-    patient_number,
-    charge_fee,
-    treatment_plans (
-      id,
-      treatment_plan_items (
-        treatment_id,
-        treatments (
-          id,
-          name,
-          color
-        )
-      )
-    )
-    `,
+  const [selectedStatus, setSelectedStatus] = useState<string>("active");
+
+  const { data } = useQuery({
+    queryKey: [PATIENT_QUERY_KEYS.GET_ALL_PATIENTS, selectedStatus],
+    queryFn: async () => {
+      const res = await getCollectionData({
+        tableName: "patients",
+        select: `
+              id,
+              name,
+              age,
+              gender,
+              phone,
+              address,
+              created_at,
+              patient_number,
+              charge_fee,
+              treatment_plans (
+                id,
+                treatment_plan_items (
+                  treatment_id,
+                  treatments (
+                    id,
+                    name,
+                    color
+                  )
+                )
+              )
+              `,
+        filters: [(query: any) => query.eq("status", selectedStatus)],
+      });
+
+      if (Array.isArray(res)) {
+        return res;
+      } else {
+        return { error: "Error fetching patients" };
+      }
+    },
   });
 
   const { mutateAsync: deletePatient, isPending: isDeletingPatient } =
@@ -345,10 +369,37 @@ export default function PatientList() {
             <Users />
           </Button>
 
-          <span className="text-lg font-medium">Patient List</span>
+          <span className="text-lg font-medium">
+            {selectedStatus === "completed" && (
+              <span className="capitalize">{selectedStatus}</span>
+            )}{" "}
+            Patient List
+          </span>
         </CardTitle>
 
         <div className="flex items-center gap-6">
+          <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+
+            <SelectContent>
+              {["active", "completed"].map((st) => (
+                <SelectItem key={st} value={st}>
+                  <div className="flex items-center gap-2 capitalize">
+                    <span
+                      className={cn(
+                        "size-3 rounded-full",
+                        st === "completed" ? "bg-green-400" : "bg-orange-400",
+                      )}
+                    ></span>
+                    {st}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           <InputWithIcon
             type="text"
             StartIcon={

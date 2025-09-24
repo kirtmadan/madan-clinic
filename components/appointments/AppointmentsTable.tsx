@@ -56,7 +56,7 @@ export type Appointment = {
   email: string;
 };
 
-export default function AppointmentsTable({ status }: { status: string }) {
+export default function AppointmentsTable() {
   // const filters = useMemo(() => {
   //   if (!status) return undefined;
   //
@@ -77,7 +77,7 @@ export default function AppointmentsTable({ status }: { status: string }) {
     created_at,
     call_status,
     doctor:doctor_id ( id, name ),
-    patient:patient_id ( id, name, phone )
+    patient:patient_id ( id, name, phone, status )
   `,
     // filters,
     // queryKeys: ["appointments", status],

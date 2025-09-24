@@ -70,7 +70,7 @@ export default function LabOrdersTable() {
     created_at,
     call_status,
     doctor:doctor_id ( id, name ),
-    patient:patient_id ( id, name )
+    patient:patient_id ( id, name, phone, status )
   `,
   });
 

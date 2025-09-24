@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useUpdateAppointment } from "@/lib/tanstack-query/appointments/Mutations";
 
 import { toast } from "sonner";
+import { useUpdatePatient } from "@/lib/tanstack-query/patients/Mutations";
 
 export default function CompleteAppointment({
   appointmentData,
@@ -9,7 +10,7 @@ export default function CompleteAppointment({
   appointmentData: any;
 }) {
   const { mutateAsync: updateAppointment, isPending } = useUpdateAppointment();
-  // const { mutateAsync: updatePatient } = useUpdatePatient();
+  const { mutateAsync: updatePatient } = useUpdatePatient();
 
   const completeAppointment = async () => {
     await updateAppointment({
@@ -17,6 +18,14 @@ export default function CompleteAppointment({
       documentId: appointmentData?.id,
       onSuccess: () => {
         toast.success("Appointment completed successfully.");
+      },
+    });
+
+    await updatePatient({
+      doc: { status: "completed" },
+      documentId: appointmentData?.patient?.id,
+      onSuccess: () => {
+        toast.success("Patient marked as completed.");
       },
     });
   };

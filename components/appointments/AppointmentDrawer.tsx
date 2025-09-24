@@ -167,7 +167,7 @@ export default function AppointmentDrawer({
                 />
               )}
 
-              {!["completed"].includes(appointmentData?.status) && (
+              {!["completed"].includes(appointmentData?.patient?.status) && (
                 <CompleteAppointment appointmentData={appointmentData} />
               )}
 

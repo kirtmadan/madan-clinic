@@ -1,14 +1,13 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { Button } from "@/components/ui/button";
 import AppointmentCard from "@/components/appointments/AppointmentCard";
 import { useGetAllAppointments } from "@/lib/tanstack-query/appointments/Queries";
 import { CalendarIcon } from "lucide-react";
-import { useMemo } from "react";
 
 import dayjs from "dayjs";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
 
 export default function AppointmentsByStatus({
   date,
@@ -39,7 +38,7 @@ export default function AppointmentsByStatus({
     call_status,
     created_at,
     doctor:doctor_id ( id, name ),
-    patient:patient_id ( id, name, phone )
+    patient:patient_id ( id, name, phone, status )
     `,
     queryKeys: [date?.toDateString()],
   });
