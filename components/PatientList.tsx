@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/table";
 
 import {
+  ArrowDownToLineIcon,
   ArrowUpDown,
   MoreHorizontal,
   TrashIcon,
@@ -67,7 +68,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { cn, exportToCSV } from "@/lib/utils";
 
 export type Patient = {
   id: string | number;
@@ -414,17 +415,34 @@ export default function PatientList() {
             onChange={(event) => setGlobalFilter(event.target.value)}
           />
 
-          {/*<Button*/}
-          {/*  variant="outline"*/}
-          {/*  className="h-10"*/}
-          {/*  onClick={() => {*/}
-          {/*    if (data && Array.isArray(data))*/}
-          {/*      exportToCSV(data, "patient-data.csv");*/}
-          {/*  }}*/}
-          {/*>*/}
-          {/*  <ArrowDownToLineIcon />*/}
-          {/*  Export*/}
-          {/*</Button>*/}
+          <Button
+            variant="outline"
+            className="h-10"
+            onClick={() => {
+              if (data && Array.isArray(data))
+                exportToCSV(
+                  data?.map((p) => {
+                    const newObj = JSON.parse(JSON.stringify(p));
+
+                    const templates = p?.treatment_plans
+                      ?.flatMap((tp: any) => tp?.treatment_plan_items || [])
+                      ?.map((tpi: any) => tpi?.treatments?.name)
+                      ?.filter(Boolean);
+
+                    newObj.treatments = [...new Set(templates)].join(", ");
+
+                    delete newObj.charge_fee;
+                    delete newObj.treatment_plans;
+                    delete newObj.id;
+                    return newObj;
+                  }),
+                  `patient-data ${dayjs().format("DD MMM YYYY")}.csv`,
+                );
+            }}
+          >
+            <ArrowDownToLineIcon />
+            Export
+          </Button>
         </div>
       </CardHeader>
 
