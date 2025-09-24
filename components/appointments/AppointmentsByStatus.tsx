@@ -5,9 +5,10 @@ import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import AppointmentCard from "@/components/appointments/AppointmentCard";
 import { useGetAllAppointments } from "@/lib/tanstack-query/appointments/Queries";
-import { CalendarIcon } from "lucide-react";
+import { ArrowDownToLineIcon, CalendarIcon } from "lucide-react";
 
 import dayjs from "dayjs";
+import { exportToCSV } from "@/lib/utils";
 
 export default function AppointmentsByStatus({
   date,
@@ -84,8 +85,45 @@ export default function AppointmentsByStatus({
         )
     : [];
 
+  const getDataToExport = (row: any) => {
+    return {
+      "appointment number": row?.appointment_number,
+      "call status": row?.call_status ? "done" : "pending",
+      "created at": dayjs(row?.created_at).format("DD MMM YYYY"),
+      "doctor name": row?.doctor?.name,
+      "patient name": row?.patient?.name,
+      "patient phone": row?.patient?.phone,
+      date: row?.date,
+      status: row?.status,
+    };
+  };
+
   return (
     <>
+      <Button
+        variant="outline"
+        className="absolute top-0 right-0"
+        onClick={() => {
+          exportToCSV(
+            pendingAppointments?.map(getDataToExport),
+            `pending-appointments ${dayjs().format("DD MMM YYYY")}.csv`,
+          );
+
+          exportToCSV(
+            completedAppointments?.map(getDataToExport),
+            `completed-appointments ${dayjs().format("DD MMM YYYY")}.csv`,
+          );
+
+          exportToCSV(
+            rescheduledAppointments?.map(getDataToExport),
+            `rescheduled-appointments ${dayjs().format("DD MMM YYYY")}.csv`,
+          );
+        }}
+      >
+        <ArrowDownToLineIcon />
+        Export
+      </Button>
+
       <div className="w-full h-full bg-white rounded-lg border max-w-full">
         {Array.isArray(data) && data?.length > 0 ? (
           <div className="grid grid-cols-3 gap-6 p-4 max-w-full w-full">

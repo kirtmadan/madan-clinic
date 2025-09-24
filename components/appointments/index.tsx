@@ -16,6 +16,7 @@ import dayjs from "dayjs";
 import CreateAppointmentFormWithDrawer from "./CreateAppointmentForm";
 import AppointmentsByStatus from "@/components/appointments/AppointmentsByStatus";
 import AppointmentsTable from "@/components/appointments/AppointmentsTable";
+import { cn } from "@/lib/utils";
 
 export default function Appointments() {
   const [openDatepicker, setOpenDatepicker] = useState<boolean>(false);
@@ -70,7 +71,7 @@ export default function Appointments() {
 
         <CreateAppointmentFormWithDrawer
           trigger={
-            <Button>
+            <Button className={cn(date && "mr-28")}>
               <PlusIcon className="size-4" />
               Add New Appointment
             </Button>
