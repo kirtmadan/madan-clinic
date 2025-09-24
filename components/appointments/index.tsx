@@ -20,7 +20,6 @@ import AppointmentsTable from "@/components/appointments/AppointmentsTable";
 export default function Appointments() {
   const [openDatepicker, setOpenDatepicker] = useState<boolean>(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
-  const [status, setStatus] = useState<string>("scheduled");
 
   return (
     <>
@@ -67,24 +66,6 @@ export default function Appointments() {
               />
             </PopoverContent>
           </Popover>
-
-          {/*{!date && (*/}
-          {/*  <Select value={status} onValueChange={setStatus}>*/}
-          {/*    <SelectTrigger className="w-[180px] h-full cursor-pointer">*/}
-          {/*      <SelectValue placeholder="Filter with status" />*/}
-          {/*    </SelectTrigger>*/}
-          {/*    <SelectContent>*/}
-          {/*      <SelectItem value="scheduled">*/}
-          {/*        <span className="w-3 h-3 rounded-xs bg-yellow-400"></span>*/}
-          {/*        Pending*/}
-          {/*      </SelectItem>*/}
-          {/*      <SelectItem value="completed">*/}
-          {/*        <span className="w-3 h-3 rounded-xs bg-green-400"></span>*/}
-          {/*        Completed*/}
-          {/*      </SelectItem>*/}
-          {/*    </SelectContent>*/}
-          {/*  </Select>*/}
-          {/*)}*/}
         </div>
 
         <CreateAppointmentFormWithDrawer
@@ -97,11 +78,7 @@ export default function Appointments() {
         />
       </div>
 
-      {date ? (
-        <AppointmentsByStatus date={date} />
-      ) : (
-        <AppointmentsTable status={status} />
-      )}
+      {date ? <AppointmentsByStatus date={date} /> : <AppointmentsTable />}
     </>
   );
 }
