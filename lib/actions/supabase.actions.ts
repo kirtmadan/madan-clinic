@@ -243,10 +243,6 @@ export const getCollectionData = async ({
 
   const { data, error } = await query;
 
-  if (data) {
-    console.log(data);
-  }
-
   if (error) {
     console.log(error);
   }

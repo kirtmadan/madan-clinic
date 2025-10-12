@@ -3,6 +3,7 @@ import { addDocument, updateDocument } from "@/lib/actions/supabase.actions";
 import { toast } from "sonner";
 import { APPOINTMENT_QUERY_KEYS } from "@/lib/tanstack-query/appointments/Keys";
 import { createClient } from "@/lib/supabase/client";
+import dayjs from "dayjs";
 
 export const useAddAppointment = () => {
   const queryClient = useQueryClient();
@@ -11,37 +12,45 @@ export const useAddAppointment = () => {
     mutationFn: async ({
       doc,
       onSuccess,
+      forced, // skips the existing appointment check
     }: {
       doc: any;
       onSuccess?: () => void;
+      forced?: boolean;
     }) => {
       try {
         const supabase = createClient();
 
-        const { data: existing, error: fetchError } = await supabase
-          .from("appointments")
-          .select("*")
-          .eq("patient_id", doc?.patient_id)
-          .eq("date", doc?.date);
+        if (!forced) {
+          const { data: existing, error: fetchError } = await supabase
+            .from("appointments")
+            .select("*")
+            .eq("patient_id", doc?.patient_id)
+            .gte("date", dayjs().format("YYYY-MM-DD"));
 
-        if (fetchError) {
-          throw new Error("Error adding appointment. Please try again.");
-        } else if (existing.length > 0) {
-          throw new Error(
-            "An appointment for the patient is already existing on the date " +
-              doc?.date,
-          );
-        } else {
-          const res = await addDocument({ tableName: "appointments", doc });
-
-          if ("error" in res) {
-            toast.error(res?.error);
-          } else {
-            toast.success(`Successfully created the appointment`);
-            onSuccess?.();
+          if (fetchError) {
+            throw new Error("Error adding appointment. Please try again.");
+          } else if (existing.length > 0) {
+            throw new Error(
+              "An appointment for the patient is already existing on the date " +
+                doc?.date,
+            );
           }
         }
+
+        const res = await addDocument({ tableName: "appointments", doc });
+
+        if ("error" in res) {
+          toast.error(res?.error);
+        } else {
+          toast.success(`Successfully created the appointment`);
+          onSuccess?.();
+        }
       } catch (error: any) {
+        if (error?.message?.startsWith("An appointment for the patient")) {
+          return { errcode: 3, error: error.message, doc };
+        }
+
         toast.error(error?.message);
       }
     },

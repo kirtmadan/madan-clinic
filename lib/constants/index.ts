@@ -2,8 +2,6 @@ import {
   BriefcaseMedicalIcon,
   CalendarIcon,
   ChartPieIcon,
-  FlaskConicalIcon,
-  // LayoutGridIcon,
   UsersIcon,
   UserStarIcon,
 } from "lucide-react";
@@ -41,12 +39,12 @@ export const sidebarData = {
       icon: BriefcaseMedicalIcon,
       roles: ["OWNER", "MEMBER"],
     },
-    {
-      title: "Lab Orders",
-      url: "/lab-orders",
-      icon: FlaskConicalIcon,
-      roles: ["OWNER", "MEMBER"],
-    },
+    // {
+    //   title: "Lab Orders",
+    //   url: "/lab-orders",
+    //   icon: FlaskConicalIcon,
+    //   roles: ["OWNER", "MEMBER"],
+    // },
     {
       title: "Reports",
       url: "/reports",
