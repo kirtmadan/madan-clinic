@@ -168,6 +168,7 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
         name: values.name,
         phone: values.phone,
         created_at: new Date().toISOString(),
+        charge_fee: values.charge_fee,
       },
       onSuccess: () => {
         onCancel?.();
@@ -312,6 +313,7 @@ export function AddPatientForm({ onCancel, editData }: AddPatientFormProps) {
                   <div className="space-y-0.5">
                     <FormLabel>Charge Fee</FormLabel>
                   </div>
+
                   <FormControl>
                     <Switch
                       checked={field.value}
