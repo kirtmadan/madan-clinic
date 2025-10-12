@@ -13,14 +13,10 @@ import {
 import {
   ChartConfig,
   ChartContainer,
-  // ChartLegend,
-  // ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { useQuery } from "@tanstack/react-query";
-import dayjs, { Dayjs } from "dayjs";
-import { createClient } from "@/lib/supabase/client";
+
 import { useTime } from "@/context/TimeContext";
 
 const chartConfig = {
@@ -33,89 +29,12 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ChartAreaInteractive() {
-  const { timeState, setReportsData } = useTime();
-
-  // const calculateBarchartWidth = (numberOfItem: number = 9) => {
-  //   if (numberOfItem > 9) return numberOfItem * 100;
-  //   return "100%";
-  // };
-
-  function generateArrOfDates(start: Dayjs, end: Dayjs) {
-    const dates = [];
-    let current = start;
-
-    while (current.isBefore(end) || current.isSame(end, "day")) {
-      dates.push(current.format("YYYY-MM-DD"));
-      current = current.add(1, "day");
-    }
-
-    return dates;
-  }
-
-  const { data: chartData } = useQuery({
-    queryKey: ["patientPaymentsChart", timeState],
-    queryFn: async () => {
-      const startDate = dayjs(timeState?.from).startOf("day");
-      const endDate = dayjs(timeState?.to).endOf("day");
-
-      const supabase = createClient();
-
-      try {
-        const query = supabase
-          .from("payments")
-          .select("created_at, amount, patient:patient_id (id, name)")
-          .gte("created_at", startDate?.format("YYYY-MM-DD HH:mm"))
-          .lte("created_at", endDate?.format("YYYY-MM-DD HH:mm"));
-
-        const { data: pays, error: payErr } = await query;
-
-        if (payErr) throw payErr;
-
-        const paymentsByDayAndPatient: Record<
-          string,
-          Record<string, number>
-        > = {};
-
-        const patients =
-          Array.from(
-            new Set(pays?.map((p: any) => p.patient?.name || "Unknown")),
-          ) || [];
-
-        let totalPayments = 0;
-
-        pays?.forEach((p: any) => {
-          const day = dayjs(p.created_at).format("YYYY-MM-DD");
-          const patientName = p.patient?.name || "Unknown";
-
-          if (!paymentsByDayAndPatient[day]) {
-            paymentsByDayAndPatient[day] = {};
-          }
-
-          if (p.amount > 0) {
-            paymentsByDayAndPatient[day][patientName] =
-              (paymentsByDayAndPatient[day][patientName] || 0) + p.amount;
-
-            totalPayments += p.amount;
-          }
-        });
-
-        const allDates = generateArrOfDates(startDate, endDate);
-        setReportsData((prev) => ({ ...prev, totalPayments }));
-
-        return {
-          chart: allDates?.map((date) => ({
-            date,
-            ...(paymentsByDayAndPatient[date] || {}),
-          })),
-          patients,
-        };
-      } catch (error) {
-        console.error("Error fetching chart data:", error);
-        return { chart: [], patients: [] };
-      }
-    },
-  });
+export function ChartAreaInteractive({
+  chartData,
+}: {
+  chartData: { patients: string[]; chart: any };
+}) {
+  const { timeState } = useTime();
 
   function stringToColor(str: string) {
     let hash = 0;

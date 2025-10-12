@@ -1,6 +1,6 @@
 import TimeSelector from "@/components/reports/TimeSelector";
 import DescriptiveStatCards from "@/components/reports/DescriptiveStat";
-import { ChartAreaInteractive } from "@/components/reports/ChartAreaInteractive";
+import PaymentsByPatients from "@/components/reports/PaymentsByPatients";
 
 export default function Reports() {
   return (
@@ -8,7 +8,7 @@ export default function Reports() {
       <TimeSelector />
 
       <DescriptiveStatCards />
-      <ChartAreaInteractive />
+      <PaymentsByPatients />
     </>
   );
 }
