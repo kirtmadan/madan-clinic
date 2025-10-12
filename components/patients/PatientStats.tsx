@@ -8,7 +8,7 @@ import dayjs from "dayjs";
 import { useTime } from "@/context/TimeContext";
 
 export default function PatientStats({ id }: { id: string }) {
-  const { timeState } = useTime();
+  const { timeState, paymentType } = useTime();
 
   const { data: completedAppointmentsCount } = useQuery({
     queryKey: ["completedAppointmentsCount", id, timeState],
@@ -51,7 +51,7 @@ export default function PatientStats({ id }: { id: string }) {
   });
 
   const { data: totalPaymentsCount } = useQuery({
-    queryKey: ["totalPaymentsCount", id, timeState],
+    queryKey: ["totalPaymentsCount", id, timeState, paymentType],
     queryFn: async () => {
       const startDate = dayjs(timeState?.from).startOf("day");
       const endDate = dayjs(timeState?.to).endOf("day");
@@ -61,6 +61,7 @@ export default function PatientStats({ id }: { id: string }) {
       const res = await supabase
         .from("payments")
         .select("total:amount")
+        .eq("method", paymentType)
         .eq("patient_id", id)
         .gte("created_at", startDate?.format("YYYY-MM-DD HH:mm"))
         .lte("created_at", endDate?.format("YYYY-MM-DD HH:mm"));

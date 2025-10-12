@@ -14,15 +14,22 @@ import { useTime } from "@/context/TimeContext";
 import { useState } from "react";
 import dayjs from "dayjs";
 import { DateRange } from "react-day-picker";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function TimeSelector() {
-  const { timeState, setTimeState } = useTime();
+  const { timeState, setTimeState, paymentType, setPaymentType } = useTime();
 
   const [openEt, setOpenEt] = useState<boolean>(false);
 
   return (
     <div className="flex items-center justify-end gap-4">
-      <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-3">
         <Popover open={openEt} onOpenChange={setOpenEt}>
           <PopoverTrigger asChild>
             <Button
@@ -64,6 +71,24 @@ export default function TimeSelector() {
             />
           </PopoverContent>
         </Popover>
+
+        <Select value={paymentType} onValueChange={setPaymentType}>
+          <SelectTrigger className="w-[200px] capitalize!">
+            <SelectValue defaultValue="Select payment type" />
+          </SelectTrigger>
+
+          <SelectContent>
+            {["cash", "online"].map((gen: string) => (
+              <SelectItem
+                key={gen}
+                value={gen}
+                className="capitalize! cursor-pointer"
+              >
+                {gen}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

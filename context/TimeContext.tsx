@@ -20,6 +20,9 @@ interface ReportsData {
 }
 
 interface TimeContextType {
+  paymentType: string;
+  setPaymentType: Dispatch<SetStateAction<string>>;
+
   timeState: CustomDateRange;
   setTimeState: Dispatch<SetStateAction<CustomDateRange>>;
 
@@ -41,11 +44,15 @@ const TimeContextProvider = ({ children }: { children: ReactNode }) => {
     totalCompletedAppointments: 0,
   });
 
+  const [paymentType, setPaymentType] = useState<string>("online");
+
   return (
     <TimeContext.Provider
       value={{
         timeState,
         setTimeState,
+        paymentType,
+        setPaymentType,
 
         reportsData,
         setReportsData,

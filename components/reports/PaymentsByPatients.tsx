@@ -8,7 +8,7 @@ import { ChartAreaInteractive } from "@/components/reports/ChartAreaInteractive"
 import PaymentsTable from "@/components/reports/PaymentsTable";
 
 export default function PaymentsByPatients() {
-  const { timeState, setReportsData } = useTime();
+  const { timeState, paymentType, setReportsData } = useTime();
 
   function generateArrOfDates(start: Dayjs, end: Dayjs) {
     const dates = [];
@@ -23,7 +23,7 @@ export default function PaymentsByPatients() {
   }
 
   const { data: chartData } = useQuery({
-    queryKey: ["patientPaymentsChart", timeState],
+    queryKey: ["patientPaymentsChart", timeState, paymentType],
     queryFn: async () => {
       const startDate = dayjs(timeState?.from).startOf("day");
       const endDate = dayjs(timeState?.to).endOf("day");
@@ -34,6 +34,7 @@ export default function PaymentsByPatients() {
         const query = supabase
           .from("payments")
           .select("created_at, amount, patient:patient_id (id, name)")
+          .eq("method", paymentType)
           .gte("created_at", startDate?.format("YYYY-MM-DD HH:mm"))
           .lte("created_at", endDate?.format("YYYY-MM-DD HH:mm"));
 
