@@ -14,7 +14,7 @@ export default function CompleteAppointment({
 
   const completeAppointment = async () => {
     await updateAppointment({
-      doc: { status: "completed" },
+      doc: { status: "p_completed" },
       documentId: appointmentData?.id,
       onSuccess: () => {
         toast.success("Appointment completed successfully.");

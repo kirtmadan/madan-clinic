@@ -1,5 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addDocument, updateDocument } from "@/lib/actions/supabase.actions";
+import {
+  addDocument,
+  deleteDocument,
+  updateDocument,
+} from "@/lib/actions/supabase.actions";
 import { toast } from "sonner";
 import { APPOINTMENT_QUERY_KEYS } from "@/lib/tanstack-query/appointments/Keys";
 import { createClient } from "@/lib/supabase/client";
@@ -26,6 +30,8 @@ export const useAddAppointment = () => {
             .from("appointments")
             .select("*")
             .eq("patient_id", doc?.patient_id)
+            .neq("status", "completed")
+            .neq("status", "p_completed")
             .gte("date", dayjs().format("YYYY-MM-DD"));
 
           if (fetchError) {
@@ -83,6 +89,36 @@ export const useUpdateAppointment = () => {
 
       if ("error" in res) {
         toast.error("Failed to update the appointment. Please try again.");
+      } else {
+        onSuccess?.();
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: [APPOINTMENT_QUERY_KEYS.GET_ALL_APPOINTMENTS],
+      });
+    },
+  });
+};
+
+export const useDeleteAppointment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      documentId,
+      onSuccess,
+    }: {
+      documentId: any;
+      onSuccess?: () => void;
+    }) => {
+      const res = await deleteDocument({
+        tableName: "appointments",
+        documentId,
+      });
+
+      if (res?.error) {
+        console.error(res?.error);
       } else {
         onSuccess?.();
       }

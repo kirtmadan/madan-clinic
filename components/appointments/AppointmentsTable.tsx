@@ -80,7 +80,6 @@ export default function AppointmentsTable() {
     patient:patient_id ( id, name, phone, status )
   `,
     // filters,
-    // queryKeys: ["appointments", status],
   });
 
   const [sorting, setSorting] = useState<SortingState>([]);

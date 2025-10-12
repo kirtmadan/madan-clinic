@@ -22,7 +22,10 @@ export const useGetAllAppointments = ({
     queryFn: async () => {
       const res = await getCollectionData({
         tableName: "appointments",
-        filters,
+        filters: [
+          (query: any) => query.neq("status", "p_completed"),
+          ...(filters || []),
+        ],
         select,
         limit,
       });
