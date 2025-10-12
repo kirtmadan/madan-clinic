@@ -8,6 +8,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import {
+  DownloadIcon,
   IndianRupeeIcon,
   MinusIcon,
   PencilIcon,
@@ -56,6 +57,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { generateInvoice } from "@/lib/actions/invoice.actions";
 
 interface TreatmentPlanDrawerProps {
   trigger: React.ReactNode;
@@ -250,8 +252,40 @@ export default function TreatmentPlanDrawer({
               />
             </div>
           </TabsContent>
+
           <TabsContent value="payment">
             <div className="flex flex-col gap-4 p-4 w-full">
+              <div className="flex items-center justify-end gap-4 w-full">
+                <Button
+                  onClick={async () =>
+                    await generateInvoice({
+                      from: "Dr. Madan Clinic",
+                      to: planData?.patient?.name,
+                      items: planData?.treatment_plan_items?.map(
+                        (item: any) => ({
+                          name: item?.t?.name,
+                          quantity: item?.quantity,
+                          unit_cost: item?.recorded_unit_price,
+                        }),
+                      ),
+                      discounts:
+                        totalAmountToBeCharged -
+                        (planData?.authorized_amount || 0),
+                      amount_paid: planData?.paid_total,
+                      fields:
+                        planData?.authorized_amount &&
+                        totalAmountToBeCharged > planData?.authorized_amount
+                          ? {
+                              discounts: true,
+                            }
+                          : undefined,
+                    })
+                  }
+                >
+                  <DownloadIcon /> Download Invoice
+                </Button>
+              </div>
+
               {/*<h4>Total paid amount : ₹ {planData?.paid_total || 0}</h4>*/}
               {/*// {planData?.status === "paid" ? (*/}
               {/*//   <TreatmentPaid />*/}
