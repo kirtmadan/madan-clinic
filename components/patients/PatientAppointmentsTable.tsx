@@ -64,6 +64,7 @@ export default function PatientAppointmentsTable({ id }: { id: string }) {
   `,
     filters: [(query: any) => query.eq("patient_id", id)],
     queryKeys: [id],
+    onlyArgFilters: true,
     // limit: 5,
   });
 
@@ -120,7 +121,18 @@ export default function PatientAppointmentsTable({ id }: { id: string }) {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
-        return <AppointmentStatusRenderer status={row.getValue("status")} />;
+        let value:
+          | "completed"
+          | "scheduled"
+          | "ongoing"
+          | "active"
+          | "paid"
+          | "cancelled"
+          | "p_completed" = row.getValue("status");
+
+        if (value === "p_completed") value = "completed";
+
+        return <AppointmentStatusRenderer status={value} />;
       },
     },
     // {

@@ -72,6 +72,7 @@ export default function RescheduleAppointment({
         notes: undefined,
         created_at: new Date().toISOString(),
       },
+      forced: true,
     });
   };
 

@@ -14,6 +14,8 @@ export interface InvoiceGenerationPayload {
     discounts?: boolean;
   };
   amount_paid?: number;
+  notes?: string;
+  notes_title?: string;
 }
 
 export const generateInvoice = async (payload: InvoiceGenerationPayload) => {

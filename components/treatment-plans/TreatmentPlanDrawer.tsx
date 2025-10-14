@@ -100,6 +100,32 @@ export default function TreatmentPlanDrawer({
     }
   };
 
+  function adjustLineItems(
+    lineItems: { unit_cost: number; name: string; quantity: number }[],
+    targetTotal: number,
+  ) {
+    // Calculate current total
+    const currentTotal = lineItems.reduce(
+      (sum, item) => sum + item.unit_cost,
+      0,
+    );
+
+    if (currentTotal === 0) {
+      // Avoid division by zero
+      const equalAmount = targetTotal / lineItems?.length;
+      return lineItems.map((item) => ({ ...item, unit_cost: equalAmount }));
+    }
+
+    // Calculate adjustment ratio
+    const ratio = targetTotal / currentTotal;
+
+    // Apply the ratio to each item
+    return lineItems.map((item) => ({
+      ...item,
+      unit_cost: parseFloat((item.unit_cost * ratio).toFixed(2)), // round to 2 decimals
+    }));
+  }
+
   return (
     <Drawer direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>{trigger}</DrawerTrigger>
@@ -257,17 +283,27 @@ export default function TreatmentPlanDrawer({
             <div className="flex flex-col gap-4 p-4 w-full">
               <div className="flex items-center justify-end gap-4 w-full">
                 <Button
-                  onClick={async () =>
+                  onClick={async () => {
+                    const items = planData?.treatment_plan_items?.map(
+                      (item: any) => ({
+                        name: item?.t?.name,
+                        quantity: item?.quantity,
+                        unit_cost: item?.recorded_unit_price,
+                      }),
+                    );
+
                     await generateInvoice({
-                      from: "Dr. Madan Clinic",
+                      from:
+                        "Dr Madan’s Dental Clinic \n" +
+                        "Near One Pathology\n" +
+                        "Rampath, Khawaspura\n" +
+                        "Faizabad-Ayodhya\n" +
+                        "9566332912",
                       to: planData?.patient?.name,
-                      items: planData?.treatment_plan_items?.map(
-                        (item: any) => ({
-                          name: item?.t?.name,
-                          quantity: item?.quantity,
-                          unit_cost: item?.recorded_unit_price,
-                        }),
-                      ),
+                      items:
+                        planData?.authorized_amount > totalAmountToBeCharged
+                          ? adjustLineItems(items, planData?.authorized_amount)
+                          : items,
                       discounts:
                         totalAmountToBeCharged -
                         (planData?.authorized_amount || 0),
@@ -279,8 +315,10 @@ export default function TreatmentPlanDrawer({
                               discounts: true,
                             }
                           : undefined,
-                    })
-                  }
+                      notes: "Dr. Kirt Madan\n" + "REG NO - 12365",
+                      notes_title: " ",
+                    });
+                  }}
                 >
                   <DownloadIcon /> Download Invoice
                 </Button>
@@ -319,8 +357,8 @@ const planItemSchema = z.object({
   treatment_id: z.string().min(1, { message: "Select a treatment" }),
   quantity: z
     .string()
-    .refine((val) => Number(val) >= 1, {
-      message: "Quantity must be at-least 1",
+    .refine((val) => Number(val) >= 0, {
+      message: "Quantity must be at-least 0",
     })
     .refine((val) => Number(val) <= 999, {
       message: "Quantity is too large",

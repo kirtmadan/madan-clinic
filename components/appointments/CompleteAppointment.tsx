@@ -16,9 +16,7 @@ export default function CompleteAppointment({
     await updateAppointment({
       doc: { status: "p_completed" },
       documentId: appointmentData?.id,
-      onSuccess: () => {
-        toast.success("Appointment completed successfully.");
-      },
+      onSuccess: async () => {},
     });
 
     await updatePatient({

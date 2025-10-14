@@ -6,10 +6,12 @@ export const useGetAllPatients = ({
   limit,
   select,
   status,
+  all,
 }: {
   limit?: number;
   select?: string;
   status?: string;
+  all?: boolean;
 }) => {
   return useQuery({
     queryKey: [PATIENT_QUERY_KEYS.GET_ALL_PATIENTS],
@@ -18,8 +20,9 @@ export const useGetAllPatients = ({
         tableName: "patients",
         limit,
         select,
-        filters:
-          status === "completed"
+        filters: all
+          ? undefined
+          : status === "completed"
             ? [(query: any) => query.eq("status", "completed")]
             : [(query: any) => query.neq("status", "completed")],
       });

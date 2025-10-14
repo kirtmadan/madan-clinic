@@ -130,7 +130,7 @@ export function CreateAppointmentForm({
 }: CreateAppointmentFormProps) {
   const { mutateAsync: addAppointment } = useAddAppointment();
 
-  const { data: patientsData } = useGetAllPatients({});
+  const { data: patientsData } = useGetAllPatients({ all: true });
   const { data: doctorsData } = useGetAllDoctors({});
 
   const [openPatientList, setOpenPatientList] = useState<boolean>(false);

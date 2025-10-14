@@ -8,11 +8,13 @@ export const useGetAllAppointments = ({
   select,
   queryKeys,
   limit,
+  onlyArgFilters,
 }: {
   filters?: any[];
   queryKeys?: unknown[];
   select?: string;
   limit?: number;
+  onlyArgFilters?: boolean;
 }) => {
   return useQuery({
     queryKey: [
@@ -22,10 +24,12 @@ export const useGetAllAppointments = ({
     queryFn: async () => {
       const res = await getCollectionData({
         tableName: "appointments",
-        filters: [
-          (query: any) => query.neq("status", "p_completed"),
-          ...(filters || []),
-        ],
+        filters: onlyArgFilters
+          ? filters
+          : [
+              (query: any) => query.neq("status", "p_completed"),
+              ...(filters || []),
+            ],
         select,
         limit,
       });
