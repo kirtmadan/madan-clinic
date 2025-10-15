@@ -29,13 +29,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { ArrowUpDown, SearchIcon, WavesIcon } from "lucide-react";
+import {
+  ArrowDownToLineIcon,
+  ArrowUpDown,
+  SearchIcon,
+  WavesIcon,
+} from "lucide-react";
 
 import DataTableRow from "@/components/DataTableRow";
 
 import dayjs from "dayjs";
 import { useGetAllTreatmentPlans } from "@/lib/tanstack-query/treatment-plans/Queries";
 import TreatmentPlanDrawer from "@/components/treatment-plans/TreatmentPlanDrawer";
+import { generateInvoice } from "@/lib/actions/invoice.actions";
 
 export type TreatmentPlan = {
   id: string | number;
@@ -249,6 +255,87 @@ export default function TreatmentPlans({ patientId }: { patientId: string }) {
     },
   });
 
+  const downloadInvoices = async () => {
+    if (!Array.isArray(data)) return;
+
+    // Step 1: Combine auth_amount total
+    const targetTotal = data.reduce((sum, i) => {
+      const authAmount =
+        i?.authorized_amount ??
+        i.treatment_plan_items?.reduce(
+          (s: number, i: any) =>
+            s + (i?.quantity || 0) * (i?.recorded_unit_price || 0),
+          0,
+        );
+
+      return sum + authAmount;
+    }, 0);
+
+    // Step 2: Merge items by name (summing quantity)
+    const combinedMap = new Map();
+
+    for (const plan of data) {
+      for (const item of plan.treatment_plan_items) {
+        const key = item.t?.name;
+        const totalCost = item?.quantity * item?.recorded_unit_price;
+
+        if (!combinedMap.has(key)) {
+          combinedMap.set(key, {
+            name: key,
+            quantity: item?.quantity || 0,
+            unit_cost: item?.recorded_unit_price || 0,
+            totalCost,
+          });
+        } else {
+          const existing = combinedMap.get(key);
+          const newQuantity = existing?.quantity + item?.quantity;
+          // Recalculate average unit cost weighted by cost
+          const newTotalCost = existing?.totalCost + totalCost;
+          const avgUnitCost = newTotalCost / newQuantity;
+
+          combinedMap.set(key, {
+            ...existing,
+            quantity: newQuantity,
+            unit_cost: avgUnitCost,
+            totalCost: newTotalCost,
+          });
+        }
+      }
+    }
+
+    const combinedItems = Array.from(combinedMap.values());
+
+    // Step 3: Adjust each item's totalCost to match targetTotal proportionally
+    const currentTotal = combinedItems.reduce(
+      (sum, i) => sum + i?.totalCost,
+      0,
+    );
+
+    const ratio = targetTotal / currentTotal;
+
+    // Step 4: Scale amounts and recompute unit_costs
+    const adjusted = combinedItems?.map((i) => {
+      const newTotal = parseFloat((i?.totalCost * ratio).toFixed(2));
+      const newUnit = parseFloat((newTotal / i?.quantity).toFixed(2));
+      const { totalCost, ...rest } = i;
+      return { ...rest, unit_cost: newUnit };
+    });
+
+    await generateInvoice({
+      theme: "slate",
+      from:
+        "Dr Madan’s Dental Clinic \n" +
+        "Near One Pathology\n" +
+        "Rampath, Khawaspura\n" +
+        "Faizabad-Ayodhya\n" +
+        "9566332912",
+      to: data?.[0]?.patient?.name,
+      items: adjusted,
+      notes: "Dr. Kirt Madan\n" + "REG NO - 12365",
+      notes_title: " ",
+    });
+  };
+
   return (
     <Card className="gap-0">
       <CardHeader className="flex items-center justify-between border-b">
@@ -279,17 +366,10 @@ export default function TreatmentPlans({ patientId }: { patientId: string }) {
             onChange={(event) => setGlobalFilter(event.target.value)}
           />
 
-          {/*<Button*/}
-          {/*  variant="outline"*/}
-          {/*  className="h-10"*/}
-          {/*  onClick={() => {*/}
-          {/*    if (data && Array.isArray(data))*/}
-          {/*      exportToCSV(data, "patient-data.csv");*/}
-          {/*  }}*/}
-          {/*>*/}
-          {/*  <ArrowDownToLineIcon />*/}
-          {/*  Export*/}
-          {/*</Button>*/}
+          <Button variant="outline" className="h-10" onClick={downloadInvoices}>
+            <ArrowDownToLineIcon />
+            Download Combined Invoice
+          </Button>
         </div>
       </CardHeader>
 
