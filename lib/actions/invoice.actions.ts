@@ -1,5 +1,6 @@
 export interface InvoiceGenerationPayload {
   logo?: string;
+  theme?: string;
   from: string;
   to: string;
   number?: number;

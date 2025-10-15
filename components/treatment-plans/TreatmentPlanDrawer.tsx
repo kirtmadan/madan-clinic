@@ -293,6 +293,7 @@ export default function TreatmentPlanDrawer({
                     );
 
                     await generateInvoice({
+                      theme: "slate",
                       from:
                         "Dr Madan’s Dental Clinic \n" +
                         "Near One Pathology\n" +
