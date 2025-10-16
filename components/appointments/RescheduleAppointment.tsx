@@ -47,7 +47,7 @@ export default function RescheduleAppointment({
         .eq("patient_id", appointmentData?.patient?.id)
         .neq("status", "completed")
         .neq("status", "p_completed")
-        .gte("date", dayjs().format("YYYY-MM-DD"));
+        .eq("date", doc?.date);
 
       if (fetchError) {
         throw new Error("Error adding appointment. Please try again.");
