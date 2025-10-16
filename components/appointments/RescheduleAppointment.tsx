@@ -17,6 +17,9 @@ import {
   useAddAppointment,
   useUpdateAppointment,
 } from "@/lib/tanstack-query/appointments/Mutations";
+import dayjs from "dayjs";
+import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 
 export default function RescheduleAppointment({
   appointmentData,
@@ -34,7 +37,46 @@ export default function RescheduleAppointment({
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [reDate, setReDate] = useState<Date | undefined>(undefined);
 
+  const checkDuplicateAppointment = async (doc: { date: string }) => {
+    try {
+      const supabase = createClient();
+
+      const { data: existing, error: fetchError } = await supabase
+        .from("appointments")
+        .select("*")
+        .eq("patient_id", appointmentData?.patient?.id)
+        .neq("status", "completed")
+        .neq("status", "p_completed")
+        .gte("date", dayjs().format("YYYY-MM-DD"));
+
+      if (fetchError) {
+        throw new Error("Error adding appointment. Please try again.");
+      } else if (existing.length > 0) {
+        throw new Error(
+          "An appointment for the patient is already existing on the date " +
+            dayjs(doc?.date).format("DD MMM YYYY"),
+        );
+      }
+    } catch (error: any) {
+      console.log(error);
+      return {
+        error: error?.message || "Something went wrong. Please try again.",
+      };
+    }
+  };
+
   const rescheduleAppointment = async (date: Date) => {
+    const check = await checkDuplicateAppointment({
+      date: day(date).format("YYYY-MM-DD"),
+    });
+
+    if (check?.error) {
+      setReDate(undefined);
+      return toast.error(check?.error, {
+        position: "top-right",
+      });
+    }
+
     await updateAppointment({
       doc: {
         status: "rescheduled",
@@ -51,6 +93,17 @@ export default function RescheduleAppointment({
   };
 
   const completeAndAppointNew = async (date: Date) => {
+    const check = await checkDuplicateAppointment({
+      date: day(date).format("YYYY-MM-DD"),
+    });
+
+    if (check?.error) {
+      setDate(undefined);
+      return toast.error(check?.error, {
+        position: "top-right",
+      });
+    }
+
     await updateAppointment({
       doc: {
         status: "completed",
