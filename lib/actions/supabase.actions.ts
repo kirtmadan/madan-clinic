@@ -62,6 +62,34 @@ export const addTreatmentPlan = async ({
   }
 };
 
+export const updatePaymentRecord = async ({
+  id,
+  amount,
+  method,
+}: {
+  id: string;
+  amount: number;
+  method: string;
+}) => {
+  const supabase = createClient();
+
+  const res = await supabase
+    .from("payments")
+    .update({
+      amount,
+      method,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if ([204].includes(res?.status)) {
+    return { message: "Successfully updated the payment details" };
+  } else {
+    console.error("Error updating the payment details:");
+    return { error: "Error updating the payment details" };
+  }
+};
+
 export const updateTreatmentPlanPayment = async ({
   _amount,
   // _plan_id,

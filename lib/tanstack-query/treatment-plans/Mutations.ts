@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   addTreatmentPlan,
   updateDocument,
+  updatePaymentRecord,
   updateTreatmentPlanItems,
   updateTreatmentPlanPayment,
 } from "@/lib/actions/supabase.actions";
@@ -146,6 +147,52 @@ export const useUpdateTreatmentPlanPayment = () => {
         _method: method,
         // _plan_id: treatmentPlanId,
         _patient_id: patientId,
+      });
+
+      if ("error" in res) {
+        toast.error(res?.error);
+      } else {
+        toast.success(`Successfully updated the payment details`);
+        onSuccess?.();
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: [TREATMENT_PLANS_QUERY_KEYS.GET_ALL_TREATMENT_PLANS],
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: [PAYMENTS_QUERY_KEYS.GET_ALL_PAYMENTS],
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: ["patientsOverdueAmount"],
+      });
+
+      void revalidateCache(`/patients`);
+    },
+  });
+};
+
+export const useUpdatePaymentRecord = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      amount,
+      method,
+      onSuccess,
+    }: {
+      id: string;
+      amount: number;
+      method: string;
+      onSuccess?: () => void;
+    }) => {
+      const res = await updatePaymentRecord({
+        id,
+        amount,
+        method,
       });
 
       if ("error" in res) {

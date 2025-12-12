@@ -16,6 +16,8 @@ import {
   type Table as TableType,
 } from "@tanstack/react-table";
 
+import { Button } from "@/components/ui/button";
+
 import {
   Table,
   TableBody,
@@ -26,10 +28,12 @@ import {
 } from "@/components/ui/table";
 
 import DataTableRow from "@/components/DataTableRow";
+import { PencilIcon } from "lucide-react";
 
 import dayjs from "dayjs";
 import AppointmentStatusRenderer from "@/components/cellRenderers/AppointmentStatusRenderer";
 import { useGetAllPayments } from "@/lib/tanstack-query/payments/Queries";
+import { EditPaymentModal } from "./EditPaymentModal";
 
 export type Appointment = {
   id: string | number;
@@ -48,7 +52,6 @@ export type Appointment = {
 export default function PatientPaymentsTable({ id }: { id: string }) {
   const { data } = useGetAllPayments({
     filters: [(query: any) => query.eq("patient_id", id)],
-    limit: 5,
   });
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -116,13 +119,24 @@ export default function PatientPaymentsTable({ id }: { id: string }) {
         <>{dayjs(row.getValue("created_at")).format("DD MMM YYYY")}</>
       ),
     },
-    // {
-    //   accessorKey: "notes",
-    //   header: "Payment Notes",
-    //   cell: ({ row }) => {
-    //     return <> {row.getValue("notes")} </>;
-    //   },
-    // },
+    {
+      accessorKey: "id",
+      header: "Edit",
+      cell: ({ row }) => (
+        <>
+          <EditPaymentModal
+            id={row.getValue("id")}
+            amount={row.getValue("amount")}
+            method={row.getValue("method")}
+            trigger={
+              <Button size="icon" variant="ghost">
+                <PencilIcon />
+              </Button>
+            }
+          />
+        </>
+      ),
+    },
   ];
 
   const table = useReactTable({
