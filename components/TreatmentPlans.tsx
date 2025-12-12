@@ -33,6 +33,7 @@ import {
   ArrowDownToLineIcon,
   ArrowUpDown,
   SearchIcon,
+  TrashIcon,
   WavesIcon,
 } from "lucide-react";
 
@@ -42,6 +43,8 @@ import dayjs from "dayjs";
 import { useGetAllTreatmentPlans } from "@/lib/tanstack-query/treatment-plans/Queries";
 import TreatmentPlanDrawer from "@/components/treatment-plans/TreatmentPlanDrawer";
 import { generateInvoice } from "@/lib/actions/invoice.actions";
+import DeleteDialog from "@/components/shared/DeleteDialog";
+import { useDeleteTreatmentPlan } from "@/lib/tanstack-query/treatment-plans/Mutations";
 
 export type TreatmentPlan = {
   id: string | number;
@@ -84,6 +87,10 @@ export default function TreatmentPlans({ patientId }: { patientId: string }) {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [globalFilter, setGlobalFilter] = useState("");
+
+  const [openDelete, setOpenDelete] = useState<any>(null);
+  const { mutateAsync: deleteTreatmentPlan, isPending: isDeleting } =
+    useDeleteTreatmentPlan();
 
   const columns: ColumnDef<TreatmentPlan>[] = [
     // {
@@ -179,6 +186,39 @@ export default function TreatmentPlans({ patientId }: { patientId: string }) {
           {dayjs(
             row.getValue("updated_at") || row.getValue("created_at"),
           ).format("DD MMM YYYY")}
+        </>
+      ),
+    },
+    {
+      accessorKey: "id",
+      header: "Delete",
+      cell: ({ row }) => (
+        <>
+          <DeleteDialog
+            open={Boolean(openDelete?.id === row.original?.id)}
+            isLoading={isDeleting && openDelete?.id === row.original?.id}
+            title={`Delete the treatment plan?`}
+            description={`This action cannot be undone.`}
+            onConfirm={async () => {
+              await deleteTreatmentPlan({
+                documentId: openDelete?.id,
+                onSuccess: () => {
+                  setOpenDelete(null);
+                },
+              });
+            }}
+            onCancel={() => {
+              setOpenDelete(null);
+            }}
+          />
+
+          <Button
+            size="icon"
+            variant="destructive"
+            onClick={() => setOpenDelete(row.original)}
+          >
+            <TrashIcon />
+          </Button>
         </>
       ),
     },

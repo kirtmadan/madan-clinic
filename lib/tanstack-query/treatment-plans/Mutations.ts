@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   addTreatmentPlan,
+  deleteDocument,
   updateDocument,
   updatePaymentRecord,
   updateTreatmentPlanItems,
@@ -216,6 +217,37 @@ export const useUpdatePaymentRecord = () => {
       });
 
       void revalidateCache(`/patients`);
+    },
+  });
+};
+
+export const useDeleteTreatmentPlan = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      documentId,
+      onSuccess,
+    }: {
+      documentId: any;
+      onSuccess?: () => void;
+    }) => {
+      const res = await deleteDocument({
+        tableName: "treatment_plans",
+        documentId,
+      });
+
+      if (res?.error) {
+        toast.error(res?.error);
+      } else {
+        toast.success(`Successfully deleted the treatment plan`);
+        onSuccess?.();
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: [TREATMENT_PLANS_QUERY_KEYS.GET_ALL_TREATMENT_PLANS],
+      });
     },
   });
 };
