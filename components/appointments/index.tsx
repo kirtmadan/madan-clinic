@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 
 export default function Appointments() {
   const [openDatepicker, setOpenDatepicker] = useState<boolean>(false);
-  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [date, setDate] = useState<Date | undefined>(new Date());
 
   return (
     <>
