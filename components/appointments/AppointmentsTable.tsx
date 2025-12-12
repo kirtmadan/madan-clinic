@@ -40,10 +40,6 @@ import AppointmentDrawer from "@/components/appointments/AppointmentDrawer";
 export type Appointment = {
   id: string | number;
   name: string;
-  doctor: {
-    id: string;
-    name: string;
-  };
   patient: {
     id: string;
     name: string;
@@ -76,7 +72,6 @@ export default function AppointmentsTable() {
     notes,
     created_at,
     call_status,
-    doctor:doctor_id ( id, name ),
     patient:patient_id ( id, name, phone, status )
   `,
     // filters,

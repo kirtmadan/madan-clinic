@@ -7,7 +7,6 @@ import AppointmentCallingSwitch from "@/components/appointments/AppointmentCalli
 interface AppointmentCardProps {
   created_at: string | number;
   date: string;
-  doctor_id: string;
   id: string;
   notes: string;
   patient_id: string;
@@ -18,14 +17,10 @@ interface AppointmentCardProps {
     name: string;
     phone: string;
   };
-  doctor: {
-    id: string;
-    name: string;
-  };
 }
 
 export default function AppointmentCard(props: AppointmentCardProps) {
-  const { created_at, patient, doctor } = props;
+  const { created_at, patient } = props;
 
   return (
     <AppointmentDrawer
@@ -67,23 +62,23 @@ export default function AppointmentCard(props: AppointmentCardProps) {
             />
           </div>
 
-          <ArrowUpDownIcon className="ml-4 text-muted-foreground" />
+          {/*<ArrowUpDownIcon className="ml-4 text-muted-foreground" />*/}
 
-          <div className="flex items-center gap-4">
-            <Avatar className="size-14 cursor-pointer border">
-              <AvatarFallback>
-                {doctor?.name?.split(" ")?.[0]?.[0]}
-                {doctor?.name?.split(" ")?.[1]?.[0] ||
-                  doctor?.name?.split(" ")?.[0]?.[1]}
-              </AvatarFallback>
-            </Avatar>
+          {/*<div className="flex items-center gap-4">*/}
+          {/*  <Avatar className="size-14 cursor-pointer border">*/}
+          {/*    <AvatarFallback>*/}
+          {/*      {doctor?.name?.split(" ")?.[0]?.[0]}*/}
+          {/*      {doctor?.name?.split(" ")?.[1]?.[0] ||*/}
+          {/*        doctor?.name?.split(" ")?.[0]?.[1]}*/}
+          {/*    </AvatarFallback>*/}
+          {/*  </Avatar>*/}
 
-            <div className="flex flex-col gap-1">
-              <h3 className="font-medium text-secondary-foreground">
-                Dr. {doctor?.name}
-              </h3>
-            </div>
-          </div>
+          {/*  <div className="flex flex-col gap-1">*/}
+          {/*    <h3 className="font-medium text-secondary-foreground">*/}
+          {/*      Dr. {doctor?.name}*/}
+          {/*    </h3>*/}
+          {/*  </div>*/}
+          {/*</div>*/}
 
           {/*<div className="grid grid-cols-2 gap-2 w-full border-t pt-5 mt-5">*/}
           {/*  <Button className="cursor-pointer" variant="ghost">*/}
@@ -100,7 +95,7 @@ export default function AppointmentCard(props: AppointmentCardProps) {
           {/*</div>*/}
         </div>
       }
-      appointmentData={{ ...props, patient, doctor }}
+      appointmentData={{ ...props, patient }}
     />
   );
 }

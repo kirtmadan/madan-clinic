@@ -38,7 +38,6 @@ export default function AppointmentsByStatus({
     notes,
     call_status,
     created_at,
-    doctor:doctor_id ( id, name ),
     patient:patient_id ( id, name, phone, status )
     `,
     queryKeys: [date?.toDateString()],
@@ -90,7 +89,6 @@ export default function AppointmentsByStatus({
       "appointment number": row?.appointment_number,
       "call status": row?.call_status ? "done" : "pending",
       "created at": dayjs(row?.created_at).format("DD MMM YYYY"),
-      "doctor name": row?.doctor?.name,
       "patient name": row?.patient?.name,
       "patient phone": row?.patient?.phone,
       date: row?.date,

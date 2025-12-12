@@ -21,12 +21,12 @@ export const sidebarData = {
       roles: ["OWNER"],
       icon: CalendarIcon,
     },
-    {
-      title: "Doctors",
-      url: "/doctors",
-      roles: ["OWNER", "MEMBER"],
-      icon: UserStarIcon,
-    },
+    // {
+    //   title: "Doctors",
+    //   url: "/doctors",
+    //   roles: ["OWNER", "MEMBER"],
+    //   icon: UserStarIcon,
+    // },
     {
       title: "Patients",
       url: "/patients",

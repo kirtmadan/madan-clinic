@@ -34,10 +34,6 @@ import AppointmentStatusRenderer from "@/components/cellRenderers/AppointmentSta
 export type Appointment = {
   id: string | number;
   name: string;
-  doctor: {
-    id: string;
-    name: string;
-  };
   patient: {
     id: string;
     name: string;
@@ -59,7 +55,6 @@ export default function PatientAppointmentsTable({ id }: { id: string }) {
     notes,
     call_status,
     created_at,
-    doctor:doctor_id ( id, name ),
     patient:patient_id ( id, name, status, phone )
   `,
     filters: [(query: any) => query.eq("patient_id", id)],

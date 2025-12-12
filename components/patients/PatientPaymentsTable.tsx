@@ -34,10 +34,6 @@ import { useGetAllPayments } from "@/lib/tanstack-query/payments/Queries";
 export type Appointment = {
   id: string | number;
   name: string;
-  doctor: {
-    id: string;
-    name: string;
-  };
   patient: {
     id: string;
     name: string;

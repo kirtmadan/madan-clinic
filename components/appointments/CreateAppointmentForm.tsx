@@ -14,14 +14,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
 import {
   Drawer,
   DrawerClose,
@@ -32,7 +25,6 @@ import {
 } from "@/components/ui/drawer";
 import { CalendarIcon, Check, ChevronDown, XIcon } from "lucide-react";
 import { useGetAllPatients } from "@/lib/tanstack-query/patients/Queries";
-import { useGetAllDoctors } from "@/lib/tanstack-query/doctors/Queries";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -56,7 +48,6 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
-  doctor_id: z.string().min(1, "Please select a doctor"),
   patient_id: z.string().min(1, "Please select a patient"),
   notes: z
     .string()
@@ -131,7 +122,6 @@ export function CreateAppointmentForm({
   const { mutateAsync: addAppointment } = useAddAppointment();
 
   const { data: patientsData } = useGetAllPatients({ all: true });
-  const { data: doctorsData } = useGetAllDoctors({});
 
   const [openPatientList, setOpenPatientList] = useState<boolean>(false);
   const [duplError, setDuplError] = useState(null);
@@ -139,7 +129,6 @@ export function CreateAppointmentForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      doctor_id: "",
       patient_id: "",
       date: undefined,
       status: "scheduled",
@@ -199,46 +188,46 @@ export function CreateAppointmentForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-6 w-full p-4 overflow-y-auto"
       >
-        <FormField
-          control={form.control}
-          name="doctor_id"
-          disabled={Boolean(duplError)}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Doctor</FormLabel>
+        {/*<FormField*/}
+        {/*  control={form.control}*/}
+        {/*  name="doctor_id"*/}
+        {/*  disabled={Boolean(duplError)}*/}
+        {/*  render={({ field }) => (*/}
+        {/*    <FormItem>*/}
+        {/*      <FormLabel>Doctor</FormLabel>*/}
 
-              <FormControl>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  disabled={Boolean(duplError)}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a doctor" />
-                    </SelectTrigger>
-                  </FormControl>
+        {/*      <FormControl>*/}
+        {/*        <Select*/}
+        {/*          onValueChange={field.onChange}*/}
+        {/*          defaultValue={field.value}*/}
+        {/*          disabled={Boolean(duplError)}*/}
+        {/*        >*/}
+        {/*          <FormControl>*/}
+        {/*            <SelectTrigger className="w-full">*/}
+        {/*              <SelectValue placeholder="Select a doctor" />*/}
+        {/*            </SelectTrigger>*/}
+        {/*          </FormControl>*/}
 
-                  <SelectContent>
-                    {(Array.isArray(doctorsData) ? doctorsData : [])?.map(
-                      (doctor) => (
-                        <SelectItem value={doctor?.id} key={doctor?.id}>
-                          <Avatar>
-                            <AvatarFallback>
-                              {doctor?.name.slice(0, 2)}
-                            </AvatarFallback>
-                          </Avatar>
+        {/*          <SelectContent>*/}
+        {/*            {(Array.isArray(doctorsData) ? doctorsData : [])?.map(*/}
+        {/*              (doctor) => (*/}
+        {/*                <SelectItem value={doctor?.id} key={doctor?.id}>*/}
+        {/*                  <Avatar>*/}
+        {/*                    <AvatarFallback>*/}
+        {/*                      {doctor?.name.slice(0, 2)}*/}
+        {/*                    </AvatarFallback>*/}
+        {/*                  </Avatar>*/}
 
-                          {doctor.name}
-                        </SelectItem>
-                      ),
-                    )}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-            </FormItem>
-          )}
-        />
+        {/*                  {doctor.name}*/}
+        {/*                </SelectItem>*/}
+        {/*              ),*/}
+        {/*            )}*/}
+        {/*          </SelectContent>*/}
+        {/*        </Select>*/}
+        {/*      </FormControl>*/}
+        {/*    </FormItem>*/}
+        {/*  )}*/}
+        {/*/>*/}
 
         <FormField
           control={form.control}

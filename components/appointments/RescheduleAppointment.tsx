@@ -29,8 +29,7 @@ export default function RescheduleAppointment({
   onSuccessAction?: () => void;
 }) {
   const { mutateAsync: updateAppointment, isPending } = useUpdateAppointment();
-  const { mutateAsync: addAppointment, isPending: isAdding } =
-    useAddAppointment();
+  const { mutateAsync: addAppointment } = useAddAppointment();
 
   const [open, setOpen] = useState(false);
   const [reOpen, setReOpen] = useState(false);
@@ -117,7 +116,6 @@ export default function RescheduleAppointment({
 
     await addAppointment({
       doc: {
-        doctor_id: appointmentData?.doctor?.id,
         patient_id: appointmentData?.patient?.id,
         date: day(date).format("YYYY-MM-DD"),
         status: "scheduled",
