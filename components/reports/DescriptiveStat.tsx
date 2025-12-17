@@ -70,13 +70,17 @@ export default function DescriptiveStatCards() {
         <DescriptiveStatCard
           title="Total Payments"
           description={`Total payments made`}
-          dataToShow={"₹ " + (reportsData?.totalPayments || 0)}
+          dataToShow={
+            "₹ " + (reportsData?.totalPayments || 0)?.toLocaleString("en-IN")
+          }
         />
 
         <DescriptiveStatCard
           title="Completed Appointments"
           description={`Total appointments completed`}
-          dataToShow={reportsData?.totalCompletedAppointments || 0}
+          dataToShow={(
+            reportsData?.totalCompletedAppointments || 0
+          )?.toLocaleString("en-IN")}
         />
       </div>
     </>

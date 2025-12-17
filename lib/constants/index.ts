@@ -2,6 +2,7 @@ import {
   BriefcaseMedicalIcon,
   CalendarIcon,
   ChartPieIcon,
+  LandmarkIcon,
   UsersIcon,
   UserStarIcon,
 } from "lucide-react";
@@ -49,6 +50,12 @@ export const sidebarData = {
       title: "Reports",
       url: "/reports",
       icon: ChartPieIcon,
+      roles: ["OWNER", "MEMBER"],
+    },
+    {
+      title: "Pending Payments",
+      url: "/reports/pending-payments",
+      icon: LandmarkIcon,
       roles: ["OWNER", "MEMBER"],
     },
   ],

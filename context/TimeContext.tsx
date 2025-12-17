@@ -17,6 +17,8 @@ export interface CustomDateRange extends DateRange {
 interface ReportsData {
   totalPayments: number;
   totalCompletedAppointments: number;
+  totalPendingPaymentsByActivePatients: number;
+  totalPendingPaymentsByCompletedPatients: number;
 }
 
 interface TimeContextType {
@@ -42,6 +44,8 @@ const TimeContextProvider = ({ children }: { children: ReactNode }) => {
   const [reportsData, setReportsData] = useState<ReportsData>({
     totalPayments: 0,
     totalCompletedAppointments: 0,
+    totalPendingPaymentsByActivePatients: 0,
+    totalPendingPaymentsByCompletedPatients: 0,
   });
 
   const [paymentType, setPaymentType] = useState<string>("online");
