@@ -148,7 +148,7 @@ export function CreateAppointmentForm({
   }, [patientId, patientsData, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const res = await addAppointment({
+    await addAppointment({
       doc: {
         ...values,
         date: dayjs(values.date).format("YYYY-MM-DD"),
@@ -160,9 +160,9 @@ export function CreateAppointmentForm({
       },
     });
 
-    if (res?.errcode === 3) {
-      setDuplError(res?.doc);
-    }
+    // if (res?.errcode === 3) {
+    //   setDuplError(res?.doc);
+    // }
   }
 
   async function forcedSubmit(values: any) {

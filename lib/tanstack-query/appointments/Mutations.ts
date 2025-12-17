@@ -38,8 +38,8 @@ export const useAddAppointment = () => {
             throw new Error("Error adding appointment. Please try again.");
           } else if (existing.length > 0) {
             throw new Error(
-              "An appointment for the patient is already existing on the date " +
-                doc?.date,
+              "Patient is already appointed on date:  " +
+                dayjs(existing?.[0]?.date)?.format("DD MMM YYYY"),
             );
           }
         }
@@ -53,7 +53,12 @@ export const useAddAppointment = () => {
           onSuccess?.();
         }
       } catch (error: any) {
-        if (error?.message?.startsWith("An appointment for the patient")) {
+        if (
+          error?.message?.startsWith(
+            "This patient is already appointed on date",
+          )
+        ) {
+          toast.error(error?.message);
           return { errcode: 3, error: error.message, doc };
         }
 
