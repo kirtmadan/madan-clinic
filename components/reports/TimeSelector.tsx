@@ -50,6 +50,7 @@ export default function TimeSelector() {
               selected={timeState}
               captionLayout="dropdown"
               numberOfMonths={2}
+              endMonth={new Date(2050, 11)}
               onSelect={(dateRange: DateRange | undefined) => {
                 if (dateRange?.from && dateRange?.to) {
                   const start = dayjs(dateRange.from).startOf("day");

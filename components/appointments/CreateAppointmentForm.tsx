@@ -337,6 +337,7 @@ export function CreateAppointmentForm({
                     disabled={(date) => {
                       return !day(date).isToday() && date < new Date();
                     }}
+                    endMonth={new Date(2050, 11)}
                     captionLayout="dropdown"
                   />
                 </PopoverContent>

@@ -64,6 +64,7 @@ export default function Appointments() {
                   setDate(date);
                   setOpenDatepicker(false);
                 }}
+                endMonth={new Date(2050, 11)}
               />
             </PopoverContent>
           </Popover>

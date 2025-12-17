@@ -172,6 +172,7 @@ export default function RescheduleAppointment({
               disabled={(date) => {
                 return !day(date).isToday() && date < new Date();
               }}
+              endMonth={new Date(2050, 11)}
               captionLayout="dropdown"
               onSelect={async (date) => {
                 setDate(date);
@@ -208,6 +209,7 @@ export default function RescheduleAppointment({
               disabled={(date) => {
                 return !day(date).isToday() && date < new Date();
               }}
+              endMonth={new Date(2050, 11)}
               captionLayout="dropdown"
               onSelect={async (date) => {
                 setReDate(date);
