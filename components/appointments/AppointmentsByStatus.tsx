@@ -122,41 +122,53 @@ export default function AppointmentsByStatus({
         Export
       </Button>
 
-      <div className="w-full h-full bg-white rounded-lg border max-w-full">
+      <div className="w-full h-full max-w-full">
         {Array.isArray(data) && data?.length > 0 ? (
-          <div className="grid grid-cols-3 gap-6 p-4 max-w-full w-full">
-            <div className="w-full flex flex-col gap-4">
+          <div className="grid grid-cols-3 gap-6 max-w-full w-full">
+            <div className="w-full flex flex-col gap-4 bg-white p-4 rounded-lg border">
               <Button className="cursor-pointer w-full bg-amber-500 hover:bg-amber-600">
                 Pending Appointments
               </Button>
 
               <div className="w-full flex flex-col gap-4">
                 {pendingAppointments?.map((appointment: any) => (
-                  <AppointmentCard key={appointment.id} {...appointment} />
+                  <AppointmentCard
+                    key={appointment.id}
+                    {...appointment}
+                    ar_status="pending"
+                  />
                 ))}
               </div>
             </div>
 
-            <div className="w-full flex flex-col gap-4">
+            <div className="w-full flex flex-col gap-4 bg-white p-4 rounded-lg border">
               <Button className="cursor-pointer w-full">
                 Completed Appointments
               </Button>
 
               <div className="w-full flex flex-col gap-4">
                 {completedAppointments?.map((appointment: any) => (
-                  <AppointmentCard key={appointment.id} {...appointment} />
+                  <AppointmentCard
+                    key={appointment.id}
+                    {...appointment}
+                    ar_status="completed"
+                  />
                 ))}
               </div>
             </div>
 
-            <div className="w-full flex flex-col gap-4">
+            <div className="w-full flex flex-col gap-4 bg-white p-4 rounded-lg border">
               <Button className="cursor-pointer w-full bg-blue-500 hover:bg-blue-600">
                 Re-scheduled Appointments
               </Button>
 
               <div className="w-full flex flex-col gap-4">
                 {rescheduledAppointments?.map((appointment: any) => (
-                  <AppointmentCard key={appointment.id} {...appointment} />
+                  <AppointmentCard
+                    key={appointment.id}
+                    {...appointment}
+                    ar_status="rescheduled"
+                  />
                 ))}
               </div>
             </div>

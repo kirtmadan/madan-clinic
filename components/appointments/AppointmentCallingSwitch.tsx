@@ -16,12 +16,12 @@ export default function AppointmentCallingSwitch({
   return (
     <div
       className={cn(
-        "w-full h-full border p-4 border-dashed flex flex-col gap-4 rounded-lg",
+        "w-full h-full border p-4 border-dashed flex flex-col gap-2 mt-1.5! rounded-lg",
         className,
       )}
       onClick={(e) => e.stopPropagation()}
     >
-      <span className="text-sm">Calling done</span>
+      <span className="text-sm whitespace-nowrap">Calling done</span>
 
       <Switch
         checked={call_status === 1}
