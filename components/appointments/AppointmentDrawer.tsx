@@ -7,7 +7,12 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { CalendarIcon, IndianRupeeIcon, XIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  CalendarPlusIcon,
+  IndianRupeeIcon,
+  XIcon,
+} from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import dayjs from "dayjs";
 import RescheduleAppointment from "@/components/appointments/RescheduleAppointment";
@@ -21,6 +26,8 @@ import AppointmentCallingSwitch from "@/components/appointments/AppointmentCalli
 import PatientAppointments from "@/components/patients/PatientAppointments";
 import AddPaymentTransaction from "@/components/AddPaymentTransaction";
 import { Button } from "@/components/ui/button";
+import AddTreatmentPlan from "@/components/AddTreatmentPlan";
+import TreatmentPlans from "@/components/TreatmentPlans";
 
 interface AppointmentDrawerProps {
   trigger: React.ReactNode;
@@ -38,7 +45,7 @@ export default function AppointmentDrawer({
     <Drawer direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>{trigger}</DrawerTrigger>
 
-      <DrawerContent className="sm:w-[800px]! sm:max-w-none! bg-card overflow-y-auto overflow-x-hidden">
+      <DrawerContent className="sm:w-full! xl:w-4/5! sm:max-w-none! bg-card overflow-y-auto overflow-x-hidden">
         <DrawerHeader className="border-b flex-col w-full gap-3 group-data-[vaul-drawer-direction=bottom]/drawer-content:text-left">
           <div className="flex flex-row w-full justify-between items-center">
             <DrawerTitle className="font-medium">
@@ -57,7 +64,7 @@ export default function AppointmentDrawer({
         </DrawerHeader>
 
         <div className="flex flex-col gap-4 p-4 w-full">
-          <div className="flex flex-col md:flex-row gap-6 md:items-center w-full">
+          <div className="flex md:flex-row gap-6 md:items-center w-full justify-between">
             <div className="flex items-center gap-4">
               <Avatar className="size-10 md:size-14 cursor-pointer border uppercase">
                 <AvatarFallback>
@@ -80,6 +87,16 @@ export default function AppointmentDrawer({
                 </p>
               </div>
             </div>
+
+            <AddTreatmentPlan
+              trigger={
+                <Button>
+                  <CalendarPlusIcon className="size-4" />
+                  Add Treatment Plan
+                </Button>
+              }
+              patientId={appointmentData?.patient?.id}
+            />
 
             {/*<ArrowLeftRightIcon className="ml-4 text-muted-foreground" />*/}
 
@@ -172,6 +189,8 @@ export default function AppointmentDrawer({
               )}
 
               <PatientAppointments id={appointmentData?.patient?.id} />
+
+              <TreatmentPlans patientId={appointmentData?.patient?.id} />
             </TabsContent>
 
             <TabsContent

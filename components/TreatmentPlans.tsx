@@ -130,10 +130,12 @@ export default function TreatmentPlans({ patientId }: { patientId: string }) {
       },
     },
     {
-      accessorKey: "treatment_plan_items",
+      id: "treatments",
+      accessorFn: (row) =>
+        row.treatment_plan_items?.map((item: any) => item?.t?.name).join(" "),
       header: "Treatments",
       cell: ({ row }) => {
-        const r = row?.getValue("treatment_plan_items") || [];
+        const r = row?.original?.treatment_plan_items || [];
 
         return (
           <div>
